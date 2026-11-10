@@ -25,3 +25,12 @@ nul
 
 # Referencias bibliograficas (NO versionadas)
 DOCUMENTOS/
+
+# Excepciones: documentacion de trabajo de la tesis (SI versionada)
+!SIMULACION.md
+!SIMULACION_ARCHIVO.md
+!FIGURAS.md
+!INFORME_REVISION_GLOBAL.md
+!INFORME_REVISION_MATEMATICA.md
+!INFORME_REVISION_SIMULACION.md
+!figuras_conceptuales.py
