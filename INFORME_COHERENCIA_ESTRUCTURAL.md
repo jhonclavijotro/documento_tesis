@@ -87,27 +87,30 @@ El mapa describía las familias 2 y 3 como «declaradas con su escenario y su cr
 
 *Aplicado:*
 1. **Ocho etiquetas de sección** (`sec:problema` … `sec:resultados`), una por sección numerada.
-2. **Tres remisiones convertidas** a `ef`: `ANTECEDENTES` remite a `sec:implementacion`, y `IMPLEMENTACION` a `sec:teoria` y a `sec:resultados` (dos veces).
+2. **Tres remisiones convertidas** a `
+ef`: `ANTECEDENTES` remite a `sec:implementacion`, y `IMPLEMENTACION` a `sec:teoria` y a `sec:resultados` (dos veces).
 3. **Trece actividades etiquetadas** en `DISENO` mediante una macro local `ct{3.3}`, que imprime el identificador y deja la etiqueta `act:3.3` con ese mismo texto: así la referencia no depende de la numeración de la lista y sobrevive a cualquier renumeración.
-4. Las **nueve citas de actividad** del capítulo de resultados pasan a `ef{act:…}`.
+4. Las **nueve citas de actividad** del capítulo de resultados pasan a `
+ef{act:…}`.
 
 *Verificado en el PDF:* `sección 5`, `sección 7` y `capítulo 8` se imprimen resueltos; las actividades se leen como 1.1, 1.2, 1.3, 3.1, 3.2, 3.3, 4.1, 4.2 y 4.3; los trece rótulos «Actividad X.Y:» siguen intactos; sin `??` y sin avisos de etiquetas duplicadas. 79 páginas · 754 215 B.
 
-*Incidencia durante la edición:* el ejecutor de comandos colapsó las barras invertidas de tres `ef` y las convirtió en retornos de carro; se detectó con un volcado `repr` y se repararon antes de compilar. Regla adoptada: los cambios con barras invertidas se escriben en un archivo `.py` y no por entrada estándar.
+*Incidencia durante la edición:* el ejecutor de comandos colapsó las barras invertidas de tres `
+ef` y las convirtió en retornos de carro; se detectó con un volcado `repr` y se repararon antes de compilar. Regla adoptada: los cambios con barras invertidas se escriben en un archivo `.py` y no por entrada estándar.
 
-### H14 · [Bajo] Código muerto en el planteamiento del problema
+### H14 · [Bajo] Tres encabezados comentados despojaban al capítulo 1 de su estructura — **CORREGIDO (2026-11-08)**
 
-`PROBLEMA.tex:10` conserva comentada la subsección `% El Conflicto Metodológico: La Pérdida del Anclaje Físico`. El contenido no se perdió —está desarrollado en prosa en las líneas siguientes—, pero la fuente arrastra una línea desactivada.
+No era una línea muerta: eran **tres `\subsection` comentados** que organizaban todo el planteamiento del problema, mientras el texto seguía desarrollando exactamente esos tres bloques en ese orden. Consecuencias verificadas:
 
-### H15 · [Medio] «Consenso No Lineal en Tiempo Fijo» — redundante como nombre de la categoría (observación del autor)
+- El capítulo 1 aparecía en el índice con **un solo apartado** («Pregunta de Investigación») tras tres páginas de prosa continua (pp. 11–13), frente a 2–6 apartados en las demás secciones.
+- La introducción (`INTRODUCCION.tex:16`) anunciaba los tres movimientos del capítulo —crisis de inercia, conflicto metodológico, pregunta—, de modo que el índice contradecía la descripción del propio autor.
+- El concepto que define la tesis, la pérdida del anclaje físico, circulaba en el cuerpo sin apartado donde buscarlo.
 
-El calificativo no es falso —la convergencia en tiempo fijo exige términos correctores no lineales, porque ninguna ley lineal sobre el grafo acota el tiempo de establecimiento con independencia de las condiciones iniciales— pero **no discrimina**: no existe un «consenso en tiempo fijo lineal» frente al cual distinguirse. Además `TEORIA.tex:138` define la taxonomía real (asintótico, FTS, FxTS) y nunca define «consenso no lineal», y el capítulo 8 llama al esquema «consenso en tiempo fijo (FxTS)».
+*Aplicado:* reactivados los tres encabezados y armonizado el término inglés con el que usa el cuerpo: `(\textit{No Physical Grounding})`, igual que el ítem b) de la enumeración, en lugar de `(\textit{Physical Grounding})`, que invertía el sentido del argumento.
 
-*Aplicado:* la denominación pasa a **«consenso en tiempo fijo (FxTS)»** en los seis lugares donde funcionaba como nombre propio —`INTRODUCCION:12`, `JUSTIFICACION:6`, `OBJETIVOS:4`, `OBJETIVOS:8`, `PROBLEMA:34` y `IMPLEMENTACION:3`—, y la no linealidad se declara **una sola vez, como propiedad**, en la introducción: «cuya ley incorpora términos correctores no lineales que garantizan una cota de establecimiento independiente de las condiciones iniciales».
+*Verificado en el PDF:* el índice del capítulo 1 muestra **1.1 Contexto de la Transición Energética y Vulnerabilidad Física**, **1.2 El Conflicto Metodológico: La Pérdida del Anclaje Físico (No Physical Grounding)**, **1.3 No Linealidad Inducida, Heterogeneidad Temporal y Degradación Ciber-Física** y **1.4 Pregunta de Investigación**; ninguna línea comentada queda en la fuente. 79 páginas · 756 311 B · sin `??`.
 
-*Verificado en el PDF:* `consenso no lineal` → **0** ocurrencias; `consenso en tiempo fijo (FxTS)` → 5; `términos correctores no lineales` → 1.
 
-**Pendiente declarado:** la citación `\citep{Gomes2022FMI30, Liu2025Multirate}` sigue al final de una oración cuyo último sintagma es el despliegue en hardware (Raspberry Pi 5 + Docker), que ninguna de las dos respalda. Ambas sostienen la co-simulación multitasa. Reposicionarlas junto a ese sintagma y apoyar el despliegue en `Mehmood2021` quedó sin aplicar por decisión del autor.
 ---
 
 ## 3. Orden de intervención propuesto
@@ -118,6 +121,6 @@ El calificativo no es falso —la convergencia en tiempo fijo exige términos co
 | 2 | H8 · conclusiones y trabajo futuro | subsección de cierre | ✅ hecho — pendiente declarado, sin sección 9 |
 | 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | ✅ hecho |
 | 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | ✅ hecho — las 13 actividades vuelven a estar enlazadas |
-| 5 | H12 + H13 + H14 | mecánico | H12 y H13 hechos; H14 pendiente |
+| 5 | H12 + H13 + H14 | mecánico | los tres cerrados |
 
 Ninguno de los ocho hallazgos exige tocar el preámbulo ni las cifras del capítulo 8.

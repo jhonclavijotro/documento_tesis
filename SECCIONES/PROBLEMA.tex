@@ -1,14 +1,14 @@
 \section{PLANTEAMIENTO DEL PROBLEMA}
 \label{sec:problema}
 
-%\subsection{Contexto de la Transición Energética y Vulnerabilidad Física}
+\subsection{Contexto de la Transición Energética y Vulnerabilidad Física}
 Históricamente, los sistemas eléctricos de potencia han operado bajo el paradigma de grandes masas inerciales provistas por generadores síncronos convencionales, las cuales proporcionan una amortiguación electromecánica natural que sostiene el balance instantáneo entre la generación y la demanda. Sin embargo, la transición global hacia matrices energéticas descarbonizadas ha propiciado una integración masiva de Fuentes No Convencionales de Energía Renovable (FNCER), tales como sistemas fotovoltaicos, aerogeneradores y unidades de almacenamiento en baterías (BESS), cuya interfaz de conexión a la red se realiza exclusivamente mediante convertidores electrónicos de potencia \citep{Verma2024}.
 
 Esta transformación estructural altera radicalmente la estabilidad del sistema. A diferencia de las máquinas rotativas, los convertidores estáticos carecen de inercia mecánica rotacional intrínseca, lo que reduce la inercia equivalente de la microrred a niveles críticos \citep{Mehrzad2025}. En consecuencia, la tasa de cambio de la frecuencia (\textit{Rate of Change of Frequency}, RoCoF) ante perturbaciones bruscas o desbalances de carga se incrementa, comprometiendo la estabilidad operativa de la microrred, especialmente durante la operación en modo isla. Por otro lado, las redes de distribución de baja y media tensión presentan una elevada relación resistiva-inductiva ($R/X$), lo cual induce un acoplamiento cruzado no lineal entre las potencias activa y reactiva ($P-Q$) con el ángulo y la magnitud de tensión ($V-\theta$), agravando las caídas de voltaje a lo largo de los alimentadores \citep{Sowa2023, Pompodakis2022Sensitivity}.
 
 Para mitigar estas fluctuaciones, las microrredes modernas adoptan una estructura de control jerárquico. En el nivel primario, el control por caída (\textit{droop control}) permite la repartición autónoma de potencia entre inversores de acoplamiento sin requerir enlaces de comunicación dedicados \citep{Jasim2023}. No obstante, el control primario introduce desviaciones inevitables en estado estacionario tanto en la frecuencia como en la magnitud de tensión respecto a sus consignas nominales. Aunque las arquitecturas centralizadas han sido implementadas convencionalmente para la restauración secundaria, presentan limitaciones operativas determinantes en redes descentralizadas: dependencia de una unidad central de procesamiento, vulnerabilidad crítica ante puntos únicos de falla (\textit{Single Point of Failure}, SPoF), falta de escalabilidad y cuellos de botella telemétricos.
 
-%\subsection{El Conflicto Metodológico: La Pérdida del Anclaje Físico (\textit{Physical Grounding})}
+\subsection{El Conflicto Metodológico: La Pérdida del Anclaje Físico (\textit{No Physical Grounding})}
 Con el propósito de superar las restricciones del control centralizado, la literatura reciente ha estudiado la implementación de esquemas de control secundario distribuido basados en Sistemas Multiagente (MAS) y algoritmos de consenso sobre grafos de comunicación \citep{Mamun2026, Altin2023MultiAgent}. En estos esquemas, cada recurso energético distribuido (DER) es gobernado por un agente autónomo que intercambia información exclusivamente con sus nodos vecinos directos, convergiendo colectivamente hacia el valor nominal de frecuencia y tensión.
 
 Sin embargo, el análisis del estado del arte revela una brecha metodológica y científica en la forma en que se evalúan estos sistemas de control distribuido:
@@ -19,7 +19,7 @@ Sin embargo, el análisis del estado del arte revela una brecha metodológica y 
 
 Esta desconexión metodológica al formular algoritmos de consenso asumiendo una planta eléctrica idealizada, ignora las dinámicas de los convertidores y las caídas de tensión de red. Como consecuencia, protocolos que demuestran convergencia analítica perfecta en simulaciones abstractas pueden inducir corrientes de circulación destructivas, saturación de lazos de corriente y el colapso de voltaje al ser transferidos a una microrred física real.
 
-%\subsection{No Linealidad Inducida, Heterogeneidad Temporal y Degradación Ciber-Física}
+\subsection{No Linealidad Inducida, Heterogeneidad Temporal y Degradación Ciber-Física}
 La interacción entre la capa cibernética (consenso distribuido) y la capa física (circuito de potencia) introduce dinámicas que invalidan las aproximaciones lineales clásicas:
 \begin{itemize}
     \item \textbf{No linealidad inducida por la planta:} Aunque un protocolo de consenso distribuido se formule como un sistema lineal sobre el grafo de comunicación, el acoplamiento en bucle cerrado con convertidores electrónicos gobernados por lazos internos de corriente y restricciones de saturación convierte la dinámica global en un sistema estrictamente no lineal \citep{Sowa2023, Shrivastava2023FiniteTime}.
