@@ -276,25 +276,25 @@ Entre $240$ y $300\text{ s}$ el sistema operó en sobrecarga. La frecuencia se e
 
 La deducción de esta condición operativa se desarrolla a continuación. La potencia generada real resultó de descontar a la demanda el intercambio neto con la red:
 
-\begin{equation}\label{eq:res_pgen}
+\begin{equation}
 P_{\text{gen}} = P_{\text{dem}} - P_{\text{net}} = 12.594 - 1.980 = 10.614\ \text{kW}
 \end{equation}
 
 Esa potencia se repartió entre los tres recursos del banco. El nodo solar aportó $0.535\text{ kW}$ con una irradiancia cercana a $325.6\text{ W/m}^2$, el BESS entregó $1.500\text{ kW}$, valor que corresponde a su límite continuo, y el diésel asumió el resto con $8.579\text{ kW}$ eléctricos:
 
-\begin{equation}\label{eq:res_diesel_shaft}
+\begin{equation}
 P_{\text{eje}} = \frac{8.579}{0.95} = 9.03\ \text{kW}
 \end{equation}
 
 donde $0.95$ es el rendimiento adoptado para el conjunto generador. La capacidad firme a $60.0\text{ Hz}$ se obtiene sumando la capacidad del diésel, la del BESS y el aporte solar disponible:
 
-\begin{equation}\label{eq:res_firm}
+\begin{equation}
 P_{\text{firme}} = 9.500 + 1.500 + 0.535 = 11.535\ \text{kW}
 \end{equation}
 
 de modo que el déficit de capacidad frente a la demanda de la fase resulta:
 
-\begin{equation}\label{eq:res_deficit}
+\begin{equation}
 \Delta P = P_{\text{dem}} - P_{\text{firme}} = 12.594 - 11.535 = -1.059\ \text{kW}
 \end{equation}
 
@@ -308,7 +308,7 @@ La predicción de $59.010\text{ Hz}$ corresponde al valor de régimen permanente
 
 El respaldo proporcional del diésel se verificó sobre el estatismo de \eqref{eq:droop_w}. Con una desviación de frecuencia de $6.023\text{ rad/s}$ respecto de la referencia y la ganancia $\kappa_{p,\omega} = 250.0\ \text{W/(rad/s)}$ declarada en \eqref{eq:rest_local}, la potencia adicional entregada por el gobernador resulta:
 
-\begin{equation}\label{eq:res_droop_backup}
+\begin{equation}
 P_{\text{res}} = 250.0 \times 6.023 = 1505.7\ \text{W}
 \end{equation}
 
@@ -406,7 +406,7 @@ Los hallazgos que se desprenden del cruce son los siguientes:
     \item El esquema de consenso en tiempo fijo aprobó los ocho criterios del benchmark con CFL de $0.84$ y $\tau_{crit}$ de $96.3\text{ ms}$, y fue el único, junto con el FTS publicado, en hacerlo sin ceder reparto ni margen numérico.
     \item El FxTS asentó en $13.00\text{ s}$, un factor de $4.04$ por debajo de la cota de Lyapunov de $52.54\text{ s}$ y $1.65$ veces más rápido que el FTS publicado, lo que confirma que la cota es un peor caso global y no una predicción de operación.
     \item El reparto proporcional se sostuvo en ambos niveles: dispersión nula de los índices en T1 y ratio de $30.74$ por ciento idéntico en los tres inversores del banco, desde $t = 10.5\text{ s}$ hasta el final del ensayo.
-    \item La caída a $59.0414\text{ Hz}$ en la fase de sobrecarga se explica por un déficit de capacidad de $1.059\text{ kW}$ y no por una falla del lazo, y la predicción de la ecuación de oscilación, $59.010\text{ Hz}$, reprodujo el fenómeno dentro del error atribuible al filtrado de medición.
+    \item La caída a $59.0414\text{ Hz}$ en la fase de sobrecarga se explica por un déficit de capacidad de $1.059\text{ kW}$ y no por una falla del lazo, y la predicción de la ecuación de oscilación \eqref{eq:res_swing_pred}, $59.010\text{ Hz}$, reprodujo el fenómeno dentro del error atribuible al filtrado de medición.
     \item La tensión nodal permaneció entre $0.99965$ y $1.00462\text{ p.u.}$ en las ocho barras, dentro de las tolerancias de IEEE 1547 y NTC 1340, sin que la sobrecarga activa comprometiera el perfil de magnitud.
     \item El retenedor de frontera no mejora el acoplamiento en este banco: el ZOH resultó el más preciso y el FOH multiplicó por $5.12$ su error RMS, de modo que la extrapolación se descarta como opción por defecto en la arquitectura de co-simulación.
 \end{itemize}

@@ -31,13 +31,13 @@ El control de corriente de los inversores de acoplamiento (\textit{Voltage Sourc
 
 Las ecuaciones dinámicas del circuito de acoplamiento $RL$ a la salida del inversor en coordenadas $dq$ están dadas por:
 \begin{align}
-L_f \frac{di_d}{dt} &= v_{i,d} - v_{g,d} - R_f i_d + \omega L_f i_q \label{eq:id_dyn} \\
-L_f \frac{di_q}{dt} &= v_{i,q} - v_{g,q} - R_f i_q - \omega L_f i_d \label{eq:iq_dyn}
+L_f \frac{di_d}{dt} &= v_{i,d} - v_{g,d} - R_f i_d + \omega L_f i_q  \\
+L_f \frac{di_q}{dt} &= v_{i,q} - v_{g,q} - R_f i_q - \omega L_f i_d 
 \end{align}
 donde $L_f, R_f$ son la inductancia y resistencia del filtro, $v_{i,dq}$ son las tensiones generadas por el puente inversor, $v_{g,dq}$ son las tensiones en el punto de conexión y los términos $\pm \omega L_f i_{q,d}$ representan los desacoplamientos cruzados compensados por los lazos de control PI.
 
 Para sincronizar el ángulo de orientación del marco síncrono $\hat{\theta}(t)$ con la tensión del bus, se implementa un SRF-PLL (\textit{Synchronous Reference Frame Phase-Locked Loop}). El PLL orienta el eje $d$ alineándolo con el vector espacial de tensión forzando la componente en cuadratura a cero ($V_q \to 0$). La función de transferencia en lazo cerrado para pequeñas variaciones de ángulo $\Delta\theta$ es \citep{Kundu2024ICCFPLL}:
-\begin{equation}\label{eq:pll_tf}
+\begin{equation}
 H_{cl}(s) = \frac{\Delta \hat{\theta}(s)}{\Delta \theta_{\text{red}}(s)} = \frac{V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}}{s^2 + V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}} = \frac{2\zeta\omega_n s + \omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}
 \end{equation}
 
@@ -64,25 +64,25 @@ x_{\text{int}}(k+1) &= x_{\text{int}}(k) + K_{i,\text{pll}} T_s V_q(k) \\
 El banco de recursos heterogéneos modelado en la plataforma comprende cinco tecnologías:
 \begin{enumerate}[a)]
     \item \textbf{Generación Solar Fotovoltaica:} Modelada mediante la ecuación característica del diodo único acoplada a la dinámica del capacitor del bus DC ($C_{dc}$):
-    \begin{equation}\label{eq:pv_dc_bus}
+    \begin{equation}
     C_{dc} V_{dc} \frac{dV_{dc}}{dt} = P_{pv}(G, T) - P_{inv}
     \end{equation}
     donde $P_{pv}$ es la potencia generada por el arreglo fotovoltaico como función de la irradiancia solar $G$ y temperatura de celda $T$, $V_{dc}$ es la tensión del enlace de corriente continua y $P_{inv}$ es la potencia transferida hacia el inversor de acoplamiento AC.
     
     \item \textbf{Sistema de Almacenamiento BESS:} Caracterizado por el modelo equivalente Thevenin electroquímico y la integración continua del Estado de Carga (SoC):
-    \begin{equation}\label{eq:bess_soc}
+    \begin{equation}
     \text{SoC}(t) = \text{SoC}(0) - \frac{1}{Q_{\text{nom}}} \int_0^t \eta_b i_{\text{bat}}(\tau) d\tau
     \end{equation}
     donde $\text{SoC}(t) \in [0, 1]$ representa el estado de carga fraccional instantáneo, $\text{SoC}(0)$ es la condición inicial de carga, $Q_{\text{nom}}$ es la capacidad de carga nominal del banco de baterías (expresada en $\text{A}\cdot\text{s}$ o Coulombs), $i_{\text{bat}}(\tau)$ es la corriente instantánea de la batería (definida como positiva en régimen de descarga y negativa en régimen de carga), y $\eta_b$ es el coeficiente de eficiencia coulombimétrica del proceso electroquímico ($\eta_b = 1.0$ durante descarga y $\eta_b \approx 0.95$ durante recarga). El sistema opera confinado dentro de la banda de seguridad admisible:
-    \begin{equation}\label{eq:bess_limits}
+    \begin{equation}
     \text{SoC}^{\min} \le \text{SoC}(t) \le \text{SoC}^{\max}
     \end{equation}
     
     \item \textbf{Generador Eólico PMSG:} La potencia mecánica aerodinámica $P_m$ capturada por las palas de la turbina y el par mecánico resultante $T_m$ se modelan de forma desacoplada mediante las siguientes ecuaciones:
-    \begin{equation}\label{eq:wind_power}
+    \begin{equation}
     P_m = \frac{1}{2} \rho \pi R^2 v_w^3 C_p(\lambda, \beta)
     \end{equation}
-    \begin{equation}\label{eq:wind_torque}
+    \begin{equation}
     T_m = \frac{P_m}{\omega_r} = \frac{1}{2} \rho \pi R^2 v_w^3 \frac{C_p(\lambda, \beta)}{\omega_r}
     \end{equation}
     donde $\rho$ es la densidad del aire ($\text{kg/m}^3$), $R$ es el radio del rotor eólico ($\text{m}$), $v_w$ es la velocidad del viento incidente ($\text{m/s}$), $\omega_r$ es la velocidad mecánica angular de la turbina ($\text{rad/s}$), y $C_p(\lambda, \beta)$ es el coeficiente de rendimiento aerodinámico, el cual depende de la relación de velocidad de punta de pala $\lambda = \frac{\omega_r R}{v_w}$ y del ángulo de paso de las palas $\beta$. La dinámica electromecánica del conjunto turbina-generador síncrono de imanes permanentes (PMSG) está gobernada por:
@@ -101,7 +101,7 @@ El banco de recursos heterogéneos modelado en la plataforma comprende cinco tec
 \end{enumerate}
 
 Todos los convertidores operan bajo restricciones estrictas de capacidad aparente máxima impuestas por el círculo de corriente:
-\begin{equation}\label{eq:inverter_limit}
+\begin{equation}
 P_i(t)^2 + Q_i(t)^2 \le S_{\max, i}^2 = \left( V_i I_{\max, i} \right)^2
 \end{equation}
 
@@ -123,7 +123,7 @@ Para resolver \eqref{eq:p_flow_nl} y \eqref{eq:q_flow_nl} en la escala macroscó
     \end{itemize}
     
     \item \textbf{Formulación por Matrices de Sensibilidad de Red:} Para análisis de pequeñas variaciones alrededor del punto de equilibrio operativo $x_0 = (V_0, \theta_0)$, se linealiza el sistema mediante matrices Jacobianas reducidas:
-    \begin{equation}\label{eq:sensitivity_mat}
+    \begin{equation}
     \begin{bmatrix} \Delta |V| \\ \Delta f \end{bmatrix} \approx \begin{bmatrix} \mathbf{S}_{VP} & \mathbf{S}_{VQ} \\ \mathbf{S}_{fP} & \mathbf{S}_{fQ} \end{bmatrix} \begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix}
     \end{equation}
     donde $\mathbf{S}_{VP} = \frac{\partial |V|}{\partial P}$ y $\mathbf{S}_{VQ} = \frac{\partial |V|}{\partial Q}$ representan las matrices de sensibilidad de tensión, mientras que $\mathbf{S}_{fP} = \frac{\partial f}{\partial P}$ y $\mathbf{S}_{fQ} = \frac{\partial f}{\partial Q}$ capturan la sensibilidad de la frecuencia del sistema ante variaciones en la inyección de potencia activa y reactiva. En redes de distribución con elevada relación $R/X$, las submatrices cruzadas $\mathbf{S}_{VP}$ y $\mathbf{S}_{fQ}$ son significativamente no nulas, reflejando el acoplamiento intrínseco entre las potencias activa y reactiva con la tensión y la frecuencia \citep{Pompodakis2022Sensitivity, Wang2022DataDriven}.
@@ -143,7 +143,7 @@ La infraestructura de comunicación entre los agentes de control se modela como 
 
 
 La matriz de grados diagonal $\mathcal{D} = \text{diag}(d_i)$ contiene el grado nodal $d_i = \sum_{j \in \mathcal{N}_i} a_{ij}$, donde $\mathcal{N}_i = \{j \in \mathcal{V} : (j, i) \in \mathcal{E}\}$ define el conjunto de vecinos del agente $i$. La matriz Laplaciana del grafo se define como:
-\begin{equation}\label{eq:laplacian}
+\begin{equation}
 \mathcal{L} = \mathcal{D} - \mathcal{A}
 \end{equation}
 
@@ -160,7 +160,7 @@ u_i(t) = &c_1 \left( \sum_{j \in \mathcal{N}_i} a_{ij} \text{sig}^\alpha(x_j(t) 
 \end{split}
 \end{equation}
 donde $x_i(t)$ representa la variable de estado local del agente $i$, $x_j(t)$ es el estado reportado por el vecino $j \in \mathcal{N}_i$, $x_0$ denota la consigna o referencia nominal dictada por el nodo líder (frecuencia $\omega^*$ o tensión $V^*$), $a_{ij}$ es el peso de comunicación proveniente de la matriz de adyacencia $\mathcal{A}$, $b_i \ge 0$ es la ganancia de anclaje (\textit{pinning gain}) de acceso directo al líder, $c_1, c_2 > 0$ son las ganancias de aceleración del consenso, los exponentes fraccionarios satisfacen $0 < \alpha < 1$ y $\beta > 1$, y el operador no lineal $\text{sig}^p(z)$ se define como:
-\begin{equation}\label{eq:sig_op}
+\begin{equation}
 \text{sig}^p(z) = \text{sign}(z) |z|^p
 \end{equation}
 
@@ -187,7 +187,7 @@ V(e) = \frac{1}{2} e^T \mathcal{H} e
 \end{equation}
 
 Derivando \eqref{eq:lyapunov} respecto al tiempo y aplicando la desigualdad de Jensen sobre el grafo no dirigido conexo, la derivada satisface:
-\begin{equation}\label{eq:lyapunov_dot}
+\begin{equation}
 \dot{V}(e) \le -c_1 2^{\frac{\alpha+1}{2}} \lambda_2(\mathcal{L})^{\frac{\alpha+1}{2}} V(e)^{\frac{\alpha+1}{2}} - c_2 2^{\frac{\beta+1}{2}} \lambda_2(\mathcal{L})^{\frac{\beta+1}{2}} V(e)^{\frac{\beta+1}{2}}
 \end{equation}
 donde $\lambda_2(\mathcal{L}) > 0$ es la conectividad algebraica (autovalor de Fiedler) de la matriz Laplaciana del grafo de comunicación.
@@ -221,8 +221,8 @@ donde $\lambda_{\max}(\mathcal{H})$ es el mayor autovalor de $\mathcal{H}$ y $g_
 
 Adicionalmente, para anular el error en estado estacionario de los lazos de tensión y frecuencia en topologías no completas, los incrementos $u_{V,i}$ y $u_{\omega,i}$ se incorporan mediante una acción integral con saturación anti-windup:
 \begin{align}
-\delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]} \left( \delta V_i(k) + \Delta t \cdot u_{V,i}(k) \right) \label{eq:integral_V} \\
-\delta \omega_i(k+1) &= \text{sat}_{[-\pi, +\pi]} \left( \delta \omega_i(k) + \Delta t \cdot u_{\omega,i}(k) \right) \label{eq:integral_omega}
+\delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]} \left( \delta V_i(k) + \Delta t \cdot u_{V,i}(k) \right)  \\
+\delta \omega_i(k+1) &= \text{sat}_{[-\pi, +\pi]} \left( \delta \omega_i(k) + \Delta t \cdot u_{\omega,i}(k) \right) 
 \end{align}
 cerrando el lazo restaurativo directamente hacia las referencias de excitación del inversor y de velocidad angular del gobernador primario.
 
@@ -269,7 +269,7 @@ con $\varepsilon = 0.02$, correspondiente a una banda de tolerancia del $2\%$ so
 
 \textbf{Nadir de frecuencia.} Ante una perturbación, la frecuencia desciende hasta un mínimo antes de recuperarse, y ese valor extremo condiciona la activación de las protecciones de subfrecuencia:
 
-\begin{equation}\label{eq:fnadir}
+\begin{equation}
 f_{\text{nadir}} = \min_{t \in [t_0, t_f]} f(t)
 \end{equation}
 
