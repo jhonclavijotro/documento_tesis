@@ -42,11 +42,52 @@
 | `Gomes2022FMI30` | Estándar FMI 3.0 para co-simulación acoplada | **PERTINENTE** |
 | `Verma2024` | Restauración de redes de muy alta tensión | **DUDOSA / probablemente NO PERTINENTE**: se le atribuye la interfaz exclusiva por convertidores de PV, eólica y BESS |
 
+## Reparación de las cuatro citas señaladas (2026-11-08)
+
+Se revisó qué demuestra cada fuente —título y resumen en OpenAlex/CrossRef— y se reparó por reposición, no por sustitución a ciegas: la cita se mueve al sintagma que sí respalda, o se cambia por una entrada del propio `.bib` que lo respalda.
+
+### `Verma2024` — retirada
+
+*Restoration of extra-high voltage power grids through synchronous and asynchronous hydro units during blackout* (EPSR, 2023). Es un artículo de restauración de redes de muy alta tensión con unidades hidroeléctricas; no trata microrredes con FNCER, ni la interfaz por convertidores, ni la dinámica EMT, ni el RoCoF. Estaba citada en **cuatro** lugares y ninguno era pertinente:
+
+| Sección | Frase | Ahora |
+|---|---|---|
+| Introducción | microrredes con FNCER en modo conectado o isla | `Mamun2026, Altin2023MultiAgent` |
+| Problema | PV, eólica y BESS se interfazan solo por convertidores | `Mehrzad2025` |
+| Antecedentes | transitorios EMT y lazos `dq` | `Mehrzad2025, Liu2025Multirate` |
+| Marco teórico | RoCoF crítico ante $H \to 0$ | `Mehrzad2025` |
+
+La entrada se retiró del `.bib`: el documento pasa de 52 a **51 referencias**, todas citadas.
+
+### `TaverasCruz2025` — conservada solo donde sostiene
+
+*Adaptive protection based on MAS for AC microgrids: A review* (Applied Energy, 2024). Su resumen ofrece autonomía, tolerancia a fallos y robustez frente a fallas y topologías cambiantes. No establece los límites del control centralizado ni la redundancia de SCADA ni las métricas de desempeño.
+
+| Sección | Frase | Ahora |
+|---|---|---|
+| Introducción | punto único de falla, escalabilidad, cuellos de botella | `Khayat2020, Altin2023MultiAgent` — la revisión de arquitecturas de control secundario es exactamente la fuente de esa comparación |
+| Justificación | SCADA con fibra óptica redundante | `Khayat2020` |
+| Diseño | lista de métricas | `Barzegari2022Resilient` |
+| Problema | evaluación de resiliencia | `Barzegari2022Resilient` |
+| Antecedentes | aislar enlaces antes del colapso del consenso | **se conserva**: es lo que la revisión de protección adaptativa sostiene |
+
+### `Muszynski2026EnergyTwin` — conservada y matizada
+
+*EnergyTwin: A Multi-agent System for Simulating and Coordinating Energy Microgrids* (LNCS, 2026). Es un caso de marco multiagente para coordinar microrredes; no es el diagnóstico de la brecha entre simuladores y marcos MAS, y no hay resumen público que permita atribuirle una simplificación concreta del circuito.
+
+- **Antecedentes**: se conserva sin cambios — allí ilustra que un simulador de transitorios interactúa con un entorno de agentes, que es su contenido.
+- **Introducción y Problema**: la frase pasa de afirmar a describir una tendencia (`tienden a resolver el circuito con balances algebraicos`, `aproximaciones lineales`) y se acompaña de `Khanna2025`, que es otro marco multiagente sin modelo eléctrico.
+- **Justificación**: se retira y queda `Altin2023MultiAgent`, que sí es la revisión del estado del arte de MAS en microrredes.
+
+### Verificación
+
+`latexmk -C` + `latexmk -pdf`: **79 páginas · 756 084 B · `b93fcc12…`**, 0 errores, 0 citas indefinidas, 0 avisos de BibTeX, sin `??`. Auditoría de referencias: 51 citadas / 51 entradas, ninguna huérfana en ningún sentido. En el PDF, `Verma` da **0** apariciones.
+
 ## Conclusión del lote 1
 
 - **1 no pertinente confirmada** (H16, frase de MQTT), con las tres fuentes ajenas al tema.
-- **1 probable no pertinente repetida en dos secciones** (`Verma2024`: el título no corresponde a la afirmación).
-- **3 atribuciones dudosas** que exigen leer el artículo antes de mantenerlas (`TaverasCruz2025`, `Muszynski2026EnergyTwin` ×2).
+- **1 no pertinente en cuatro secciones** (`Verma2024`) — **reparada y retirada del `.bib`**.
+- **3 atribuciones dudosas** (`TaverasCruz2025`, `Muszynski2026EnergyTwin` ×2) — **reparadas**.
 - **8 citas parciales**: sostienen una parte de la frase pero no el conjunto. No son errores graves —la frase queda apoyada a medias—, pero conviene repartir la cita al sintagma que sí respaldan, como se hizo con Gomes y Liu.
 
 **Pendiente:** lotes 2 a 4 — Antecedentes (63 instancias), Marco teórico (33), Diseño e Implementación (32).

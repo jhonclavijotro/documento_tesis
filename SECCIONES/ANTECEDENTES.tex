@@ -56,7 +56,7 @@ El principal desafío en la co-simulación ciber-física radica en el \textit{de
 \subsection{Modelado de Dinámicas Heterogéneas y Sincronización de Recursos Distribuidos}
 La formulación de un banco de pruebas representativo exige incorporar la respuesta dinámica no lineal de los diversos recursos energéticos distribuidos (DER) que componen una microrred aislada:
 \begin{itemize}
-    \item \textbf{Recursos basados en inversores (IBRs):} Sistemas solares fotovoltaicos y bancos de baterías (BESS), caracterizados por una inercia física nula, dinámicas de transitorios electromagnéticos (EMT) ultrarrápidas y lazos de control en coordenadas síncronas $dq$ \citep{Mehrzad2025, Verma2024}.
+    \item \textbf{Recursos basados en inversores (IBRs):} Sistemas solares fotovoltaicos y bancos de baterías (BESS), caracterizados por una inercia física nula, dinámicas de transitorios electromagnéticos (EMT) ultrarrápidas y lazos de control en coordenadas síncronas $dq$ \citep{Mehrzad2025, Liu2025Multirate}.
     \item \textbf{Sistemas de sincronización de fase (SRF-PLL):} Implementación de lazos de enganche de fase robustos para garantizar la extracción instantánea de la frecuencia y el ángulo de red bajo condiciones de distorsión armónica o desbalance de carga \citep{Kundu2024ICCFPLL}.
     \item \textbf{Coordinación híbrida AC/DC y generación síncrona de respaldo:} Integración de generadores diésel gobernados que suministran inercia rotacional de base y actúan como nodo de referencia (\textit{slack}) durante la transición en isla, junto con convertidores de interconexión para la gestión óptima de flujos de potencia activa y reactiva \citep{Alam2024, MartinezGomez2025Distributed, Pompodakis2022Sensitivity, DiFazio2024Linear}.
 \end{itemize}
