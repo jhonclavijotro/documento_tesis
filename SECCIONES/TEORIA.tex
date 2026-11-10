@@ -37,7 +37,7 @@ L_f \frac{di_q}{dt} &= v_{i,q} - v_{g,q} - R_f i_q - \omega L_f i_d
 \end{align}
 donde $L_f, R_f$ son la inductancia y resistencia del filtro, $v_{i,dq}$ son las tensiones generadas por el puente inversor, $v_{g,dq}$ son las tensiones en el punto de conexión y los términos $\pm \omega L_f i_{q,d}$ representan los desacoplamientos cruzados compensados por los lazos de control PI.
 
-Para sincronizar el ángulo de orientación del marco síncrono $\hat{\theta}(t)$ con la tensión del bus, se implementa un SRF-PLL (\textit{Synchronous Reference Frame Phase-Locked Loop}). El PLL orienta el eje $d$ alineándolo con el vector espacial de tensión forzando la componente en cuadratura a cero ($V_q \to 0$). La función de transferencia en lazo cerrado para pequeñas variaciones de ángulo $\Delta\theta$ es \citep{Kundu2024ICCFPLL}:
+Para sincronizar el ángulo de orientación del marco síncrono $\hat{\theta}(t)$ con la tensión del bus, se implementa un SRF-PLL (\textit{Synchronous Reference Frame Phase-Locked Loop}). El PLL orienta el eje $d$ alineándolo con el vector espacial de tensión forzando la componente en cuadratura a cero ($V_q \to 0$). El modelo linealizado de estos lazos en sistemas con generación distribuida \citep{Kundu2024ICCFPLL} conduce a la función de transferencia en lazo cerrado para pequeñas variaciones de ángulo $\Delta\theta$:
 \begin{equation}
 H_{cl}(s) = \frac{\Delta \hat{\theta}(s)}{\Delta \theta_{\text{red}}(s)} = \frac{V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}}{s^2 + V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}} = \frac{2\zeta\omega_n s + \omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}
 \end{equation}
@@ -48,7 +48,7 @@ K_{p,\text{pll}} &= \frac{2\zeta\omega_n}{V_{\text{pico}}} = 2(1.0)(47.1239) \ap
 K_{i,\text{pll}} &= \frac{\omega_n^2}{V_{\text{pico}}} = (47.1239)^2 \approx 2220.66 \label{eq:ki_pll}
 \end{align}
 
-La selección de estos parámetros responde a un compromiso óptimo de diseño (\textit{trade-off}) para sistemas eléctricos de potencia a $60\text{ Hz}$ \citep{Kundu2024ICCFPLL}:
+La selección de estos parámetros responde a un compromiso de diseño propio entre velocidad de seguimiento y rechazo de perturbaciones: con $\zeta = 1$ no hay sobrepaso angular, la banda del $5\%$ se alcanza en $100\text{ ms}$ y la componente de doble frecuencia del marco $dq$ se atenúa $18.1\text{ dB}$:
 \begin{enumerate}[1.]
     \item \textbf{Rechazo de perturbaciones de doble frecuencia y armónicos:} En condiciones de desbalance o distorsión armónica en la red, aparecen oscilaciones a $2f_{\text{nom}} = 120\text{ Hz}$ en el marco síncrono $dq$ (inducidas por la componente de secuencia negativa). Al fijar $f_n = 7.5\text{ Hz} \ll 120\text{ Hz}$, el filtro pasobajas intrínseco del lazo cerrado proporciona una atenuación de $-18.1\text{ dB}$ (factor $0.125$ sobre la componente de secuencia negativa), suficiente para reducir su incidencia sin requerir filtros muesca adicionales.
     \item \textbf{Agilidad de respuesta y estabilidad numérica:} Proporciona un tiempo de establecimiento rápido $t_s \approx \frac{4.75}{\omega_n} \approx 100\text{ ms}$ (criterio de banda del $5\%$; con banda del $2\%$ serían $124\text{ ms}$), garantizando un seguimiento suave y robusto del ángulo fasorial ante fluctuaciones dinámicas sin amplificar el ruido numérico en la escala de micro-simulación ($h = 1.0\text{ ms}$).
@@ -98,7 +98,7 @@ El banco de recursos heterogéneos modelado en la plataforma comprende cinco tec
     \end{equation}
     donde $P_{\text{in}}$ es la potencia hidráulica teórica de entrada determinada por la apertura servogobernada de la compuerta, $P_h$ es la potencia mecánica entregada al eje de la turbina y $T_w$ es el tiempo característico de aceleración del flujo hidráulico.
     
-    \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad con constante de tiempo del actuador $T_{act}$ y constante de transporte del motor térmico $T_{eng}$ \citep{Alam2024}.
+    \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad con constante de tiempo del actuador $T_{act}$ y constante de transporte del motor térmico $T_{eng}$ \citep{Saadat2010}.
 \end{enumerate}
 
 Todos los convertidores operan bajo restricciones estrictas de capacidad aparente máxima impuestas por el círculo de corriente:
@@ -127,7 +127,7 @@ Para resolver \eqref{eq:p_flow_nl} y \eqref{eq:q_flow_nl} en la escala macroscó
     \begin{equation}
     \begin{bmatrix} \Delta |V| \\ \Delta f \end{bmatrix} \approx \begin{bmatrix} \mathbf{S}_{VP} & \mathbf{S}_{VQ} \\ \mathbf{S}_{fP} & \mathbf{S}_{fQ} \end{bmatrix} \begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix}
     \end{equation}
-    donde $\mathbf{S}_{VP} = \frac{\partial |V|}{\partial P}$ y $\mathbf{S}_{VQ} = \frac{\partial |V|}{\partial Q}$ representan las matrices de sensibilidad de tensión, mientras que $\mathbf{S}_{fP} = \frac{\partial f}{\partial P}$ y $\mathbf{S}_{fQ} = \frac{\partial f}{\partial Q}$ capturan la sensibilidad de la frecuencia del sistema ante variaciones en la inyección de potencia activa y reactiva. En redes de distribución con elevada relación $R/X$, las submatrices cruzadas $\mathbf{S}_{VP}$ y $\mathbf{S}_{fQ}$ son significativamente no nulas, reflejando el acoplamiento intrínseco entre las potencias activa y reactiva con la tensión y la frecuencia \citep{Pompodakis2022Sensitivity, Wang2022DataDriven}.
+    donde $\mathbf{S}_{VP} = \frac{\partial |V|}{\partial P}$ y $\mathbf{S}_{VQ} = \frac{\partial |V|}{\partial Q}$ representan las matrices de sensibilidad de tensión, mientras que $\mathbf{S}_{fP} = \frac{\partial f}{\partial P}$ y $\mathbf{S}_{fQ} = \frac{\partial f}{\partial Q}$ capturan la sensibilidad de la frecuencia del sistema ante variaciones en la inyección de potencia activa y reactiva. En redes de distribución con elevada relación $R/X$, las submatrices cruzadas $\mathbf{S}_{VP}$ y $\mathbf{S}_{fQ}$ son significativamente no nulas, reflejando el acoplamiento intrínseco entre las potencias activa y reactiva con la tensión y la frecuencia \citep{Pompodakis2022Sensitivity}.
 \end{enumerate}
 
 \subsection{Teoría de Grafos y Control Secundario por Consenso en Tiempo Fijo (FxTS)}
@@ -151,7 +151,7 @@ La matriz de grados diagonal $\mathcal{D} = \text{diag}(d_i)$ contiene el grado 
 Para el esquema de seguimiento de líder (\textit{leader-follower}), el nodo líder físico (nodo 1, generador diésel con consigna nominal $x_0$) se conecta a un subconjunto de seguidores mediante la matriz diagonal de acceso $\mathcal{B} = \text{diag}(b_i)$, con $b_i > 0$ si el agente $i$ recibe información directamente del líder y $b_i = 0$ en caso contrario. La matriz topológica aumentada del sistema se define como $\mathcal{H} = \mathcal{L} + \mathcal{B}$, la cual es simétrica y estrictamente definida positiva ($\mathcal{H} > 0$) si el grafo $\mathcal{G}$ es conexo y al menos un seguidor tiene acceso al líder ($b_i > 0$) \citep{Shrivastava2023FiniteTime}.
 
 \subsubsection{Protocolo de Consenso Restaurativo en Tiempo Fijo}
-Para garantizar la restitución de tensión y frecuencia, así como el reparto proporcional de potencia activa y reactiva de forma determinista y físicamente restaurativa, se implementan cuatro lazos de consenso independientes que aplican la misma ley de actualización bi-potencia sobre variables de estado distintas \citep{Jasim2023, Zhuang2025}. Cada lazo opera sobre el error restaurativo entre el agente local $i$ y sus vecinos topológicos $j \in \mathcal{N}_i$.
+Para garantizar la restitución de tensión y frecuencia, así como el reparto proporcional de potencia activa y reactiva de forma determinista y físicamente restaurativa, se implementan cuatro lazos de consenso independientes que aplican la misma ley de actualización bi-potencia sobre variables de estado distintas. Cada lazo opera sobre el error restaurativo entre el agente local $i$ y sus vecinos topológicos $j \in \mathcal{N}_i$.
 
 La ley de consenso genérica en tiempo fijo, aplicable a cualquier variable de estado $x_i(t)$, adopta la forma:
 \begin{equation}\label{eq:fixed_time_law}
@@ -247,7 +247,7 @@ Conviene precisar una diferencia que explica ese resultado: los esquemas con $\l
 Para combinar determinismo y realismo en la comunicación:
 \begin{enumerate}[a)]
     \item \textbf{Canal síncrono de paso de tiempo (ZeroMQ):} Emplea sockets REQ-REP y PUB-SUB configurados con temporizadores estrictos (`RCVTIMEO = 2000 ms`, `SNDTIMEO = 1000 ms`, `LINGER = 0`) para garantizar la sincronización lock-step entre el reloj maestro y los nodos de hardware sin bloqueos indefinidos.
-    \item \textbf{Canal asíncrono telemétrico (MQTT):} Utilizado para la inyección exógena de perturbaciones ambientales (perfiles de viento e irradiancia) y contingencias de red (latencias y pérdidas de paquetes), emulando condiciones operativas reales sobre el clúster embebido \citep{Gomes2022FMI30, Diaz2025}.
+    \item \textbf{Canal asíncrono telemétrico (MQTT):} Utilizado para la inyección exógena de perturbaciones ambientales (perfiles de viento e irradiancia) y contingencias de red (latencias y pérdidas de paquetes), emulando condiciones operativas reales sobre el clúster embebido \citep{Diaz2025}.
 \end{enumerate}
 
 \subsection{Métricas de Desempeño y Evaluación de Resiliencia}

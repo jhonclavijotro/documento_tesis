@@ -52,6 +52,40 @@ El artículo propone un **ICCF-PLL**, no el SRF-PLL clásico cuya función de tr
 
 ---
 
+## Verificación numérica previa a la reparación de T2 (2026-11-08)
+
+Antes de declarar la sintonización del PLL como derivación propia se recomputó todo con `verificar_pll.py`:
+
+| Magnitud | Valor recomputado | Lo que publica el capítulo |
+|---|---|---|
+| $\omega_n = 2\pi \cdot 7.5$ | $47.123890\ \text{rad/s}$ | $47.1239$ ✓ |
+| $K_p = 2\zeta\omega_n/V_{\text{pico}}$ | $94.24778$ | $94.25$ ✓ |
+| $K_i = \omega_n^2/V_{\text{pico}}$ | $2220.661$ | $2220.66$ ✓ |
+| Polos del lazo cerrado | $-47.12\ \text{rad/s}$, real doble | amortiguamiento crítico ✓ |
+| $t_s$ banda $5\%$ | $100.7\ \text{ms}$ | $\approx 100\ \text{ms}$ ✓ |
+| $t_s$ banda $2\%$ | $123.8\ \text{ms}$ | $124\ \text{ms}$ ✓ |
+| Atenuación a $120\ \text{Hz}$ | $-18.1\ \text{dB}$ (factor $0.125$) | $-18.1\ \text{dB}$, factor $0.125$ ✓ |
+| Margen de fase del lazo | $76.3^\circ$ a $15.44\ \text{Hz}$ | no declarado, coherente con $\zeta = 1$ |
+
+**Veredicto:** las ecuaciones y todos los valores entregados son correctos y mutuamente consistentes. El problema de T2 era **solo de atribución**, no de veracidad: el capítulo citaba a `Kundu2024ICCFPLL` una función de transferencia estándar y una sintonización que él mismo deriva dos ecuaciones antes.
+
+## Reparaciones aplicadas
+
+| ID | Cambio |
+|---|---|
+| T1 | Gobernador diésel: `Alam2024` → `Saadat2010`, que sí desarrolla el modelo turbina-gobernador |
+| T2a | `Kundu2024ICCFPLL` pasa a acompañar el contexto del PLL en generación distribuida; la ecuación queda como formulación estándar del lazo |
+| T2b | La frase del compromiso de diseño deja de citar a Kundu y declara el criterio propio, con las cifras ya verificadas ($100\ \text{ms}$, $18.1\ \text{dB}$) |
+| T3 | `Wang2022DataDriven` retirada de la frase de sensibilidades; al quedar huérfana se retiró del `.bib`: **50 entradas** |
+| P1 | «cuatro lazos» deja de atribuirse a `Jasim2023, Zhuang2025` |
+| P2 | Canal MQTT: queda solo `Diaz2025`; `Gomes2022FMI30` ya se cita antes |
+
+`Glover2017` como fuente del FBS se mantiene: es un texto de análisis de sistemas de potencia que cubre el flujo de carga en distribución, y retirarla dejaría huérfano un libro legítimo.
+
+### Verificación
+
+`latexmk -pdf`: **79 páginas · 755 004 B · `c11375ea…`**, 0 errores, 0 citas indefinidas, 0 avisos de BibTeX, sin `??`. Auditoría: **50 citadas / 50 entradas**.
+
 ## Total a reparar
 
 **1 sustitución de fuente** (T1), **2 atribuciones que deben pasar a derivación propia** (T2), **1 retiro** (T3), **3 ajustes de frase** en las parciales. Ninguna clave queda huérfana salvo `Wang2022DataDriven` si se retira del todo, que exige recolocarla en la frase de control de tensión.
