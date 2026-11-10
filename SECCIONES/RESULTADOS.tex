@@ -405,3 +405,9 @@ Los hallazgos que se desprenden del cruce son los siguientes:
     \item El retenedor de frontera no mejora el acoplamiento en este banco: el ZOH resultó el más preciso y el FOH multiplicó por $5.12$ su error RMS, de modo que la extrapolación se descarta como opción por defecto en la arquitectura de co-simulación.
 \end{itemize}
 
+\subsection{Cierre del capítulo y trabajo pendiente}
+
+Este capítulo no se cierra con conclusiones, y la razón es verificable en el marco de evaluación: dos de las tres familias de prueba siguen sin ensayo ejecutado. La familia de excedente de generación cuenta con la capacidad implementada y con dos escenarios emitidos e instalados —el perfil con ventana declarada y su referencia sin excedente—, pero ninguno se ha corrido, de modo que la absorción en la batería y el recorte de la fuente fotovoltaica no tienen todavía evidencia empírica. La familia de fallas de comunicación sí tiene el ensayo que se reporta en este capítulo, ejecutado sobre el ejecutor de la plataforma con inyección programada de fallas, pero su réplica sobre el clúster físico de seis nodos y la campaña de semillas múltiples permanecen pendientes.
+
+Consolidar conclusiones antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Lo que este capítulo establece es el desempeño del esquema propuesto en el benchmark numérico, en el banco de hardware en el lazo bajo la familia de déficit y en la campaña de resiliencia sobre el ejecutor; lo que falta es la ejecución que permita cerrar el balance de las tres familias y, con él, las conclusiones y el trabajo futuro del documento.
+

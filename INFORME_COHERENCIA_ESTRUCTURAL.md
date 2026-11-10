@@ -25,9 +25,13 @@ La estructura formal está sana. Los hallazgos son de **contenido que no concuer
 
 ## 2. Hallazgos
 
-### H7 · [Alto] El resumen de la portada describe otro sistema
+### H7 · [Alto] El resumen de la portada describe otro sistema — **CORREGIDO (2026-11-08)**
 
-`SECCIONES/PORTADA.tex:45-51`. El resumen afirma que el entorno «generará las respuestas dinámicas del sistema y las transmitirá en tiempo real utilizando el protocolo de mensajería ligero **MQTT**», y las palabras clave incluyen **MQTT**.
+`SECCIONES/PORTADA.tex:45-51`. El resumen afirmaba que el entorno «generará las respuestas dinámicas del sistema y las transmitirá en tiempo real utilizando el protocolo de mensajería ligero **MQTT**», y las palabras clave incluían **MQTT**.
+
+*Aplicado:* resumen reescrito en tres párrafos que describen el documento realmente presentado —consenso en tiempo fijo, co-simulación multitasa de $1\ \text{ms}$/$500\ \text{ms}$, lazo de control sobre ZeroMQ en lock-step, MQTT reducido a telemetría e inyección exógena, grafo de la microrred para inyectar latencia, pérdida y desconexión, y validación en dos niveles—, en presente y con mención explícita de los resultados y de lo que falta. Palabras clave: se retira `MQTT` y se incorporan `Control por Consenso en Tiempo Fijo`, `Co-Simulación Ciberfísica Multitasa` y `ZeroMQ`.
+
+*Verificado en el PDF:* `este anteproyecto`, `enlaces MQTT` y `se simularán` dan **0** ocurrencias; `ZeroMQ en modo lock-step` y `Control por Consenso en Tiempo Fijo` aparecen. 79 páginas · 752 719 B · `0bea7fc5…`.
 
 El cuerpo del documento dice lo contrario, y lo dice explícitamente:
 
@@ -35,17 +39,17 @@ El cuerpo del documento dice lo contrario, y lo dice explícitamente:
 - `JUSTIFICACION.tex` — «Aunque la telemetría global y la inyección exógena utilizan un bróker MQTT …, la toma de decisiones, el algoritmo de consenso y el control de …» se ejecutan sobre ZeroMQ.
 - `RESULTADOS.tex` — 3 menciones de ZeroMQ, **0 de MQTT**.
 
-Además el resumen está escrito en futuro («se simularán», «generará», «permitirá»), se autodenomina «este anteproyecto» y no reporta un solo resultado, cuando el documento ya contiene un benchmark certificado, un ensayo HIL y una campaña de resiliencia. Es el primer párrafo que leerá el jurado y hoy contradice el capítulo 8.
+Además el resumen estaba escrito en futuro («se simularán», «generará», «permitirá»), se autodenominaba «este anteproyecto» y no reportaba un solo resultado, cuando el documento ya contiene un benchmark certificado, un ensayo HIL y una campaña de resiliencia. Es el primer párrafo que leerá el jurado y contradecía el capítulo 8.
 
-### H8 · [Alto] Falta la sección de conclusiones y trabajo futuro
+*Aplicado:* resumen reescrito en tres párrafos que describen el documento realmente presentado —consenso en tiempo fijo, co-simulación multitasa de $1\ \text{ms}$/$500\ \text{ms}$, lazo de control sobre ZeroMQ en lock-step, MQTT reducido a telemetría e inyección exógena, grafo de la microrred para inyectar latencia, pérdida y desconexión, y validación en dos niveles—, en presente y con mención explícita de los resultados y de lo que falta. Palabras clave: se retira `MQTT` y se incorporan `Control por Consenso en Tiempo Fijo`, `Co-Simulación Ciberfísica Multitasa` y `ZeroMQ`.
 
-El documento termina en «Síntesis de resultados». Consecuencias verificables:
+*Verificado en el PDF:* `este anteproyecto`, `enlaces MQTT` y `se simularán` dan **0** ocurrencias; `ZeroMQ en modo lock-step` y `Control por Consenso en Tiempo Fijo` aparecen.
 
-- Los cuatro **resultados esperados** de `DISENO.tex:43-49` (entorno de co-simulación, banco de borde, protocolo validado, producción académica) no se declaran alcanzados en ninguna parte.
-- Los pendientes declarados en el capítulo —réplica en clúster físico, ensayo del escenario excedente, campaña de semillas múltiples— no tienen dónde constar.
-- El cierre del trabajo queda a cargo del lector.
+### H8 · [Alto] Falta la sección de conclusiones y trabajo futuro — **CERRADO POR DECLARACIÓN (2026-11-08)**
 
-Si se crea, la introducción debe pasar de «ocho» a «nueve» secciones y ganar su `\item`.
+El documento terminaba en «Síntesis de resultados», con tres consecuencias verificables: los cuatro **resultados esperados** de `DISENO.tex:43-49` no se declaraban alcanzados en ninguna parte; los pendientes del capítulo —réplica en clúster físico, ensayo del escenario excedente, campaña de semillas múltiples— no tenían dónde constar; y el cierre quedaba a cargo del lector.
+
+*Aplicado:* nueva subsección final **«Cierre del capítulo y trabajo pendiente»** en `RESULTADOS.tex`, que declara que el capítulo no se cierra con conclusiones porque **dos de las tres familias de prueba siguen sin ensayo ejecutado** —excedente de generación (escenarios emitidos e instalados, sin corrida) y réplica de fallas sobre el clúster físico—, y que consolidarlas antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Con esto el documento no necesita una sección 9, la introducción mantiene sus ocho secciones y el pendiente queda declarado donde el lector lo busca: al final del capítulo de resultados.
 
 ### H9 · [Medio-alto] El marco de tres familias se anuncia pero nunca se introduce
 
@@ -80,8 +84,8 @@ Cero `\label{sec:…}` y cero `\ref{sec:…}`: todas las remisiones entre capít
 
 | Orden | Hallazgo | Coste | Efecto |
 |---|---|---|---|
-| 1 | H7 · resumen y palabras clave | reescritura de 10 líneas | elimina la contradicción más visible del documento |
-| 2 | H8 · conclusiones y trabajo futuro | sección nueva | da cierre, acredita los resultados esperados y aloja los pendientes |
+| 1 | H7 · resumen y palabras clave | reescritura de 10 líneas | ✅ hecho — contradicción eliminada del PDF |
+| 2 | H8 · conclusiones y trabajo futuro | subsección de cierre | ✅ hecho — pendiente declarado, sin sección 9 |
 | 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | simetría del capítulo y mapa fiel |
 | 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | sostiene el cuarto objetivo |
 | 5 | H12 + H13 + H14 | mecánico | higiene de fuentes |
