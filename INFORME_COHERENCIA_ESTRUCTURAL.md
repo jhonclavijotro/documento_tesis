@@ -89,7 +89,7 @@ El mapa describía las familias 2 y 3 como «declaradas con su escenario y su cr
 1. **Ocho etiquetas de sección** (`sec:problema` … `sec:resultados`), una por sección numerada.
 2. **Tres remisiones convertidas** a `
 ef`: `ANTECEDENTES` remite a `sec:implementacion`, y `IMPLEMENTACION` a `sec:teoria` y a `sec:resultados` (dos veces).
-3. **Trece actividades etiquetadas** en `DISENO` mediante una macro local `ct{3.3}`, que imprime el identificador y deja la etiqueta `act:3.3` con ese mismo texto: así la referencia no depende de la numeración de la lista y sobrevive a cualquier renumeración.
+3. **Trece actividades etiquetadas** en `DISENO` mediante una macro local `\act{3.3}`, que imprime el identificador y deja la etiqueta `act:3.3` con ese mismo texto: así la referencia no depende de la numeración de la lista y sobrevive a cualquier renumeración.
 4. Las **nueve citas de actividad** del capítulo de resultados pasan a `
 ef{act:…}`.
 
@@ -111,6 +111,19 @@ No era una línea muerta: eran **tres `\subsection` comentados** que organizaban
 *Verificado en el PDF:* el índice del capítulo 1 muestra **1.1 Contexto de la Transición Energética y Vulnerabilidad Física**, **1.2 El Conflicto Metodológico: La Pérdida del Anclaje Físico (No Physical Grounding)**, **1.3 No Linealidad Inducida, Heterogeneidad Temporal y Degradación Ciber-Física** y **1.4 Pregunta de Investigación**; ninguna línea comentada queda en la fuente. 79 páginas · 756 311 B · sin `??`.
 
 
+### H15 · [Medio] «Consenso No Lineal en Tiempo Fijo» y la citación colgada de Gomes y Liu — **CORREGIDO (2026-11-08)**
+
+*Denominación.* El calificativo no era falso —la convergencia en tiempo fijo exige términos correctores no lineales— pero no discriminaba nada y funcionaba como nombre propio de una categoría que el marco teórico nunca define. Pasa a **«consenso en tiempo fijo (FxTS)»** en los seis lugares donde aparecía (`INTRODUCCION`, `JUSTIFICACION`, `OBJETIVOS` dos veces, `PROBLEMA`, `IMPLEMENTACION`), y la no linealidad se declara una sola vez como propiedad en la introducción.
+
+*Citación.* `\citep{Gomes2022FMI30, Liu2025Multirate}` colgaba del sintagma del despliegue en hardware —clúster Raspberry Pi 5 con Docker—, que ninguna de las dos respalda: Gomes es el estándar FMI 3.0 y Liu es un marco de co-simulación multitasa con paso variable. Ahora la cita acompaña a «Co-Simulación Ciber-Física Multitasa» y el despliegue se apoya en `\citep{Mehmood2021}` con la fórmula «en línea con el paradigma de computación en el borde para redes inteligentes», que es lo que ese trabajo sostiene y no la elección concreta de hardware.
+
+*Verificado en el PDF:* «…plataforma de Co-Simulación Ciber-Física Multitasa (Gomes et al., 2022; Liu et al., 2025), desplegada en hardware de borde real —un clúster de dispositivos Raspberry Pi 5 con contenedores Docker modulares, en línea con el paradigma de computación en el borde para redes inteligentes (Mehmood et al., 2021)—.» Sin `consenso no lineal` (0 ocurrencias), `consenso en tiempo fijo (FxTS)` en cinco lugares y 0 citas indefinidas. 79 páginas · 756 398 B.
+
+### H16 · [Bajo] La cita de la frase de MQTT tampoco respalda lo que acompaña
+
+`INTRODUCCION.tex` cierra la frase del canal telemétrico con `\citep{Khanna2025, Haid2022CosimCorrector, Kyllingstad2025CosimErrors}`. Las tres acompañan a «MQTT para la inyección de contingencias climáticas y perturbaciones de red», pero Haid y Kyllingstad tratan de correctores de co-simulación y de errores por cambio de paso —es decir, del motor multitasa—, y Khanna es una revisión de gestión energética multiagente. Ninguna sostiene la afirmación sobre MQTT: es la misma clase de defecto que el de Gomes y Liu, una frase más adelante. **Abierto:** no aplicado.
+
+
 ---
 
 ## 3. Orden de intervención propuesto
@@ -122,5 +135,6 @@ No era una línea muerta: eran **tres `\subsection` comentados** que organizaban
 | 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | ✅ hecho |
 | 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | ✅ hecho — las 13 actividades vuelven a estar enlazadas |
 | 5 | H12 + H13 + H14 | mecánico | los tres cerrados |
+| 6 | H16 · cita de la frase de MQTT | una frase | abierto |
 
 Ninguno de los ocho hallazgos exige tocar el preámbulo ni las cifras del capítulo 8.
