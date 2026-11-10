@@ -51,16 +51,6 @@ El documento terminaba en «Síntesis de resultados», con tres consecuencias ve
 
 *Aplicado:* nueva subsección final **«Cierre del capítulo y trabajo pendiente»** en `RESULTADOS.tex`, que declara que el capítulo no se cierra con conclusiones porque **dos de las tres familias de prueba siguen sin ensayo ejecutado** —excedente de generación (escenarios emitidos e instalados, sin corrida) y réplica de fallas sobre el clúster físico—, y que consolidarlas antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Con esto el documento no necesita una sección 9, la introducción mantiene sus ocho secciones y el pendiente queda declarado donde el lector lo busca: al final del capítulo de resultados.
 
-### H15 · [Medio] «Consenso No Lineal en Tiempo Fijo» — redundante como nombre de la categoría (observación del autor)
-
-El calificativo no es falso —la convergencia en tiempo fijo exige términos correctores no lineales, porque ninguna ley lineal sobre el grafo acota el tiempo de establecimiento con independencia de las condiciones iniciales— pero **no discrimina**: no existe un «consenso en tiempo fijo lineal» frente al cual distinguirse. Además `TEORIA.tex:138` define la taxonomía real (asintótico, FTS, FxTS) y nunca define «consenso no lineal», y el capítulo 8 llama al esquema «consenso en tiempo fijo (FxTS)».
-
-*Aplicado:* la denominación pasa a **«consenso en tiempo fijo (FxTS)»** en los seis lugares donde funcionaba como nombre propio —`INTRODUCCION:12`, `JUSTIFICACION:6`, `OBJETIVOS:4`, `OBJETIVOS:8`, `PROBLEMA:34` y `IMPLEMENTACION:3`—, y la no linealidad se declara **una sola vez, como propiedad**, en la introducción: «cuya ley incorpora términos correctores no lineales que garantizan una cota de establecimiento independiente de las condiciones iniciales».
-
-*Verificado en el PDF:* `consenso no lineal` → **0** ocurrencias; `consenso en tiempo fijo (FxTS)` → 5; `términos correctores no lineales` → 1.
-
-**Pendiente declarado:** la citación `\citep{Gomes2022FMI30, Liu2025Multirate}` sigue al final de una oración cuyo último sintagma es el despliegue en hardware (Raspberry Pi 5 + Docker), que ninguna de las dos respalda. Ambas sostienen la co-simulación multitasa. Reposicionarlas junto a ese sintagma y apoyar el despliegue en `Mehmood2021` quedó sin aplicar por decisión del autor.
-
 ### H9 · [Medio-alto] El marco de tres familias se anuncia pero nunca se introduce — **CORREGIDO (2026-11-08)**
 
 El mapa del capítulo prometía tres familias y sólo dos tenían encabezado: el ensayo de déficit aparecía como «Fase I…V» y el lector topaba con «la segunda familia» sin haber leído de la primera.
@@ -79,9 +69,16 @@ El mapa describía las familias 2 y 3 como «declaradas con su escenario y su cr
 
 *Aplicado:* nuevo párrafo en «Alcance y organización de la validación» que ata cada bloque del capítulo a sus actividades: el benchmark a 1.1, 1.2, 1.3, 4.1 y 4.3; el banco HIL a 3.1 y 3.2; la familia de fallas a 3.3 y 4.2; y la familia de excedente a 4.1 en el régimen excedentario.
 
-### H12 · [Medio] 33 de 55 ecuaciones etiquetadas nunca se referencian
+### H12 · [Medio] 33 de 55 ecuaciones etiquetadas nunca se referencian — **MITIGADO (2026-11-08)**
 
-Hay 55 `\label{eq:…}` y sólo 22 aparecen en un `\ref`/`\eqref`. Las 33 restantes son etiquetas muertas: el texto enuncia la ecuación y no vuelve a señalarla. O se referencian donde corresponde (discusión, contraste, trazabilidad al código) o se retiran las etiquetas.
+Había 55 `\label{eq:…}` y sólo 22 aparecían en un `
+ef` o un `\eqref`.
+
+*Criterio aplicado:* una ecuación conserva su etiqueta sólo si algún pasaje la invoca. De las 33 etiquetas muertas se retiraron **32** (16 en `TEORIA`, 11 en `IMPLEMENTACION`, 5 en `RESULTADOS`) y se conservó **una**, la ecuación de oscilación del apartado de resultados, porque el texto ya la invocaba en palabras: ahora se cita con `\eqref{eq:res_swing_pred}` en la síntesis.
+
+*Verificado:* quedan **0** etiquetas `eq:` sin referenciar. El PDF no cambia de tamaño con la retirada —754 551 B antes y después, porque la etiqueta no altera la maqueta— y sube a 754 626 B al añadir la referencia, que se lee como «ecuación de oscilación (57)» en el PDF compilado.
+
+**Límite declarado:** retirar la etiqueta limpia la fuente, no la lectura. La ecuación sigue exhibiendo su número aunque nadie la cite, porque `equation` numera siempre. Corregir lo que ve el jurado exigiría pasar las ecuaciones no invocadas a visualización sin número: decisión editorial distinta, no aplicada.
 
 ### H13 · [Medio-bajo] Ninguna sección tiene etiqueta
 
@@ -91,6 +88,15 @@ Cero `\label{sec:…}` y cero `\ref{sec:…}`: todas las remisiones entre capít
 
 `PROBLEMA.tex:10` conserva comentada la subsección `% El Conflicto Metodológico: La Pérdida del Anclaje Físico`. El contenido no se perdió —está desarrollado en prosa en las líneas siguientes—, pero la fuente arrastra una línea desactivada.
 
+### H15 · [Medio] «Consenso No Lineal en Tiempo Fijo» — redundante como nombre de la categoría (observación del autor)
+
+El calificativo no es falso —la convergencia en tiempo fijo exige términos correctores no lineales, porque ninguna ley lineal sobre el grafo acota el tiempo de establecimiento con independencia de las condiciones iniciales— pero **no discrimina**: no existe un «consenso en tiempo fijo lineal» frente al cual distinguirse. Además `TEORIA.tex:138` define la taxonomía real (asintótico, FTS, FxTS) y nunca define «consenso no lineal», y el capítulo 8 llama al esquema «consenso en tiempo fijo (FxTS)».
+
+*Aplicado:* la denominación pasa a **«consenso en tiempo fijo (FxTS)»** en los seis lugares donde funcionaba como nombre propio —`INTRODUCCION:12`, `JUSTIFICACION:6`, `OBJETIVOS:4`, `OBJETIVOS:8`, `PROBLEMA:34` y `IMPLEMENTACION:3`—, y la no linealidad se declara **una sola vez, como propiedad**, en la introducción: «cuya ley incorpora términos correctores no lineales que garantizan una cota de establecimiento independiente de las condiciones iniciales».
+
+*Verificado en el PDF:* `consenso no lineal` → **0** ocurrencias; `consenso en tiempo fijo (FxTS)` → 5; `términos correctores no lineales` → 1.
+
+**Pendiente declarado:** la citación `\citep{Gomes2022FMI30, Liu2025Multirate}` sigue al final de una oración cuyo último sintagma es el despliegue en hardware (Raspberry Pi 5 + Docker), que ninguna de las dos respalda. Ambas sostienen la co-simulación multitasa. Reposicionarlas junto a ese sintagma y apoyar el despliegue en `Mehmood2021` quedó sin aplicar por decisión del autor.
 ---
 
 ## 3. Orden de intervención propuesto
@@ -101,6 +107,6 @@ Cero `\label{sec:…}` y cero `\ref{sec:…}`: todas las remisiones entre capít
 | 2 | H8 · conclusiones y trabajo futuro | subsección de cierre | ✅ hecho — pendiente declarado, sin sección 9 |
 | 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | ✅ hecho |
 | 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | ✅ hecho — las 13 actividades vuelven a estar enlazadas |
-| 5 | H12 + H13 + H14 | mecánico | higiene de fuentes |
+| 5 | H12 + H13 + H14 | mecánico | H12 hecho (etiquetas); H13 y H14 pendientes |
 
 Ninguno de los ocho hallazgos exige tocar el preámbulo ni las cifras del capítulo 8.
