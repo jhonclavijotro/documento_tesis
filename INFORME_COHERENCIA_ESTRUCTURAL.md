@@ -61,20 +61,23 @@ El calificativo no es falso —la convergencia en tiempo fijo exige términos co
 
 **Pendiente declarado:** la citación `\citep{Gomes2022FMI30, Liu2025Multirate}` sigue al final de una oración cuyo último sintagma es el despliegue en hardware (Raspberry Pi 5 + Docker), que ninguna de las dos respalda. Ambas sostienen la co-simulación multitasa. Reposicionarlas junto a ese sintagma y apoyar el despliegue en `Mehmood2021` quedó sin aplicar por decisión del autor.
 
-### H9 · [Medio-alto] El marco de tres familias se anuncia pero nunca se introduce
+### H9 · [Medio-alto] El marco de tres familias se anuncia pero nunca se introduce — **CORREGIDO (2026-11-08)**
 
-`RESULTADOS.tex:18` anuncia el nivel T2 «organizado por las tres familias del marco de evaluación». Pero:
+El mapa del capítulo prometía tres familias y sólo dos tenían encabezado: el ensayo de déficit aparecía como «Fase I…V» y el lector topaba con «la segunda familia» sin haber leído de la primera.
 
-- No hay encabezado de **Familia 1**: el ensayo de déficit aparece como «Fase I…V» y «Perfil de tensión nodal».
-- La primera vez que el lector ve el concepto es `:324`, que empieza «La **segunda** familia del marco de evaluación…», remitiendo a un marco que nunca se presentó y a una primera familia que no tiene nombre.
+*Aplicado:* nuevo encabezado **«Familia 1: déficit de capacidad»** antes de la Fase I, con un párrafo de apertura que define la familia, y «Plataforma y contrato de muestreo» queda como preámbulo común a las tres. Las tres familias son ahora paralelas en jerarquía.
 
-### H10 · [Medio] El mapa del capítulo quedó desactualizado
+### H10 · [Medio] El mapa del capítulo quedó desactualizado — **CORREGIDO (2026-11-08)**
 
-`RESULTADOS.tex:18` describe las familias 2 y 3 como «declaradas con su escenario y su criterio». La familia 3 ya **reporta resultados verificados** y la 2 está emitida e instalada, pendiente de ensayo. El mapa describe una fase anterior del capítulo.
+El mapa describía las familias 2 y 3 como «declaradas con su escenario y su criterio», y el apartado de T2 decía que sus corridas «aún no están publicadas».
 
-### H11 · [Medio] La cadena objetivo → actividad → resultado está rota
+*Aplicado:* el mapa distingue ahora los tres estatutos —déficit analizada, excedente «declarada con su escenario y su criterio a la espera de corrida», fallas «reportada con su ensayo de resiliencia»— y el apartado de T2 hace la misma distinción. Se retira además «en un único escenario» de la limitación del banco, que ya no describe su alcance.
 
-`DISENO.tex` define 13 actividades numeradas (1.1–4.3), y **ninguna otra sección vuelve a mencionarlas**. En particular, el capítulo de resultados ya no remite a las actividades 3.3 (proxy de contingencias) ni 4.2 (tolerancia a latencia y pérdida), que son las que sostienen el cuarto objetivo. La remisión existía en el párrafo de validez y se perdió al reescribirlo para incorporar la campaña de resiliencia.
+### H11 · [Medio] La cadena objetivo → actividad → resultado está rota — **CORREGIDO (2026-11-08)**
+
+`DISENO.tex` define 13 actividades y ninguna otra sección las mencionaba.
+
+*Aplicado:* nuevo párrafo en «Alcance y organización de la validación» que ata cada bloque del capítulo a sus actividades: el benchmark a 1.1, 1.2, 1.3, 4.1 y 4.3; el banco HIL a 3.1 y 3.2; la familia de fallas a 3.3 y 4.2; y la familia de excedente a 4.1 en el régimen excedentario.
 
 ### H12 · [Medio] 33 de 55 ecuaciones etiquetadas nunca se referencian
 
@@ -96,8 +99,8 @@ Cero `\label{sec:…}` y cero `\ref{sec:…}`: todas las remisiones entre capít
 |---|---|---|---|
 | 1 | H7 · resumen y palabras clave | reescritura de 10 líneas | ✅ hecho — contradicción eliminada del PDF |
 | 2 | H8 · conclusiones y trabajo futuro | subsección de cierre | ✅ hecho — pendiente declarado, sin sección 9 |
-| 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | simetría del capítulo y mapa fiel |
-| 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | sostiene el cuarto objetivo |
+| 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | ✅ hecho |
+| 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | ✅ hecho — las 13 actividades vuelven a estar enlazadas |
 | 5 | H12 + H13 + H14 | mecánico | higiene de fuentes |
 
 Ninguno de los ocho hallazgos exige tocar el preámbulo ni las cifras del capítulo 8.
