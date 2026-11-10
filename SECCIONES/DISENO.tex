@@ -1,0 +1,50 @@
+\section{DISEÑO METODOLÓGICO}
+
+La investigación se desarrolla bajo un enfoque cuantitativo, experimental y de ingeniería aplicada, estructurado en cuatro fases metodológicas secuenciales e interdependientes, alineadas directamente con los objetivos específicos propuestos:
+
+\subsection{Fases Metodológicas}
+
+\textbf{Fase 1: Formulación Matemática, Modelamiento Dinámico y Sintonización (Concepción)}\\
+En esta primera fase se establecen los fundamentos analíticos y computacionales de los recursos energéticos distribuidos (DER) y la capa de control distribuido:
+\begin{itemize}
+    \item \textbf{Actividad 1.1:} Modelado analítico y deducción de las ecuaciones diferenciales ordinarias (EDO) para cinco tipologías de fuentes de generación: Solar Fotovoltaica (enlace DC), BESS (estado de carga electroquímico SoC), Eólica PMSG (par aerodinámico y dinámica rotacional), Hidroeléctrica/Hidrocinética (columna de agua) y Generador Diésel gobernado \citep{Kundu2024ICCFPLL, Alam2024}.
+    \item \textbf{Actividad 1.2:} Sintonización analítica de los controladores internos $dq$ y el lazo de enganche de fase síncrono SRF-PLL ($K_{p,\text{pll}} = 94.25$, $K_{i,\text{pll}} = 2220.66$), garantizando un tiempo de establecimiento ágil ($t_s \approx 100\text{ ms}$, banda del $5\%$) y rechazo de armónicos a $120\text{ Hz}$.
+    \item \textbf{Actividad 1.3:} Deducción analítica de la ley de control por consenso en tiempo fijo y demostración de estabilidad según el criterio de Lyapunov, calculando la cota superior del tiempo de asentamiento ($T_f$) y la capa límite anti-chattering ($k_p = 3.981$) \citep{Shrivastava2023FiniteTime, Guo2026}.
+    \item \textbf{Actividad 1.4:} Validación de la respuesta en lazo abierto de los modelos físicos a paso de micro-simulación ($h = 1.0\text{ ms}$).
+\end{itemize}
+
+\textbf{Fase 2: Arquitectura de Co-Simulación Ciber-Física Multitasa y Comunicaciones (Diseño)}\\
+Se diseña el entorno de co-simulación ciber-física acoplada que vincula el simulador de red con los agentes de control distribuido:
+\begin{itemize}
+    \item \textbf{Actividad 2.1:} Implementación del motor de co-simulación multitasa acoplando el solucionador de red del PC Central ($H = 500\text{ ms}$, $2\text{ Hz}$) con los integradores rápidos de los convertidores ($h = 1.0\text{ ms}$, $1\text{ kHz}$) mediante retención de orden cero (ZOH) y $N_{\text{substeps}} = 500$ \citep{Liu2025Multirate, Kyllingstad2025CosimErrors, Haid2022CosimCorrector}.
+    \item \textbf{Actividad 2.2:} Desarrollo de la capa de comunicación síncrona determinista utilizando sockets ZeroMQ (REQ-REP / PUB-SUB) con temporizadores adaptativos (`RCVTIMEO = 2000 ms`, `SNDTIMEO = 1000 ms`, `LINGER = 0`) para la sincronización lock-step y el intercambio de consenso P2P sobre el grafo \citep{Gomes2022FMI30}.
+    \item \textbf{Actividad 2.3:} Configuración del canal asíncrono MQTT para la inyección telemétrica de perfiles climáticos (viento e irradiancia) y la persistencia de datos en la base de series temporales (InfluxDB) con muestreo a $500\text{ ms}$ \citep{Khanna2025, Diaz2025}.
+\end{itemize}
+
+\textbf{Fase 3: Despliegue en Hardware de Borde y Contenedores Aislados (Implementación)}\\
+Se materializa la arquitectura distribuida en un entorno experimental físico:
+\begin{itemize}
+    \item \textbf{Actividad 3.1:} Despliegue del clúster de microcomputadores embebidos (Raspberry Pi 5) actuando como nodos de generación distribuidos \citep{AlvarezLopez2026}.
+    \item \textbf{Actividad 3.2:} Aislamiento de procesos mediante contenedores Docker modulares e independientes por nodo (desacoplando el contenedor de dinámica físico-eléctrica del contenedor del agente de consenso).
+    \item \textbf{Actividad 3.3:} Implementación de un proxy de red programable para la inyección controlada de contingencias telemétricas en tiempo real (latencia estocástica, jitter y pérdida de paquetes).
+\end{itemize}
+
+\textbf{Fase 4: Pruebas de Resiliencia Ciber-Física y Evaluación Cuantitativa (Evaluación)}\\
+La plataforma consolidada se somete a ensayos experimentales de estrés y evaluación de desempeño:
+\begin{itemize}
+    \item \textbf{Actividad 4.1:} Ejecución de escenarios de perturbación física: variaciones escalón de carga activa/reactiva y fluctuaciones bruscas de irradiancia y velocidad de viento.
+    \item \textbf{Actividad 4.2:} Inyección de fallas en la capa de comunicación: latencias incrementales ($50\text{ a }500\text{ ms}$), tasas de pérdida de paquetes ($0\%\text{ a }30\%$) y partición o corte temporal de enlaces en la matriz de adyacencia $\mathcal{A}(t)$ \citep{Sowa2023, Olayanju2025ConsensusFreq}.
+    \item \textbf{Actividad 4.3:} Medición cuantitativa de métricas de desempeño: cálculo del Error Cuadrático Medio Integral (RMSE) de voltaje ($\Delta V$) y frecuencia ($\Delta f$), tiempo de asentamiento real ($T_{set}$) bajo banda del 2\%, nadir de frecuencia ($f_{\text{nadir}}$) y tasa máxima de cambio de frecuencia ($\text{RoCoF}_{\max}$), índices de repartición proporcional de potencia reactiva ($Q_i/Q_{\max, i}$) y potencia activa ($P_i/P_{\max, i}$), y determinación del retardo crítico de estabilidad ($\tau_{crit}$) \citep{Barzegari2022Resilient, TaverasCruz2025}. Las definiciones formales de cada indicador se establecen en las expresiones \eqref{eq:rmse}--\eqref{eq:share_index}.
+\end{itemize}
+
+\newpage
+\subsection{Resultados Esperados}
+
+Los resultados esperados del proyecto representan los productos tecnológicos, científicos y metodológicos concretos que se alcanzarán como consecuencia directa de la investigación:
+
+\begin{enumerate}
+    \item \textbf{Entorno de Co-Simulación Ciber-Física Multitasa en Python/ZMQ:} Software funcional, modular y de código abierto que integra de forma determinista la dinámica electromagnética rápida de convertidores ($1\text{ ms}$) con el flujo de potencia macroscópico ($500\text{ ms}$).
+    \item \textbf{Banco Experimental Distribuido en Hardware de Borde (IoT-Edge):} Infraestructura experimental compuesta por clúster Raspberry Pi 5 y contenedores Docker independientes, demostrando la viabilidad de ejecución en tiempo real de agentes de control secundario.
+    \item \textbf{Protocolo de Consenso en Tiempo Fijo Validado y Caracterizado:} Memoria técnica y curvas de validación empírica que demuestren la convergencia en tiempo acotado, la restitución de voltaje/frecuencia y la tolerancia ante pérdidas de paquetes y desconexión de enlaces.
+    \item \textbf{Producción Académica e Intelectual:} Redacción y sometimiento de un artículo científico en una revista indexada de alto impacto (Scimago / JCR Q1-Q2) o conferencia internacional especializada en redes inteligentes (\textit{Smart Grids}), control distribuido y sistemas multiagente.
+\end{enumerate}

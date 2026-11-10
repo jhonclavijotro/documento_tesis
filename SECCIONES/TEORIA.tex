@@ -1,0 +1,292 @@
+\section{MARCO TEÓRICO}
+
+El fundamento teórico de esta investigación integra cuatro pilares interdependientes: el modelado dinámico de los recursos energéticos distribuidos (DER) y la electrónica de potencia, los métodos de resolución de flujo de potencia en microrredes de distribución, la formulación matemática del control secundario por consenso en tiempo fijo sobre teoría de grafos, y los principios numéricos de la co-simulación ciber-física multitasa.
+
+\subsection{Dinámica de Sistemas de Potencia y Modelado de Recursos Distribuidos}
+
+\subsubsection{Equilibrio Electromecánico y Control Primario por Estatismo}
+En un sistema de potencia convencional, la estabilidad de frecuencia está gobernada por la inercia rotacional de los generadores síncronos, descrita por la ecuación de oscilación (\textit{swing equation}) \citep{Saadat2010}:
+\begin{equation}\label{eq:swing}
+\frac{2H}{\omega_s} \frac{d\Delta\omega(t)}{dt} = P_m(t) - P_e(t) - D \Delta\omega(t)
+\end{equation}
+donde $H$ es la constante de inercia equivalente del sistema (en segundos), $\omega_s$ es la frecuencia síncrona nominal ($2\pi \cdot 60\text{ rad/s}$), $P_m - P_e$ es el desbalance instantáneo entre la potencia mecánica inyectada y la demanda eléctrica, y $D$ es el coeficiente de amortiguamiento. A partir de \eqref{eq:swing}, la tasa de cambio de la frecuencia (\textit{Rate of Change of Frequency}, RoCoF) se expresa como:
+\begin{equation}\label{eq:rocof}
+\text{RoCoF} = \frac{d\Delta\omega(t)}{dt} = \frac{\omega_s}{2H} \big( P_m(t) - P_e(t) - D \Delta\omega(t) \big)
+\end{equation}
+
+En microrredes dominadas por inversores basados en fuentes renovables (IBRs), la ausencia de masa giratoria reduce drásticamente la inercia equivalente ($H \to 0$), provocando que cualquier perturbación genere valores críticos de RoCoF que pueden comprometer la estabilidad \citep{Mehrzad2025, Verma2024}.
+
+Para regular la frecuencia y la tensión de forma descentralizada en la escala primaria, los convertidores implementan el control por estatismo (\textit{droop control}):
+\begin{align}
+\omega_i(t) &= \omega^* - m_{pi} \big( P_i(t) - P_i^* \big) \label{eq:droop_w} \\
+V_i(t) &= V^* - n_{qi} \big( Q_i(t) - Q_i^* \big) \label{eq:droop_v}
+\end{align}
+donde $\omega^*$ y $V^*$ representan las consignas de referencia nominales, $P_i^*$ y $Q_i^*$ son los puntos de consigna de potencia activa y reactiva, y $m_{pi}, n_{qi}$ son los coeficientes de caída asociados a la capacidad nominal de cada inversor \citep{Jasim2023}.
+
+\subsubsection{Control en Coordenadas Síncronas \texorpdfstring{$dq$}{dq} y Lazo de Enganche de Fase (SRF-PLL)}
+El control de corriente de los inversores de acoplamiento (\textit{Voltage Source Inverters}, VSI) se formula en el marco de referencia síncrono rotatorio $dq0$ mediante la aplicación sucesiva de las transformadas de Clarke y Park \citep{Kundu2024ICCFPLL}:
+\begin{equation}\label{eq:clarke_park}
+\begin{bmatrix} x_d \\ x_q \\ x_0 \end{bmatrix} = \frac{2}{3} \begin{bmatrix} \cos\theta & \cos\left(\theta - \frac{2\pi}{3}\right) & \cos\left(\theta + \frac{2\pi}{3}\right) \\ -\sin\theta & -\sin\left(\theta - \frac{2\pi}{3}\right) & -\sin\left(\theta + \frac{2\pi}{3}\right) \\ \frac{1}{2} & \frac{1}{2} & \frac{1}{2} \end{bmatrix} \begin{bmatrix} x_a \\ x_b \\ x_c \end{bmatrix}
+\end{equation}
+
+Las ecuaciones dinámicas del circuito de acoplamiento $RL$ a la salida del inversor en coordenadas $dq$ están dadas por:
+\begin{align}
+L_f \frac{di_d}{dt} &= v_{i,d} - v_{g,d} - R_f i_d + \omega L_f i_q \label{eq:id_dyn} \\
+L_f \frac{di_q}{dt} &= v_{i,q} - v_{g,q} - R_f i_q - \omega L_f i_d \label{eq:iq_dyn}
+\end{align}
+donde $L_f, R_f$ son la inductancia y resistencia del filtro, $v_{i,dq}$ son las tensiones generadas por el puente inversor, $v_{g,dq}$ son las tensiones en el punto de conexión y los términos $\pm \omega L_f i_{q,d}$ representan los desacoplamientos cruzados compensados por los lazos de control PI.
+
+Para sincronizar el ángulo de orientación del marco síncrono $\hat{\theta}(t)$ con la tensión del bus, se implementa un SRF-PLL (\textit{Synchronous Reference Frame Phase-Locked Loop}). El PLL orienta el eje $d$ alineándolo con el vector espacial de tensión forzando la componente en cuadratura a cero ($V_q \to 0$). La función de transferencia en lazo cerrado para pequeñas variaciones de ángulo $\Delta\theta$ es \citep{Kundu2024ICCFPLL}:
+\begin{equation}\label{eq:pll_tf}
+H_{cl}(s) = \frac{\Delta \hat{\theta}(s)}{\Delta \theta_{\text{red}}(s)} = \frac{V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}}{s^2 + V_{\text{pico}} K_{p,\text{pll}} s + V_{\text{pico}} K_{i,\text{pll}}} = \frac{2\zeta\omega_n s + \omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}
+\end{equation}
+
+Para una respuesta con amortiguamiento crítico $\zeta = 1.0$ (eliminando sobrepasos angulares y oscilaciones espurias) y frecuencia natural seleccionada $f_n = 7.5\text{ Hz}$ ($\omega_n = 2\pi \cdot 7.5 \approx 47.12\text{ rad/s}$) en base unitaria ($V_{\text{pico}} = 1.0\text{ p.u.}$), las ganancias analíticas del controlador PI del PLL se calculan como:
+\begin{align}
+K_{p,\text{pll}} &= \frac{2\zeta\omega_n}{V_{\text{pico}}} = 2(1.0)(47.1239) \approx 94.25 \label{eq:kp_pll} \\
+K_{i,\text{pll}} &= \frac{\omega_n^2}{V_{\text{pico}}} = (47.1239)^2 \approx 2220.66 \label{eq:ki_pll}
+\end{align}
+
+La selección de estos parámetros responde a un compromiso óptimo de diseño (\textit{trade-off}) para sistemas eléctricos de potencia a $60\text{ Hz}$ \citep{Kundu2024ICCFPLL}:
+\begin{enumerate}[1.]
+    \item \textbf{Rechazo de perturbaciones de doble frecuencia y armónicos:} En condiciones de desbalance o distorsión armónica en la red, aparecen oscilaciones a $2f_{\text{nom}} = 120\text{ Hz}$ en el marco síncrono $dq$ (inducidas por la componente de secuencia negativa). Al fijar $f_n = 7.5\text{ Hz} \ll 120\text{ Hz}$, el filtro pasobajas intrínseco del lazo cerrado proporciona una atenuación de $-18.1\text{ dB}$ (factor $0.125$ sobre la componente de secuencia negativa), suficiente para reducir su incidencia sin requerir filtros muesca adicionales.
+    \item \textbf{Agilidad de respuesta y estabilidad numérica:} Proporciona un tiempo de establecimiento rápido $t_s \approx \frac{4.75}{\omega_n} \approx 100\text{ ms}$ (criterio de banda del $5\%$; con banda del $2\%$ serían $124\text{ ms}$), garantizando un seguimiento suave y robusto del ángulo fasorial ante fluctuaciones dinámicas sin amplificar el ruido numérico en la escala de micro-simulación ($h = 1.0\text{ ms}$).
+\end{enumerate}
+
+La discretización mediante integración Euler hacia adelante con paso de micro-simulación $T_s = h = 1.0\text{ ms}$ adopta la estructura recursiva:
+\begin{align}
+x_{\text{int}}(k+1) &= x_{\text{int}}(k) + K_{i,\text{pll}} T_s V_q(k) \\
+\omega_{\text{est}}(k) &= \omega_{\text{nom}} + K_{p,\text{pll}} V_q(k) + x_{\text{int}}(k) \\
+\hat{\theta}(k+1) &= \left( \hat{\theta}(k) + \omega_{\text{est}}(k) T_s \right) \pmod{2\pi}
+\end{align}
+
+\subsubsection{Modelado Dinámico de Fuentes Primarias y Restricciones Físicas}
+El banco de recursos heterogéneos modelado en la plataforma comprende cinco tecnologías:
+\begin{enumerate}[a)]
+    \item \textbf{Generación Solar Fotovoltaica:} Modelada mediante la ecuación característica del diodo único acoplada a la dinámica del capacitor del bus DC ($C_{dc}$):
+    \begin{equation}\label{eq:pv_dc_bus}
+    C_{dc} V_{dc} \frac{dV_{dc}}{dt} = P_{pv}(G, T) - P_{inv}
+    \end{equation}
+    donde $P_{pv}$ es la potencia generada por el arreglo fotovoltaico como función de la irradiancia solar $G$ y temperatura de celda $T$, $V_{dc}$ es la tensión del enlace de corriente continua y $P_{inv}$ es la potencia transferida hacia el inversor de acoplamiento AC.
+    
+    \item \textbf{Sistema de Almacenamiento BESS:} Caracterizado por el modelo equivalente Thevenin electroquímico y la integración continua del Estado de Carga (SoC):
+    \begin{equation}\label{eq:bess_soc}
+    \text{SoC}(t) = \text{SoC}(0) - \frac{1}{Q_{\text{nom}}} \int_0^t \eta_b i_{\text{bat}}(\tau) d\tau
+    \end{equation}
+    donde $\text{SoC}(t) \in [0, 1]$ representa el estado de carga fraccional instantáneo, $\text{SoC}(0)$ es la condición inicial de carga, $Q_{\text{nom}}$ es la capacidad de carga nominal del banco de baterías (expresada en $\text{A}\cdot\text{s}$ o Coulombs), $i_{\text{bat}}(\tau)$ es la corriente instantánea de la batería (definida como positiva en régimen de descarga y negativa en régimen de carga), y $\eta_b$ es el coeficiente de eficiencia coulombimétrica del proceso electroquímico ($\eta_b = 1.0$ durante descarga y $\eta_b \approx 0.95$ durante recarga). El sistema opera confinado dentro de la banda de seguridad admisible:
+    \begin{equation}\label{eq:bess_limits}
+    \text{SoC}^{\min} \le \text{SoC}(t) \le \text{SoC}^{\max}
+    \end{equation}
+    
+    \item \textbf{Generador Eólico PMSG:} La potencia mecánica aerodinámica $P_m$ capturada por las palas de la turbina y el par mecánico resultante $T_m$ se modelan de forma desacoplada mediante las siguientes ecuaciones:
+    \begin{equation}\label{eq:wind_power}
+    P_m = \frac{1}{2} \rho \pi R^2 v_w^3 C_p(\lambda, \beta)
+    \end{equation}
+    \begin{equation}\label{eq:wind_torque}
+    T_m = \frac{P_m}{\omega_r} = \frac{1}{2} \rho \pi R^2 v_w^3 \frac{C_p(\lambda, \beta)}{\omega_r}
+    \end{equation}
+    donde $\rho$ es la densidad del aire ($\text{kg/m}^3$), $R$ es el radio del rotor eólico ($\text{m}$), $v_w$ es la velocidad del viento incidente ($\text{m/s}$), $\omega_r$ es la velocidad mecánica angular de la turbina ($\text{rad/s}$), y $C_p(\lambda, \beta)$ es el coeficiente de rendimiento aerodinámico, el cual depende de la relación de velocidad de punta de pala $\lambda = \frac{\omega_r R}{v_w}$ y del ángulo de paso de las palas $\beta$. La dinámica electromecánica del conjunto turbina-generador síncrono de imanes permanentes (PMSG) está gobernada por:
+    \begin{equation}\label{eq:pmsg_swing}
+    J_w \frac{d\omega_r}{dt} = T_m - T_e - F_w \omega_r
+    \end{equation}
+    donde $J_w$ es el momento de inercia rotacional equivalente, $T_e$ es el par electromagnético de frenado inducido por el generador y $F_w$ es el coeficiente de fricción viscosa.
+    
+    \item \textbf{Generación Hidroeléctrica/Hidrocinética:} Modela la inercia de la columna de agua con constante de tiempo de arranque del agua $T_w$ y compuerta servogobernada:
+    \begin{equation}\label{eq:hydro_power}
+    \frac{dP_h}{dt} = \frac{1}{T_w} \left( P_{\text{in}} - P_h \right)
+    \end{equation}
+    donde $P_{\text{in}}$ es la potencia hidráulica teórica de entrada determinada por la apertura servogobernada de la compuerta, $P_h$ es la potencia mecánica entregada al eje de la turbina y $T_w$ es el tiempo característico de aceleración del flujo hidráulico.
+    
+    \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad con constante de tiempo del actuador $T_{act}$ y constante de transporte del motor térmico $T_{eng}$ \citep{Alam2024}.
+\end{enumerate}
+
+Todos los convertidores operan bajo restricciones estrictas de capacidad aparente máxima impuestas por el círculo de corriente:
+\begin{equation}\label{eq:inverter_limit}
+P_i(t)^2 + Q_i(t)^2 \le S_{\max, i}^2 = \left( V_i I_{\max, i} \right)^2
+\end{equation}
+
+\subsection{Flujo de Potencia y Modelado de Red en Microrredes de Distribución}
+
+En las redes de distribución de media y baja tensión, las líneas presentan una elevada relación resistiva-inductiva ($R/X \ge 1$), lo que ocasiona que las ecuaciones convencionales desacopladas de transmisión resulten inválidas \citep{Pompodakis2022Sensitivity}. Las inyecciones nodales de potencia activa ($P_i$) y reactiva ($Q_i$) sobre una red de $N$ barras se rigen por las ecuaciones no lineales de Kirchhoff expresadas sobre la matriz de admitancia nodal $\mathbf{Y}_{\text{bus}} = \mathbf{G} + j\mathbf{B}$:
+\begin{align}
+P_i &= |V_i| \sum_{j=1}^N |V_j| \big( G_{ij}\cos\theta_{ij} + B_{ij}\sin\theta_{ij} \big) \label{eq:p_flow_nl} \\
+Q_i &= |V_i| \sum_{j=1}^N |V_j| \big( G_{ij}\sin\theta_{ij} - B_{ij}\cos\theta_{ij} \big) \label{eq:q_flow_nl}
+\end{align}
+donde $\theta_{ij} = \theta_i - \theta_j$.
+
+Para resolver \eqref{eq:p_flow_nl} y \eqref{eq:q_flow_nl} en la escala macroscópica de la co-simulación, la plataforma implementa dos solucionadores especializados:
+\begin{enumerate}[1.]
+    \item \textbf{Algoritmo Forward-Backward Sweep (FBS):} Especialmente formulado para topologías radiales o débilmente malladas \citep{Glover2017}, desacopla la solución en dos etapas iterativas:
+    \begin{itemize}
+        \item \textit{Backward Sweep (Barrido hacia atrás):} Cálculo de las corrientes de rama a partir de las inyecciones nodales $I_i = (S_i / V_i)^*$.
+        \item \textit{Forward Sweep (Barrido hacia adelante):} Actualización de las tensiones nodales a lo largo de los alimentadores partiendo de la barra slack: $V_j = V_i - Z_{ij} I_{ij}$ \citep{DiFazio2024Linear}.
+    \end{itemize}
+    
+    \item \textbf{Formulación por Matrices de Sensibilidad de Red:} Para análisis de pequeñas variaciones alrededor del punto de equilibrio operativo $x_0 = (V_0, \theta_0)$, se linealiza el sistema mediante matrices Jacobianas reducidas:
+    \begin{equation}\label{eq:sensitivity_mat}
+    \begin{bmatrix} \Delta |V| \\ \Delta f \end{bmatrix} \approx \begin{bmatrix} \mathbf{S}_{VP} & \mathbf{S}_{VQ} \\ \mathbf{S}_{fP} & \mathbf{S}_{fQ} \end{bmatrix} \begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix}
+    \end{equation}
+    donde $\mathbf{S}_{VP} = \frac{\partial |V|}{\partial P}$ y $\mathbf{S}_{VQ} = \frac{\partial |V|}{\partial Q}$ representan las matrices de sensibilidad de tensión, mientras que $\mathbf{S}_{fP} = \frac{\partial f}{\partial P}$ y $\mathbf{S}_{fQ} = \frac{\partial f}{\partial Q}$ capturan la sensibilidad de la frecuencia del sistema ante variaciones en la inyección de potencia activa y reactiva. En redes de distribución con elevada relación $R/X$, las submatrices cruzadas $\mathbf{S}_{VP}$ y $\mathbf{S}_{fQ}$ son significativamente no nulas, reflejando el acoplamiento intrínseco entre las potencias activa y reactiva con la tensión y la frecuencia \citep{Pompodakis2022Sensitivity, Wang2022DataDriven}.
+\end{enumerate}
+
+\subsection{Teoría de Grafos y Control Secundario por Consenso en Tiempo Fijo (FxTS)}
+
+\subsubsection{Taxonomía de Convergencia Temporal y Formalización del Grafo}
+En el control secundario distribuido de microrredes, la literatura científica distingue tres niveles de convergencia temporal:
+\begin{enumerate}[a)]
+    \item \textbf{Estabilidad en Tiempo Finito (\textit{Finite-Time Stability}, FTS):} El error converge a cero en $T < \infty$, pero la cota de tiempo depende fuertemente de las condiciones iniciales del sistema ($x(0)$), cuya dependencia de las condiciones de arranque limita su aplicación práctica \citep{Shrivastava2023FiniteTime, Ning2021, Choi2022}.
+    \item \textbf{Estabilidad en Tiempo Fijo (\textit{Fixed-Time Stability}, FxTS):} El sistema converge antes de un tiempo límite global $T_{\max} < \infty$, garantizando una cota independiente del estado inicial $\|x(0)\|$ mediante exponentes fraccionarios duales ($\alpha < 1, \beta > 1$), conforme al diseño de realimentación no lineal formulado en la referencia fundacional del enfoque \citep{Polyakov2012}; sus aplicaciones al control secundario de microrredes se reportan en \citep{Jasim2023, Zhuang2025}.
+    \item \textbf{Estabilidad en Tiempo Predefinido (\textit{Predefined-Time Stability}, PdTS):} El límite superior de tiempo $T_s$ se convierte en un parámetro de diseño explícito y exacto, fijado libremente sin depender de los autovalores de la red \citep{Zhuang2025, Huang2023, Amrr2026}.
+\end{enumerate}
+
+La infraestructura de comunicación entre los agentes de control se modela como un grafo no dirigido ponderado $\mathcal{G} = (\mathcal{V}, \mathcal{E}, \mathcal{A})$, donde $\mathcal{V} = \{1, 2, \dots, N\}$ es el conjunto de nodos o agentes seguidores, $\mathcal{E} \subseteq \mathcal{V} \times \mathcal{V}$ representa el conjunto de enlaces de comunicación bidireccionales y $\mathcal{A} = [a_{ij}] \in \mathbb{R}^{N \times N}$ es la matriz de adyacencia simétrica con pesos $a_{ij} = a_{ji} > 0$ si $(i,j) \in \mathcal{E}$ y $a_{ij} = 0$ en caso contrario \citep{Mamun2026}. Es importante distinguir dos órdenes distintos: la red eléctrica comprende $N_{\text{bus}}$ barras, de las cuales solo las que alojan recursos controlables participan en el consenso, de modo que el grafo $\mathcal{G}$ tiene orden $N_{\text{DER}} = |\mathcal{V}| \le N_{\text{bus}}$. En la topología de validación de esta tesis, $N_{\text{bus}} = 8$ y $N_{\text{DER}} = 3$.
+
+
+La matriz de grados diagonal $\mathcal{D} = \text{diag}(d_i)$ contiene el grado nodal $d_i = \sum_{j \in \mathcal{N}_i} a_{ij}$, donde $\mathcal{N}_i = \{j \in \mathcal{V} : (j, i) \in \mathcal{E}\}$ define el conjunto de vecinos del agente $i$. La matriz Laplaciana del grafo se define como:
+\begin{equation}\label{eq:laplacian}
+\mathcal{L} = \mathcal{D} - \mathcal{A}
+\end{equation}
+
+Para el esquema de seguimiento de líder (\textit{leader-follower}), el nodo líder físico (nodo 1, generador diésel con consigna nominal $x_0$) se conecta a un subconjunto de seguidores mediante la matriz diagonal de acceso $\mathcal{B} = \text{diag}(b_i)$, con $b_i > 0$ si el agente $i$ recibe información directamente del líder y $b_i = 0$ en caso contrario. La matriz topológica aumentada del sistema se define como $\mathcal{H} = \mathcal{L} + \mathcal{B}$, la cual es simétrica y estrictamente definida positiva ($\mathcal{H} > 0$) si el grafo $\mathcal{G}$ es conexo y al menos un seguidor tiene acceso al líder ($b_i > 0$) \citep{Shrivastava2023FiniteTime}.
+
+\subsubsection{Protocolo de Consenso Restaurativo en Tiempo Fijo}
+Para garantizar la restitución de tensión y frecuencia, así como el reparto proporcional de potencia activa y reactiva de forma determinista y físicamente restaurativa, se implementan cuatro lazos de consenso independientes que aplican la misma ley de actualización bi-potencia sobre variables de estado distintas \citep{Jasim2023, Zhuang2025}. Cada lazo opera sobre el error restaurativo entre el agente local $i$ y sus vecinos topológicos $j \in \mathcal{N}_i$.
+
+La ley de consenso genérica en tiempo fijo, aplicable a cualquier variable de estado $x_i(t)$, adopta la forma:
+\begin{equation}\label{eq:fixed_time_law}
+\begin{split}
+u_i(t) = &c_1 \left( \sum_{j \in \mathcal{N}_i} a_{ij} \text{sig}^\alpha(x_j(t) - x_i(t)) + b_i \text{sig}^\alpha(x_0 - x_i(t)) \right) \\
+&+ c_2 \left( \sum_{j \in \mathcal{N}_i} a_{ij} \text{sig}^\beta(x_j(t) - x_i(t)) + b_i \text{sig}^\beta(x_0 - x_i(t)) \right)
+\end{split}
+\end{equation}
+donde $x_i(t)$ representa la variable de estado local del agente $i$, $x_j(t)$ es el estado reportado por el vecino $j \in \mathcal{N}_i$, $x_0$ denota la consigna o referencia nominal dictada por el nodo líder (frecuencia $\omega^*$ o tensión $V^*$), $a_{ij}$ es el peso de comunicación proveniente de la matriz de adyacencia $\mathcal{A}$, $b_i \ge 0$ es la ganancia de anclaje (\textit{pinning gain}) de acceso directo al líder, $c_1, c_2 > 0$ son las ganancias de aceleración del consenso, los exponentes fraccionarios satisfacen $0 < \alpha < 1$ y $\beta > 1$, y el operador no lineal $\text{sig}^p(z)$ se define como:
+\begin{equation}\label{eq:sig_op}
+\text{sig}^p(z) = \text{sign}(z) |z|^p
+\end{equation}
+
+La formulación emplea la diferencia restaurativa $(x_j - x_i)$: si el nodo local presenta un valor inferior a sus vecinos ($x_i < x_j \implies x_j - x_i > 0$), la acción de control genera $u_i(t) > 0$, incrementando la consigna restaurativa hacia el consenso. El término $\text{sig}^\alpha(\cdot)$ (con $\alpha = 0.8 < 1$) domina y acelera la tasa de convergencia cuando el error se encuentra próximo al origen ($|e| < 1$), mientras que el término $\text{sig}^\beta(\cdot)$ (con $\beta = 1.2 > 1$) proporciona una rápida tasa de rechazo ante perturbaciones de gran magnitud ($|e| > 1$).
+
+Esta ley genérica \eqref{eq:fixed_time_law} se instancia de forma independiente y simultánea para las siguientes cuatro variables de estado, conformando el control secundario completo de la microrred:
+
+\begin{enumerate}[a)]
+    \item \textbf{Restauración de Tensión ($x_i = V_i$):} La señal de control $u_{v,i}(t)$ corrige la desviación de la magnitud de tensión en el nodo $i$ respecto a la referencia nominal del líder $V^* = V_0$ (1.0 p.u.), compensando la caída de tensión residual inducida por el estatismo de potencia reactiva \eqref{eq:droop_v}.
+    
+    \item \textbf{Reparto Proporcional de Potencia Reactiva ($x_i = Q_i / Q_{\max, i}$):} Utiliza la razón de utilización reactiva como variable de consenso. La señal $u_{q,i}(t)$ garantiza que todos los inversores operen con el mismo índice proporcional de carga reactiva, previniendo sobrecargas térmicas en convertidores individuales.
+    
+    \item \textbf{Restauración de Frecuencia ($x_i = \omega_i$):} La señal de control $u_{\omega,i}(t)$ corrige la desviación de la frecuencia angular local respecto a la frecuencia síncrona nominal del líder $\omega^* = 2\pi \cdot 60\text{ rad/s}$, compensando la desviación estacionaria inducida por el estatismo de potencia activa \eqref{eq:droop_w}.
+    
+    \item \textbf{Reparto Proporcional de Potencia Activa ($x_i = P_i / P_{\max, i}$):} Análogamente al reparto de reactiva, la señal $u_{p,i}(t)$ garantiza la distribución equitativa de la carga activa entre los recursos distribuidos proporcionalmente a su capacidad nominal, evitando la saturación de fuentes con menor capacidad de generación.
+\end{enumerate}
+
+Los cuatro lazos de consenso comparten los mismos parámetros de sintonización ($c_1, c_2, \alpha, \beta$), la misma topología de grafo ($\mathcal{G}$) y la misma infraestructura de comunicación P2P, operando de forma paralela en cada ciclo de control secundario ($dt_{\text{macro}} = H = 500\text{ ms}$).
+
+\subsubsection{Análisis de Estabilidad y Deducción de la Cota Estricta de Lyapunov (\texorpdfstring{$T_f$}{T\_f})}
+Dado que los cuatro lazos de consenso (tensión, potencia reactiva, frecuencia y potencia activa) comparten la misma estructura matemática \eqref{eq:fixed_time_law}, la misma topología de grafo $\mathcal{G}$ y los mismos parámetros de diseño ($c_1, c_2, \alpha, \beta$), el análisis de estabilidad se formula de forma unificada. Definiendo el vector de error de seguimiento genérico $e(t) = x(t) - x_0 \mathbf{1}_N$ para cualquiera de las cuatro variables, se selecciona la función candidata de Lyapunov:
+\begin{equation}\label{eq:lyapunov}
+V(e) = \frac{1}{2} e^T \mathcal{H} e
+\end{equation}
+
+Derivando \eqref{eq:lyapunov} respecto al tiempo y aplicando la desigualdad de Jensen sobre el grafo no dirigido conexo, la derivada satisface:
+\begin{equation}\label{eq:lyapunov_dot}
+\dot{V}(e) \le -c_1 2^{\frac{\alpha+1}{2}} \lambda_2(\mathcal{L})^{\frac{\alpha+1}{2}} V(e)^{\frac{\alpha+1}{2}} - c_2 2^{\frac{\beta+1}{2}} \lambda_2(\mathcal{L})^{\frac{\beta+1}{2}} V(e)^{\frac{\beta+1}{2}}
+\end{equation}
+donde $\lambda_2(\mathcal{L}) > 0$ es la conectividad algebraica (autovalor de Fiedler) de la matriz Laplaciana del grafo de comunicación.
+
+Conforme al Lema de Lyapunov en Tiempo Fijo, la trayectoria del error converge exactamente a cero ($e(t) \equiv 0$) para todo $t \ge T_f$, donde la cota analítica estricta del tiempo de convergencia está dada por:
+\begin{equation}\label{eq:t_settling}
+T_f \le \frac{2^{\frac{1-\alpha}{2}}}{c_1 (1 - \alpha) \lambda_2(\mathcal{L})^{\frac{1+\alpha}{2}}} + \frac{2^{\frac{1-\beta}{2}}}{c_2 (\beta - 1) \lambda_2(\mathcal{L})^{\frac{1+\beta}{2}}}
+\end{equation}
+
+Aquí $T_f$ denota la cota específica de este trabajo, obtenida al evaluar \eqref{eq:t_settling} con los parámetros propios de diseño, en contraste con el límite genérico $T_{\max}$ que define la clase de estabilidad en tiempo fijo.
+
+Para la topología de validación, el grafo de consenso agrupa $N_{\text{DER}} = 3$ agentes (diésel, solar y BESS) sobre las $N_{\text{bus}} = 8$ barras eléctricas. Considerando un grafo en línea de tres agentes, cuya conectividad algebraica es $\lambda_2(\mathcal{L}) = 2(1-\cos(\pi/3)) = 1.0$, y los parámetros nominales $\alpha = 0.8$, $\beta = 1.2$, $c_1 = 0.25$, $c_2 = 0.15$, la cota teórica de asentamiento resulta $T_f \le 52.54\text{ s}$ para las cuatro variables de consenso (tensión, frecuencia, potencia reactiva y potencia activa). Conviene interpretar correctamente esta cota: se trata de un peor caso global derivado de la función de Lyapunov bajo condiciones iniciales arbitrariamente alejadas del equilibrio ($\|x(0)\| \to \infty$), de modo que en el régimen local propio de una microrred —donde las desviaciones están acotadas— la convergencia efectiva ocurre en una fracción de ese plazo. La selección de las ganancias $c_1$ y $c_2$ responde a tres criterios que se detallan más adelante en esta sección —cota de asentamiento, margen de estabilidad numérica y asimetría de exponentes—; en particular, y como se formaliza en la condición \eqref{eq:cfl_condition}, con ganancias unitarias el factor de estabilidad sería $d_{\max}(c_1+c_2)\Delta t = 2.0 > 1.0$, lo que situaría al esquema discreto en oscilación espuria entre pasos, mientras que los valores adoptados verifican, en la región no lineal, $d_{\max}(c_1+c_2)\Delta t = 0.40 < 1.0$.
+
+Es importante destacar que, dado que los cuatro lazos operan de forma desacoplada con idénticos parámetros $c_1, c_2, \alpha, \beta$ sobre el mismo grafo, la cota $T_f$ aplica de forma independiente a cada variable de estado. La convergencia simultánea de los cuatro lazos se garantiza por la propiedad de superposición de la estabilidad en tiempo fijo sobre el mismo espectro Laplaciano $\lambda_2(\mathcal{L})$.
+
+\subsubsection{Mecanismo Anti-Chattering en Capa Límite}
+Para evitar oscilaciones de alta frecuencia (\textit{chattering}) inducidas por la no diferenciabilidad del operador $\text{sign}(z)$ en el origen durante la integración numérica, se implementa una aproximación continua $C^0$ con zona muerta de espesor $\delta = 10^{-3}\text{ p.u.}$ —denotado $\delta$ para distinguirlo de la banda de asentamiento $\varepsilon$ de \eqref{eq:tset_band}—:
+\begin{equation}\label{eq:anti_chattering}
+\text{sig}_k^p(z) = \begin{cases} \text{sign}(z)|z|^p & \text{si } |z| > \delta \\ k_p z & \text{si } |z| \le \delta \end{cases}
+\end{equation}
+donde la pendiente de empalme suave en la frontera depende del exponente aplicado en \eqref{eq:anti_chattering}, $k_p = \delta^{p-1}$: para $\alpha = 0.8$ resulta $(10^{-3})^{-0.2} \approx 3.981$, y para $\beta = 1.2$, $(10^{-3})^{0.2} \approx 0.251$.
+
+\subsubsection{Discretización Temporal, Condición CFL y Acción Integral}
+La deducción analítica de Lyapunov \eqref{eq:t_settling} modela el sistema continuo ideal $\dot{x}_i(t) = u_i(t)$. En la implementación ciberfísica sobre hardware de borde distribuido, el algoritmo opera con integración de Euler explícito a periodo de muestreo macroscópico $\Delta t = H = 0.5\text{ s}$.
+
+Para asegurar la estabilidad numérica frente al desacoplamiento temporal, el sistema debe satisfacer la condición de Euler explícito evaluada sobre el espectro de la matriz topológica aumentada $\mathcal{H} = \mathcal{L} + \mathcal{B}$:
+\begin{equation}\label{eq:cfl_condition}
+\Delta t \cdot \lambda_{\max}(\mathcal{H}) \cdot g_{\text{ef}} < 2.0
+\end{equation}
+donde $\lambda_{\max}(\mathcal{H})$ es el mayor autovalor de $\mathcal{H}$ y $g_{\text{ef}}$ es la ganancia efectiva de la ley linealizada en el régimen considerado. Fuera de la capa límite ($|e| > \delta$), la ley no lineal aporta $g_{\text{ef}} = c_1 + c_2$; y como $\lambda_{\max}(\mathcal{H}) \le 2d_{\max}$, con $d_{\max} = \max_{i} \sum_{j \in \mathcal{N}_i} a_{ij}$ el grado nodal máximo, la condición adopta la forma conservadora clásica $\Delta t \cdot d_{\max} \cdot (c_1 + c_2) < 1.0$. Dentro de la capa límite ($|e| \le \delta$), el operador \eqref{eq:anti_chattering} es lineal de pendiente $k_p = \delta^{p-1}$, de modo que la ganancia efectiva asciende a $g_{\text{ef}} = c_1\delta^{\alpha-1} + c_2\delta^{\beta-1}$; con $\delta = 10^{-3}$, $\alpha = 0.8$ y $\beta = 1.2$ resulta $g_{\text{ef}} = 0.25(3.981) + 0.15(0.251) = 1.033$. Sobre la topología de validación ($\lambda_{\max}(\mathcal{H}) = 3.247$ con $b_1 = 1.0$) la condición se verifica como $\Delta t \cdot \lambda_{\max}(\mathcal{H}) \cdot g_{\text{ef}} = 0.5 \times 3.247 \times 1.033 = 1.677 < 2.0$. Este es el régimen que gobierna la estabilidad numérica del esquema: aplicar la forma conservadora con $d_{\max}$ dentro de la capa límite arrojaría $1.033 > 1.0$, pese a que el criterio espectral exacto conserva margen, porque $2d_{\max} = 4$ sobreestima el autovalor real $\lambda_{\max}(\mathcal{H}) = 3.247$. El modo crítico asociado decae con factor $|1 - 1.677| = 0.677$ por paso alternando signo, y se activa únicamente para $|e| \le \delta = 10^{-3}$, donde la amplitud es despreciable. Los valores operacionales $c_1 = 0.25$ y $c_2 = 0.15$ no se adoptan como un compromiso, sino que satisfacen simultáneamente tres criterios de diseño. \emph{(i) Cota de asentamiento:} con $\lambda_2(\mathcal{L}) = 1.0$ sobre la topología de validación, la ecuación \eqref{eq:t_settling} entrega $T_f \le 52.54\text{ s}$. \emph{(ii) Margen de estabilidad numérica:} conforme a \eqref{eq:cfl_condition}, el régimen que gobierna es el interior de la capa límite, donde $\Delta t \cdot \lambda_{\max}(\mathcal{H}) \cdot g_{\text{ef}} = 1.677 < 2.0$, con un margen del $16.2\%$ sobre el límite de divergencia del integrador; fuera de la capa límite el factor desciende a $0.649$, con margen del $67.5\%$. \emph{(iii) Asimetría de exponentes:} dado que la cota \eqref{eq:t_settling} es un argumento de Lyapunov de peor caso, su minimización analítica no coincide con la del tiempo de asentamiento medido; el reparto balanceado que minimiza \eqref{eq:t_settling} a igual suma de ganancias ($c_1 = 0.207$, $c_2 = 0.193$, $T_f \le 50.06\text{ s}$) resulta un $11.1\%$ más lento en la verificación numérica que la pareja asimétrica adoptada, porque con $c_1 > c_2$ la acción de control crece en la región $|e| < 1$ —gobernada por el exponente $\alpha < 1$—, que es donde se ubican las desviaciones de operación de la microrred en base unitaria, mientras que el reparto balanceado desplaza el esfuerzo hacia $|e| > 1$, fuera de ese rango. La verificación del lazo de consenso aislado sobre la topología de validación, evaluada según la definición \eqref{eq:tset_band} con $\varepsilon = 0.02$, arroja $T_{set} = 13.5\text{ s}$, equivalente al $26\%$ de la cota; la pareja invertida ($c_1 = 0.15$, $c_2 = 0.25$) es la más desfavorable de las evaluadas, con $T_{set} = 17.5\text{ s}$.
+
+Adicionalmente, para anular el error en estado estacionario de los lazos de tensión y frecuencia en topologías no completas, los incrementos $u_{V,i}$ y $u_{\omega,i}$ se incorporan mediante una acción integral con saturación anti-windup:
+\begin{align}
+\delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]} \left( \delta V_i(k) + \Delta t \cdot u_{V,i}(k) \right) \label{eq:integral_V} \\
+\delta \omega_i(k+1) &= \text{sat}_{[-\pi, +\pi]} \left( \delta \omega_i(k) + \Delta t \cdot u_{\omega,i}(k) \right) \label{eq:integral_omega}
+\end{align}
+cerrando el lazo restaurativo directamente hacia las referencias de excitación del inversor y de velocidad angular del gobernador primario.
+
+
+\subsection{Fundamento de Co-Simulación Ciber-Física Multitasa}
+
+\subsubsection{Desacoplamiento Temporal Multirate y Retención de Orden Cero (ZOH)}
+La co-simulación ciber-física resuelve el reto de acoplar dominios con constantes de tiempo dispares mediante un esquema multirate jerárquico \citep{Liu2025Multirate, Haid2022CosimCorrector}:
+\begin{itemize}
+    \item \textbf{Macro-paso de red ($H = dt_{\text{macro}} = 500\text{ ms}$, $2.0\text{ Hz}$):} El solucionador de red nodal en el PC Central resuelve el flujo de potencia en estado estacionario y publica las tensiones nodales $V_{pcc, i}$.
+    \item \textbf{Micro-paso del convertidor ($h = dt_{\text{micro}} = 1.0\text{ ms}$, $1.0\text{ kHz}$):} Cada generador distribuido ejecuta internamente $N_{\text{substeps}} = H / h = 500$ iteraciones físicas para resolver las ecuaciones diferenciales de la fuente, el control $dq$ y el PLL.
+\end{itemize}
+
+El intercambio de variables de frontera entre macro-pasos lo resuelve el runner de nodos que sostiene el lazo HIL, y allí se emplea una familia de retenedores parametrizada por $\lambda \in [0,1]$, según $\tilde{u}(t) = u(k) + \lambda\,\dfrac{u(k)-u(k-1)}{H}\,(t-t_k)$: el valor $\lambda = 0$ recupera el retenedor de orden cero (ZOH), mientras que los valores $\lambda > 0$ incorporan extrapolación de tendencia. El benchmark de control secundario, en cambio, no reconstruye variables de frontera: su planta es algebraico-cinemática y no depende del retenedor, de modo que no se le puede atribuir valor alguno de $\lambda$. Para la familia, y en particular para $\lambda = 0$, rige el análisis de error de acoplamiento explícito documentado por \citet{Kyllingstad2025CosimErrors} y \citet{Haid2022CosimCorrector}: el error de truncamiento numérico de la interfaz escala linealmente como $\varepsilon_{\text{ZOH}} = \mathcal{O}(H)$ y, dado que las constantes de tiempo de control secundario ($\tau_{\text{sec}} \approx 2\text{ a }5\text{ s}$) satisfacen $\tau_{\text{sec}} \gg H$, el esquema garantiza convergencia asintótica sin inestabilidad numérica.
+
+La elección dentro del runner no es arbitraria, sino que responde a un experimento nodal independiente sobre el nodo solar, ejecutado sobre su convertidor Boost con $Q_{\text{ref}} = 4000\text{ var}$, $P_{\text{ref}} = 0\text{ W}$, $POA = 800\text{ W/m}^2$ y $T_{\text{amb}} = 25\text{ °C}$, bajo el perfil de caída de tensión del escenario canónico (120 s, escalón de $0.2\text{ p.u.}$ y recuperación con $\tau = 4.5\text{ s}$) y comparando $H = 0.5\text{ s}$ contra una referencia de $H = 0.05\text{ s}$: el ZOH presenta un error de $3.85\text{ W}$ RMS y $26.65\text{ W}$ de máximo, mientras que el retenedor con $\lambda = 0.7$ asciende a $14.33\text{ W}$ RMS y $221.87\text{ W}$ de máximo, sobre una potencia nominal de $4000\text{ W}$. El error crece de forma monótona con $\lambda$, de modo que $\lambda = 0.7$ resulta $3.72$ veces mayor que el ZOH en valor RMS.\footnote{Experimento reproducible: el guion de simulación tiene SHA-256 \texttt{53e53267\ldots} y el artefacto de salida, \texttt{solar\_hold\_comparison.json}, SHA-256 \texttt{f725b82b\ldots}; semilla 42.}
+
+Conviene precisar una diferencia que explica ese resultado: los esquemas con $\lambda > 0$ implementados en la plataforma calculan la pendiente por diferencia retrospectiva y la extrapolan hacia adelante, de modo que operan como predictores y no como la interpolación entre $u(k)$ y $u(k+1)$ del FROH de Ishitobi.
+
+\subsubsection{Arquitectura de Intercambio Determinista y Telemétrico}
+Para combinar determinismo y realismo en la comunicación:
+\begin{enumerate}[a)]
+    \item \textbf{Canal síncrono de paso de tiempo (ZeroMQ):} Emplea sockets REQ-REP y PUB-SUB configurados con temporizadores estrictos (`RCVTIMEO = 2000 ms`, `SNDTIMEO = 1000 ms`, `LINGER = 0`) para garantizar la sincronización lock-step entre el reloj maestro y los nodos de hardware sin bloqueos indefinidos.
+    \item \textbf{Canal asíncrono telemétrico (MQTT):} Utilizado para la inyección exógena de perturbaciones ambientales (perfiles de viento e irradiancia) y contingencias de red (latencias y pérdidas de paquetes), emulando condiciones operativas reales sobre el clúster embebido \citep{Gomes2022FMI30, Diaz2025, Khanna2025}.
+\end{enumerate}
+
+\subsection{Métricas de Desempeño y Evaluación de Resiliencia}
+
+La evaluación cuantitativa del control secundario distribuido exige indicadores que capturen tanto la calidad de la regulación en régimen permanente como el comportamiento transitorio ante contingencias. A continuación se formalizan las métricas empleadas en el diseño experimental.
+
+\textbf{Error cuadrático medio integral.} Para una variable $x \in \{V, f\}$ muestreada en $N_s$ instantes durante el horizonte de simulación $[t_0, t_f]$, el error respecto a la consigna $x^\star$ se cuantifica mediante:
+
+\begin{equation}\label{eq:rmse}
+\text{RMSE}_x = \sqrt{\frac{1}{N_s}\sum_{k=1}^{N_s}\left(x(t_k) - x^\star\right)^2}
+\end{equation}
+
+\textbf{Tiempo de asentamiento.} Se define como el primer instante a partir del cual la respuesta permanece dentro de una banda de tolerancia $\pm\varepsilon$ alrededor de la consigna, partiendo de la expresión \eqref{eq:t_settling}:
+
+\begin{equation}\label{eq:tset_band}
+T_{set} = \min\left\{ t \;\middle|\; |x(\tau) - x^\star| \le \varepsilon\,|x^\star|, \; \forall \tau \ge t \right\}
+\end{equation}
+
+con $\varepsilon = 0.02$, correspondiente a una banda de tolerancia del $2\%$ sobre la consigna. Conviene precisar el alcance de esta métrica: para la frecuencia nominal de $60\text{ Hz}$ la banda resultante es de $\pm 1.2\text{ Hz}$, que coincide con el umbral de protección de subfrecuencia de la NTC 1340. $T_{set}$ cuantifica, por tanto, el instante en que la variable ingresa en la banda de cumplimiento regulatorio, y no la calidad de regulación del lazo de control secundario, cuyo objetivo es un orden de magnitud más estrecho.
+
+\textbf{Nadir de frecuencia.} Ante una perturbación, la frecuencia desciende hasta un mínimo antes de recuperarse, y ese valor extremo condiciona la activación de las protecciones de subfrecuencia:
+
+\begin{equation}\label{eq:fnadir}
+f_{\text{nadir}} = \min_{t \in [t_0, t_f]} f(t)
+\end{equation}
+
+\textbf{Tasa máxima de cambio de frecuencia.} Definida en \eqref{eq:rocof}, cuantifica la severidad del transitorio inicial y está directamente asociada a la inercia equivalente del sistema.
+
+\textbf{Retardo crítico de estabilidad.} Es el mayor retardo de comunicación $\tau$ para el cual el lazo cerrado conserva la estabilidad:
+
+\begin{equation}\label{eq:tau_crit}
+\tau_{crit} = \sup\left\{ \tau \ge 0 \;\middle|\; \text{el sistema en lazo cerrado es asintóticamente estable} \right\}
+\end{equation}
+
+No se estima empíricamente, sino que se deriva analíticamente de la condición de estabilidad numérica \eqref{eq:cfl_condition}: bajo un retardo de comunicación $\tau$, el paso efectivo se incrementa a $\Delta t + \tau$ y el criterio de contracción se reescribe como $(\Delta t + \tau)\,\lambda_{\max}(\mathcal{H})\,g_{\text{ef}} < 2$, de donde se despeja el máximo retardo admisible, $\tau_{crit} < \dfrac{2}{\lambda_{\max}(\mathcal{H})\,g_{\text{ef}}} - \Delta t$, que con $\lambda_{\max}(\mathcal{H})\,g_{\text{ef}} = 3.354\ \text{s}^{-1}$ resulta $\tau_{crit} < 96.3\ \text{ms}$. La cota es analítica y conservadora: el emulador de canal resuelve la entrega una vez por macro-paso, de modo que todo retardo comprendido en $(0;\,\Delta t]$ se materializa en el mismo instante y no permite discriminar valores por debajo del umbral.
+
+\textbf{Índices de reparto proporcional.} La equidad en la distribución de potencia entre los recursos distribuidos se evalúa comparando la fracción utilizada de la capacidad de cada unidad:
+
+\begin{equation}\label{eq:share_index}
+\eta_Q = \frac{Q_i}{Q_{\max,i}}, \qquad \eta_P = \frac{P_i}{P_{\max,i}}
+\end{equation}
+
+Un reparto proporcional correcto implica $\eta_{Q,i} \approx \eta_{Q,j}$ y $\eta_{P,i} \approx \eta_{P,j}$ para todo par de nodos en régimen permanente.

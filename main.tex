@@ -1,0 +1,172 @@
+\documentclass[12pt,letterpaper]{article}
+\renewcommand{\rmdefault}{phv} % Cambiar la fuente a Arial
+\hbadness=10000 % Aumentado para evitar advertencias
+\tolerance=1000 % Permitir más flexibilidad en el espaciado
+\emergencystretch=3em % Permite estirar el texto para evitar desbordes
+\setlength{\hfuzz}{0.5pt} % Tolerancia pequeña para desbordes menores
+
+\usepackage{ragged2e}
+\usepackage{longtable}
+
+\usepackage[left=4cm,right=2cm,top=3cm,bottom=3cm]{geometry} % Margenes
+\usepackage[spanish,es-tabla]{babel} % Cambia el texto "Cuadro" por "Tabla"
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} % Para aceptar caracteres en español: tilde, ñ, etc.
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts,cancel}
+\usepackage{array}
+\usepackage{enumerate} 
+\usepackage{etoolbox}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[pdfstartpage=1,backref=false,pagebackref=false,pdfborder={0 0 0},colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{ragged2e}
+\usepackage{natbib}
+\usepackage{longtable}
+\usepackage{multicol} % Dividir en columnas
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{titletoc} % alinear títulos en tabla de contenido
+\usepackage{titling} % Cambiar secciones
+\usepackage{colortbl} % agrega colores a columnas
+\usepackage{xcolor}
+\usepackage{tabularx} % Necesario para el tipo de columna X
+
+% Configuración de bibliografía
+%\usepackage[style=ieee-alphabetic, citestyle=numeric]{biblatex}
+%\addbibresource{TuArchivo.bib} % Reemplaza con el nombre de tu archivo de referencias
+
+% Configuración de hyphenation (reemplaza a hyphenat)
+\lefthyphenmin=3 % Mínimo 3 letras antes del guión
+\righthyphenmin=3 % Mínimo 3 letras después del guión
+\hyphenpenalty=50 % Penaliza menos la hyphenation
+\exhyphenpenalty=50
+\doublehyphendemerits=10000
+
+% Configuración de párrafos corregida
+\setlength{\parindent}{0em} % Sin sangría
+\setlength{\parskip}{0.5em} % Espaciado reducido (antes 2em era excesivo)
+\clubpenalty=10000 % Evita viudas al inicio de página
+\widowpenalty=10000 % Evita huérfanas al final de página
+
+\fancyhead{}
+\fancyfoot[c]{\thepage}
+\pagestyle{fancy}
+
+\usepackage{tocloft}
+\addto\captionsenglish{\renewcommand{\contentsname}{Contenido}}
+\renewcommand{\cfttoctitlefont}{\hfill\normalsize}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\normalsize}
+\renewcommand{\cftafterloftitle}{\hfill\mbox{}}
+\renewcommand{\cftlottitlefont}{\hfill\normalsize}
+\renewcommand{\cftafterlottitle}{\hfill\mbox{}}
+
+\renewcommand{\cftfigfont}{Fig. }
+\renewcommand{\cfttabfont}{TABLA }
+\renewcommand{\spanishtablename}{TABLA}
+
+\usepackage{layout} % Carga el paquete layout
+%\usepackage{showframe} % muestra los márgenes y el área del contenido
+
+% Configuración de títulos (sin cambios)
+\titleclass{\subsubsubsection}{straight}[\subsection]
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % para las subsecciones numeradas
+
+\titleformat{\section}[block]{\bfseries\centering}{\thesection.}{1em}{} % Configuración títulos1
+\titleformat{\subsection} % Configuración de título2
+  {\normalfont\normalsize\bfseries\MakeUppercase}{\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{0em}{0em}
+\titleformat{\subsubsection} % Configuración de título3
+  {\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+\titlespacing*{\subsubsection}{0pt}{0em}{0em}
+\titleformat{\subsubsubsection} % Configuración de título4
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}{0pt}{0em}{0em}
+
+\makeatletter % Quitar sangria en listas
+\renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
+  {0em}% {3.25ex \@plus1ex \@minus.2ex}
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {0em}% {3.25ex \@plus1ex \@minus.2ex}
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}  
+\def\toclevel@subsection{2}
+\def\toclevel@subsubsection{3}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+\def\toclevel@paragraph{6}
+\setlength{\cftsecindent}{0pt}
+\setlength{\cftsubsecindent}{0pt}
+\setlength{\cftsubsubsecindent}{0pt}
+%\setlength{\cftsubsubsubsecindent}{0pt} % Para su custom subsubsubsection
+\setlength{\cftfigindent}{0pt} 
+\setlength{\cfttabindent}{0pt}
+
+\g@addto@macro\cftsecpagefont{\bfseries}
+\g@addto@macro\cftsubsecpagefont{\bfseries\MakeUppercase}
+\g@addto@macro\cftparapagefont{\bfseries} 
+\g@addto@macro\cftsubparapagefont{\bfseries}
+\g@addto@macro\cftfigpagefont{\bfseries} % coloca en negrita los números de página de lof
+\g@addto@macro\cfttabpagefont{\bfseries} % coloca en negrita los números de página de lot
+
+\makeatother
+
+\setcounter{secnumdepth}{4} % indica cantidad de niveles de títulos a mostrar
+\setcounter{tocdepth}{4}
+% Fin Configuración de subtítulos
+
+\makeatletter % Cambiar : por . y ponerlo en negrita
+\newcolumntype{U}[0]{>{$}c<{$}} % Nuevo formato para columnas con fórmula
+\renewcommand{\fnum@table}[1]{\textbf{\tablename~\thetable}. \sffamily}
+\renewcommand\thetable{\Roman{table}}
+\makeatother
+
+\renewcommand{\headrulewidth}{0pt}
+\raggedbottom % Quita espacios en blanco
+
+\setlength{\arrayrulewidth}{1pt}
+\setlength{\doublerulesep}{0mm}
+
+% Configuración adicional para mejorar el flujo de texto
+\sloppy % Permite espaciado más flexible entre palabras
+\setlength{\parfillskip}{0pt plus 1fil} % Mejora la justificación
+
+\begin{document}
+\include{SECCIONES/PORTADA}
+\newpage
+\noindent\renewcommand{\contentsname}{\textbf{CONTENIDO}} % Quita el espacio superior y cambia el nombre
+\vspace{-1cm}
+\addtocontents{toc}{\hfill \textbf{pág.} \par}
+\textbf{\tableofcontents}
+\include{SECCIONES/INTRODUCCION}
+\newpage
+\include{SECCIONES/PROBLEMA}
+\newpage
+\include{SECCIONES/OBJETIVOS}
+\newpage
+\include{SECCIONES/JUSTIFICACION}
+\newpage
+\include{SECCIONES/ANTECEDENTES}
+\newpage
+\include{SECCIONES/TEORIA}
+\newpage
+\include{SECCIONES/DISENO}
+\newpage
+\include{SECCIONES/IMPLEMENTACION}
+\newpage
+\include{SECCIONES/RESULTADOS}
+\renewcommand{\refname}{REFERENCIAS}
+\addcontentsline{toc}{section}{REFERENCIAS}
+
+\bibliographystyle{apalike} 
+\bibliography{TuArchivo}
+
+\end{document}

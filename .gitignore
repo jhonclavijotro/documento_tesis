@@ -1,0 +1,26 @@
+# Compilacion latex (regenerables)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fls
+*.fdb_latexmk
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.run.xml
+main.pdf
+
+# Respaldos
+_backups/
+*.bak*
+*.orig
+
+# Documentos de analisis / scripts (no son fuente LaTeX)
+*.py
+*.md
+nul
+
+# Figura de prueba temporal
+horizontal-color.png

@@ -1,0 +1,179 @@
+\section{ARQUITECTURA E IMPLEMENTACIÓN DEL SISTEMA MULTIAGENTE Y CO-SIMULACIÓN}
+
+En esta sección se detalla el diseño ingenieril, la implementación de software y el despliegue ciber-físico de la plataforma de co-simulación y control secundario distribuido basada en Sistemas Multiagente (MAS). La arquitectura integra un entorno desacoplado en hardware heterogéneo (PC Central y clúster IoT-Edge en Raspberry Pi 5), solucionadores de red desarrollados desde primeros principios, algoritmos de consenso no lineal en tiempo fijo con mitigación de contingencias telemétricas, y una infraestructura de contenerización modular.
+
+\subsection{Arquitectura Ciber-Física Global del Sistema}
+
+La plataforma se estructura a partir de cuatro capas funcionales interconectadas de manera asíncrona y síncrona, eliminando la dependencia de controladores centralizados para la regulación secundaria de la microrred \citep{Mamun2026, Altin2023MultiAgent}:
+
+\begin{enumerate}[1.]
+    \item \textbf{Capa de Coordinación Central y Simulación Eléctrica (PC Central):} Alberga el reloj maestro de simulación (\texttt{Central\_PC/master\_clock\_zmq.py}) y los solucionadores de flujo de potencia nodal. Actúa como el árbitro temporal determinista del sistema, suministrando en cada macro-paso ($H = 500\text{ ms}$) los valores fasoriales de tensión de acoplamiento ($V_{pcc, i}$) y resolviendo el punto de operación de la red a partir de las inyecciones de potencia activa ($P_i$) y reactiva ($Q_i$) reportadas por las fuentes.
+    
+    \item \textbf{Capa Física y Dinámica de Convertidores (Nodos DER):} Procesos individuales (\texttt{Agents/node\_dynamic\_process.py}) desplegados en contenedores dedicados que emulan la física electromagnética y electromecánica rápida ($h = 1.0\text{ ms}$) de los Recursos Energéticos Distribuidos (DER): Solar Fotovoltaica, BESS, Eólica PMSG, Hidroeléctrica y Diésel. Cada nodo integra su propio lazo de enganche de fase síncrono (SRF-PLL) y control en marco de referencia $dq$.
+    
+    \item \textbf{Capa de Control Secundario Distribuido (Sistema Multiagente P2P):} Conjunto de agentes de cómputo (\texttt{Agents/finite\_time\_consensus.py}) aislados en contenedores independientes. Cada agente interactúa exclusivamente con sus vecinos topológicos inmediatos según la matriz de adyacencia $\mathcal{A}$, ejecutando la ley de consenso en tiempo fijo para sintetizar cuatro incrementos correctivos independientes: $\Delta V_i$ y $\Delta Q_i$ para la restitución de tensión y el reparto proporcional de potencia reactiva ($Q_i / Q_{\max, i}$), y $\Delta \omega_i$ y $\Delta P_i$ para la restitución de frecuencia y el reparto proporcional de potencia activa ($P_i / P_{\max, i}$).
+    
+    \item \textbf{Capa de Telemetría, Contingencias e Inyección Exógena (IoT / Centro de Mando):} Infraestructura compuesta por un broker MQTT (Mosquitto) para la inyección telemétrica de perfiles meteorológicos (irradiancia, temperatura, velocidad del viento) y comandos de perturbación, una base de datos de series temporales (InfluxDB) muestreada a $500\text{ ms}$, y un emulador estocástico de canal de red (\texttt{common/network\_channel\_emulator.py}) acoplado a proxies de degradación telemétrica (\texttt{Agents/network\_impairment\_proxy.py}).
+\end{enumerate}
+
+\subsubsection{Modos de Operación Soportados: ONLINE vs. OFFLINE}
+
+La arquitectura admite la conmutación transparente entre dos modos operativos fundamentales de microrred \citep{MartinezGomez2025Distributed}:
+\begin{itemize}
+    \item \textbf{Modo ONLINE (Conectado a la Red Principal):} El PC Central impone la barra Slack en el punto de interconexión con la red externa ($V_{\text{slack}} = 1.0 \angle 0^\circ\text{ p.u.}$). El objetivo de los agentes de consenso se orienta a la regulación local de tensión dentro de la banda admisible ($\pm 5\%$) y la optimización del reparto proporcional de potencia reactiva entre los DERs para evitar sobrecargas térmicas en los inversores.
+    \item \textbf{Modo OFFLINE (Modo Isla / Aislado):} Tras la apertura del interruptor de acoplamiento estático, el generador diésel (Nodo 1) asume el rol de nodo de referencia inercial y líder de consenso, propagando tanto la consigna de tensión ($V_{\text{ref}} = 1.0\text{ p.u.}$, $b_1 = 1.0$) como la consigna de frecuencia nominal ($\omega^* = 2\pi \cdot 60\text{ rad/s}$). El protocolo de seguimiento de líder propaga ambas consignas de restauración hacia los inversores seguidores de la topología activa, garantizando simultáneamente la estabilidad de tensión y frecuencia sin requerir comunicación con la red principal \citep{Shrivastava2023FiniteTime}. La plataforma modela y admite hasta cinco recursos (Diésel, Solar, Eólica, BESS e Hídrica); la validación experimental de esta tesis emplea, sobre las ocho barras del banco, la configuración reducida de tres agentes de consenso descrita en el marco teórico.
+\end{itemize}
+
+\subsection{Motor de Co-Simulación Multitasa y Sincronización Determinista}
+
+\subsubsection{Esquema de Desacoplamiento Multirate (\texorpdfstring{$H = 500\text{ ms} \leftrightarrow h = 1.0\text{ ms}$}{H=500ms <-> h=1ms})}
+Para resolver simultáneamente la dinámica macroscópica del flujo de potencia y la dinámica microscópica de la electrónica de potencia sin incurrir en divergencia numérica ni costos computacionales prohibitivos, se adopta una relación de escala multitasa estricta $\rho = H / h = 500$ \citep{Liu2025Multirate, Haid2022CosimCorrector}.
+
+Por cada macro-paso de red orquestado por el PC Central ($H = 500\text{ ms}$, $2.0\text{ Hz}$), el modelo de dinámica física ejecuta un bucle determinista de $N_{\text{substeps}} = 500$ iteraciones internas de integración Euler hacia adelante a paso fino ($h = 1.0\text{ ms}$, $1.0\text{ kHz}$):
+\begin{equation}\label{eq:multirate_integration}
+x_i(t_K + (m+1)h) = x_i(t_K + mh) + h \cdot f_i\big( x_i(t_K + mh), u_i(t_K) \big), \quad m = 0, 1, \dots, N_{\text{substeps}}-1
+\end{equation}
+donde las entradas fasoriales de red $u_i(t_K) = V_{pcc, i}(t_K)$ se mantienen constantes durante el intervalo $[t_K, t_K + H]$ mediante retención de orden cero (ZOH). Conforme al teorema de consistencia numérica para co-simulación explícita demostrado por \citet{Kyllingstad2025CosimErrors}, el error de acoplamiento es acotado por $\varepsilon_{\text{ZOH}} = \mathcal{O}(H)$, garantizando estabilidad asintótica dado que la constante de tiempo de control secundario satisface $\tau_{\text{sec}} \ge 2.0\text{ s} \gg H$.
+
+\subsubsection{Orquestación del Reloj Maestro ZeroMQ y Prevención de Bloqueos}
+El módulo \texttt{Central\_PC/master\_clock\_zmq.py} implementa un servidor síncrono basado en la librería PyZMQ utilizando un socket de tipo \texttt{zmq.ROUTER} / \texttt{zmq.DEALER} acoplado a un multiplexor \texttt{zmq.Poller}. La sincronización temporal y la robustez frente a caídas de nodos se aseguran mediante los siguientes mecanismos:
+\begin{enumerate}[a)]
+    \item \textbf{Temporización Monotónica Anti-Deriva:} Para eliminar la acumulación de retraso (\textit{clock drift}) inherente al uso de pausas estáticas (\texttt{time.sleep(H)}), el reloj maestro calcula el tiempo residual exacto mediante el temporizador monotónico del sistema operativo:
+    \begin{equation}\label{eq:perf_counter}
+    t_{\text{sleep}} = \max\left(0, \, t_{\text{target}, K+1} - \text{perf\_counter}()\right)
+    \end{equation}
+    donde $t_{\text{target}, K+1} = t_{\text{target}, K} + H$.
+    \item \textbf{Configuración Anti-Deadlock de Sockets:} Los sockets de comunicación se configuran con límites estrictos de tiempo de espera: \texttt{RCVTIMEO = 2000 ms} ($4 \times H$) para la recepción de potencias, \texttt{SNDTIMEO = 1000 ms} ($2 \times H$) para el envío de consignas, y \texttt{LINGER = 0 ms} para forzar el cierre inmediato y la liberación de descriptores TCP ante fallas de proceso.
+    \item \textbf{Política de Retención de Último Estado (\textit{Hold Last Value}):} Si un nodo experimenta una desconexión o latencia transitoria superior a \texttt{RCVTIMEO}, el solucionador central no interrumpe el ciclo de simulación global; en su lugar, retiene la última potencia válida inyectada ($P_i(t_{K-1}), Q_i(t_{K-1})$), permitiendo la continuidad operativa y registrando el evento de alarma telemétrica.
+\end{enumerate}
+
+\subsubsection{Solucionadores de Red Nodal Desarrollados}
+El PC Central incorpora dos motores matemáticos desarrollados desde primeros principios en Python puro y NumPy, sin requerir dependencias de librerías de terceros (como Pandapower):
+\begin{itemize}
+    \item \textbf{Modo A: Algoritmo Forward-Backward Sweep (FBS) (\texttt{Central\_PC/power\_flow\_fbs.py}):}\\
+    Diseñado para topologías radiales y débilmente malladas a partir de la matriz de admitancias y parámetros de línea ($R, X, d$). En cada ciclo, resuelve iterativamente:
+    \begin{enumerate}[i.]
+        \item \textit{Inyecciones de Corriente Nodal:} $I_i^{(k)} = \left( \frac{P_i + j Q_i}{V_i^{(k)}} \right)^*$.
+        \item \textit{Barrido Hacia Atrás (Backward Sweep):} Suma acumulativa de corrientes de rama desde los nodos hoja hacia la barra Slack: $J_{br}^{(k)} = \sum_{m \in \text{hijos}(br)} I_m^{(k)}$.
+        \item \textit{Barrido Hacia Adelante (Forward Sweep):} Actualización de caídas de tensión fasoriales desde la Slack hacia los extremos: $V_j^{(k+1)} = V_i^{(k+1)} - Z_{ij} J_{ij}^{(k)}$ \citep{DiFazio2024Linear}.
+        \item \textit{Criterio de Convergencia:} $\max_i |V_i^{(k+1)} - V_i^{(k)}| < 10^{-5}\text{ p.u.}$ (convergencia típica alcanzada en 3 a 5 iteraciones).
+    \end{enumerate}
+
+    \item \textbf{Modo B: Formulación por Matrices de Sensibilidad (\texttt{Central\_PC/sensitivity\_matrices.py}):}\\
+    Linealiza el comportamiento de la red en torno al punto de operación nominal mediante el desacoplamiento jacobiano reducido \citep{Pompodakis2022Sensitivity}:
+    \begin{equation}\label{eq:sensitivity_eval}
+    \Delta |V_i| = \sum_{j=1}^N S_{VP, ij} \Delta P_j + \sum_{j=1}^N S_{VQ, ij} \Delta Q_j
+    \end{equation}
+    donde las matrices $\mathbf{S}_{VP} = \left[\frac{\partial |V|}{\partial P}\right]$ y $\mathbf{S}_{VQ} = \left[\frac{\partial |V|}{\partial Q}\right]$ se precalculan a partir de la inversa del Jacobiano nodal completo, permitiendo resolver la respuesta de tensión en un tiempo de ejecución inferior a $0.2\text{ ms}$ mediante multiplicación matricial directa.
+\end{itemize}
+
+\subsection{Modelado Físico-Eléctrico Modular de Recursos Distribuidos (DER)}
+
+\subsubsection{Refactorización Jerárquica Orientada a Objetos}
+Para garantizar la modularidad y el aislamiento de código, los modelos dinámicos heredan de una estructura base unificada (\texttt{common/base\_der.py}), estandarizando la firma del método de integración:
+\begin{equation}\label{eq:der_step_interface}
+\text{step}(dt, \, V_{pcc}, \, \text{setpoints}) \longrightarrow \{P(t), \, Q(t), \, V_{dc}(t), \, \text{telemetry}\}
+\end{equation}
+
+\subsubsection{Control en Coordenadas \texorpdfstring{$dq$}{dq} y Lazo de Enganche de Fase (SRF-PLL Discreto)}
+En el módulo \texttt{common/Transformadas.py}, se implementa la clase \texttt{SRFPLL} con las ganancias sintonizadas analíticamente en \eqref{eq:kp_pll} y \eqref{eq:ki_pll} ($K_{p,\text{pll}} = 94.25$, $K_{i,\text{pll}} = 2220.66$, $\zeta = 1.0$, $f_n = 7.5\text{ Hz}$).
+
+Para reconstruir las tensiones instantáneas de red trifásica a partir de la magnitud y ángulo fasorial reportados por el solucionador central ($V_{pcc, i}$), se incorpora la función de síntesis balanceada:
+\begin{equation}\label{eq:synthesize_vabc}
+\begin{bmatrix} V_a(t) \\ V_b(t) \\ V_c(t) \end{bmatrix} = V_{\text{pico}} \begin{bmatrix} \cos(\hat{\theta}(t)) \\ \cos\left(\hat{\theta}(t) - \frac{2\pi}{3}\right) \\ \cos\left(\hat{\theta}(t) + \frac{2\pi}{3}\right) \end{bmatrix}
+\end{equation}
+eliminando las inyecciones artificiales unifásicas y permitiendo que la transformación de Park \eqref{eq:clarke_park} opere con perfecta ortogonalidad ($V_d \approx V_{\text{pico}}, \, V_q \approx 0.0\text{ V}$) \citep{Kundu2024ICCFPLL}.
+
+\subsubsection{Modelos Dinámicos de las Fuentes Implementadas}
+\begin{enumerate}[a)]
+    \item \textbf{Generación Solar PV (\texttt{Solar/SistemaSolar.py}):} Modela el arreglo fotovoltaico con seguimiento del punto de máxima potencia (MPPT Perturbar y Observar) y balance del condensador de bus DC ($C_{dc} = 10\,000\,\mu\text{F}$):
+    \begin{equation}\label{eq:solar_vdc_disc}
+    V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big( P_{pv}(G_k, T_k) - P_{inv}(k) \big)
+    \end{equation}
+    
+    \item \textbf{Sistema BESS (\texttt{BESS/SistemaBESS.py}):} Integra la dinámica del estado de carga mediante integración trapezoidal con confinamiento de seguridad $\text{SoC} \in [0.20, 0.90]$ y saturación dinámica de corriente límite en función de la temperatura de celda \citep{Alam2024}.
+    
+    \item \textbf{Generación Eólica PMSG (\texttt{Eolica/SistemaEolico.py}):} Resuelve el par aerodinámico no lineal $T_m(v_w, \omega_r)$ acoplado a la ecuación diferencial electromecánica del rotor \eqref{eq:pmsg_swing} y control vectorial de corriente de eje directo ($i_d^* = 0$) para maximizar el par electromagnético por amperio.
+    
+    \item \textbf{Generación Hidroeléctrica (\texttt{Hidrica/SistemaHidrico.py}):} Modela la inercia de la columna de agua con función de transferencia servogobernada \eqref{eq:hydro_power} con constante de tiempo $T_w = 1.5\text{ s}$.
+    
+    \item \textbf{Generador Diésel (\texttt{Diesel/SistemaDiesel.py}):} Incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act} = 0.05\text{ s}$) y retardo de transporte térmico ($T_{eng} = 0.20\text{ s}$), actuando como generador síncrono formador de red (\textit{Grid-Forming}) en modo isla \citep{Alam2024}.
+\end{enumerate}
+
+Los dos recursos que sostienen la frecuencia en el borde operan con lazos locales distintos, y sus constantes se declaran aquí porque el capítulo de resultados las cita. El generador diésel ejecuta el lazo restaurativo
+
+\begin{equation}\label{eq:rest_local}
+\Delta P_{\text{rest}} = \kappa_{p,\omega}\, e_\omega + \kappa_{i,\omega} \int e_\omega\, dt, \qquad e_\omega = 2\pi\,(f_{\text{nom}} - f)
+\end{equation}
+
+con $\kappa_{p,\omega} = 250\ \text{W/(rad/s)}$ y $\kappa_{i,\omega} = 80\ \text{W/rad}$, y con anti-windup del integrador en $\pm 75\ \text{rad}$, equivalente a $\pm 6.0\ \text{kW}$ de compensación integral. La cota no es arbitraria: con $4.0\ \text{kW}$ de consigna base, la compensación máxima sitúa la consigna en $10.0\ \text{kW}$ de eje —$9.5\ \text{kW}$ eléctricos con $\eta = 0.95$—, techo de la máquina, de modo que el integrador no puede forzar la saturación del actuador ni erosionar la reserva. La ganancia proporcional entrega el soporte inmediato ante el escalón de frecuencia; la integral restituye el valor nominal en un horizonte de diez a quince segundos sin sobreimpulso. El BESS, en cambio, actúa como soporte rápido sin integrador lento, con $\Delta P_{\text{droop}} = \kappa_{\text{BESS}} e_\omega$, $\kappa_{\text{BESS}} = 40\ \text{W/(rad/s)}$ y base de $0.75\ \text{kW}$, de modo que absorbe la desviación instantánea sin fatiga mecánica.
+
+\subsubsection{Modelo de Carga y Perfil de Demanda del Banco de Validación}
+
+Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/SistemaDemanda.py}), en el que una única clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo de resultados.
+
+\subsection{Implementación del Control Secundario por Consenso en Tiempo Fijo}
+
+El algoritmo de control secundario distribuido se codifica en el módulo \texttt{Agents/finite\_time\_consensus.py}. Cada agente ejecuta la ley de control no lineal bi-potencia \eqref{eq:fixed_time_law} con parámetros nominales sintonizados $\alpha = 0.8$, $\beta = 1.2$, $c_1 = 0.25$ y $c_2 = 0.15$.
+
+\subsubsection{Cálculo Incremental de Euler y Esquema Anti-Windup}
+Para actualizar las consignas hacia el lazo de control primario de la fuente sin introducir acumulación doble de integradores, el agente sintetiza los incrementos discretos de las cuatro variables de consenso por ciclo de control ($dt_{\text{macro}} = H = 0.5\text{ s}$).
+
+\textbf{Lazos de Tensión y Potencia Reactiva:}
+\begin{align}
+\Delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]}\left( \Delta V_i(k) - H \cdot u_{v, i}(k) \right) \label{eq:dv_update} \\
+\Delta Q_i(k+1) &= \text{sat}_{[-Q_{\max, i}, +Q_{\max, i}]}\left( \Delta Q_i(k) - H \cdot u_{q, i}(k) \cdot Q_{\max, i} \right) \label{eq:dq_update}
+\end{align}
+
+\textbf{Lazos de Frecuencia y Potencia Activa:}
+\begin{align}
+\Delta \omega_i(k+1) &= \text{sat}_{[-\Delta\omega_{\max}, +\Delta\omega_{\max}]}\left( \Delta \omega_i(k) - H \cdot u_{\omega, i}(k) \right) \label{eq:domega_update} \\
+\Delta P_i(k+1) &= \text{sat}_{[-P_{\max, i}, +P_{\max, i}]}\left( \Delta P_i(k) - H \cdot u_{p, i}(k) \cdot P_{\max, i} \right) \label{eq:dp_update}
+\end{align}
+donde el operador $\text{sat}_{[a, b]}(x) = \max(a, \min(b, x))$ limita la compensación dentro de bandas de seguridad: $\pm 10\%$ para tensión, $\pm \Delta\omega_{\max} = \pm 3.1416\text{ rad/s}$ ($\pm 0.5\text{ Hz}$) para la señal de frecuencia, y $\pm Q_{\max, i}$, $\pm P_{\max, i}$ para las potencias reactiva y activa respectivamente. Conviene distinguir tres bandas de frecuencia que operan en niveles jerárquicos distintos: el saturador de $\pm 0.5\text{ Hz}$ acota la autoridad del agente de consenso en cada paso discreto y protege al actuador frente a la sobremodulación, por lo que es deliberadamente más restrictivo que la norma; la ventana de $[58.8, 61.2]\text{ Hz}$ ($\pm 2\%$ sobre $60.0\text{ Hz}$) constituye el criterio de cumplimiento regulatorio NTC 1340 con el que se evalúa la calidad de energía; y el umbral de $[57.0, 63.0]\text{ Hz}$ corresponde al relé ANSI 81O/81U de sobre y subfrecuencia, última barrera física que ordena la apertura del alimentador.
+
+\subsubsection{Buffer de Frescura Temporal (\textit{State Age Tracking}) y Mitigación de Fallas}
+Para proteger al consenso frente a paquetes demorados, pérdidas intermitentes de red y ataques de denegación de servicio (DoS), cada agente implementa una política de desvanecimiento dinámico de enlaces basada en la edad del estado recibido ($t_{\text{age}} = t_{\text{actual}} - t_{\text{paquete}}$) \citep{Zhang2024, Zhao2025}:
+\begin{equation}\label{eq:freshness_decay}
+a_{ij}^{\text{efectivo}}(t) = a_{ij} \cdot \max\left( 0.20, \, 1.0 - \frac{\text{stale\_steps}}{\text{max\_stale\_steps} + 1} \right)
+\end{equation}
+El mecanismo opera en dos etapas complementarias. La primera es el desvanecimiento progresivo descrito por \eqref{eq:freshness_decay}: el peso del enlace decae linealmente con la edad del último dato válido hasta un piso de $0.20$, de modo que un estado envejecido pierde influencia sobre el promedio sin desaparecer mientras sigue siendo utilizable. La segunda es una exclusión dura: si el vecino no reporta nuevos paquetes durante más de $\text{max\_stale\_steps} = 4$ ciclos ($t_{\text{age}} > 2.0\text{ s}$), su estado se descarta del búfer local y el enlace deja de contribuir al consenso, con lo que $a_{ij}^{\text{efectivo}}$ pasa efectivamente a cero. El desvanecimiento evita que una señal demorada domine el promedio; la exclusión impide que una señal caducada participe cuando ya no es representativa del estado del emisor. Ambas etapas preservan la convergencia del subgrafo conexo remanente.
+
+\subsection{Emulador Estocástico de Canal Ciberfísico y Proxy de Contingencias}
+
+Para evaluar rigurosamente la resiliencia del sistema bajo condiciones no ideales de red de comunicación sin alterar el código central del algoritmo de consenso, se diseñó e implementó un emulador de canal en \texttt{common/network\_channel\_emulator.py} y un proxy interceptor en \texttt{Agents/network\_impairment\_proxy.py}.
+
+El emulador permite inyectar en tiempo real los siguientes fenómenos estocásticos sobre los enlaces inter-agente y enlaces con el reloj maestro \citep{Sowa2023, Olayanju2025ConsensusFreq}:
+\begin{itemize}
+    \item \textbf{Latencia y Jitter Estocásticos:} Retardo variable $\tau(t) = \tau_0 + \xi(t)$, donde $\xi(t)$ sigue distribuciones configurables: Normal $\mathcal{N}(\mu, \sigma^2)$, Gamma $\Gamma(k, \theta)$ o Pareto generalizada para retardos asimétricos con colas pesadas.
+    \item \textbf{Pérdida de Paquetes Independiente (Modelo Bernoulli):} Descarte probabilístico con tasa constante $p_{\text{loss}} \in [0, 1]$.
+    \item \textbf{Pérdida de Paquetes en Ráfagas (Modelo de Gilbert-Elliott de 2 Estados):}\\
+    Modela el canal mediante una cadena de Markov de dos estados: Estado Bueno ($G$, sin pérdidas) y Estado Malo ($B$, pérdida total o probabilidad de fallo elevada $p_B \gg p_G$). Las probabilidades de transición entre estados se definen por la matriz estocástica:
+    \begin{equation}\label{eq:gilbert_elliott}
+    \mathbf{P}_{\text{GE}} = \begin{bmatrix} 1 - p_{GB} & p_{GB} \\ p_{BG} & 1 - p_{BG} \end{bmatrix}
+    \end{equation}
+    donde $p_{GB}$ es la probabilidad de entrar en ráfaga de pérdida y $p_{BG}$ es la tasa de recuperación del canal.
+    \item \textbf{Partición y Conmutación Topológica:} Bloqueo forzado de filas/columnas en la matriz de adyacencia $\mathcal{A}(t)$, emulando fallas físicas de enlaces de fibra o switches Ethernet.
+\end{itemize}
+
+\subsection{Contenerización Docker, Despliegue en Hardware de Borde y Telemetría}
+
+\subsubsection{Aislamiento Modular de Procesos en Docker}
+Siguiendo las mejores prácticas de ingeniería de software para sistemas ciber-físicos distribuidos, se estableció una separación estricta entre la dinámica física y la lógica de control:
+\begin{itemize}
+    \item \texttt{Docker/Dockerfile.dynamic}: Imagen ligera basada en Python 3.11-slim optimizada para la resolución de ecuaciones diferenciales y la interacción ZMQ con el reloj maestro.
+    \item \texttt{Docker/Dockerfile.agent}: Imagen independiente que hospeda el agente de consenso P2P y los proxies de comunicación con la topología de vecinos.
+\end{itemize}
+El generador paramétrico \texttt{Docker/docker\_compose\_generator.py} permite instanciar de forma automatizada redes virtuales con $N$ nodos de generación y $M$ nodos de demanda, asignando puertos y variables de entorno dinámicamente.
+
+\subsubsection{Despliegue Físico en Clúster Raspberry Pi 5}
+Para la validación experimental en hardware de borde real, el script \texttt{scripts/deploy\_raspberry.py} automatiza mediante SSH/SCP la transferencia de código, la construcción de contenedores ARM64 y el lanzamiento del clúster de agentes sobre los seis nodos Raspberry Pi 5 del banco de pruebas (direcciones \texttt{10.0.0.151} a \texttt{10.0.0.155} y \texttt{10.0.0.160}), coordinados por el PC Central en \texttt{10.0.0.156} a través de una red Ethernet dedicada con switch propio \citep{AlvarezLopez2026}.
+
+\subsubsection{Centro de Mando GUI y Base de Datos InfluxDB}
+La plataforma se opera desde el Centro de Mando interactivo (\texttt{GUI/gui\_command\_center.py}), el cual ofrece:
+\begin{enumerate}[1.]
+    \item Carga y visualización de archivos de perfiles meteorológicos y curvas de demanda horaria en formato \texttt{.csv} y \texttt{.xlsx}.
+    \item Inyección de variables en tiempo real a través del broker Mosquitto MQTT en los tópicos \texttt{microgrid/environment/node\_id}.
+    \item Almacenamiento continuo en InfluxDB con persistencia a 500 ms de voltajes nodales, potencias activas/reactivas, estados de carga SoC y métricas de convergencia de consenso.
+    \item Despliegue y detención automatizada de la infraestructura en un solo clic mediante llamadas a la API de Docker.
+\end{enumerate}

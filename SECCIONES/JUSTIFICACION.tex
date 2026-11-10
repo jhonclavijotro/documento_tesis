@@ -1,0 +1,40 @@
+\section{JUSTIFICACIÓN Y ALCANCE}
+
+\subsection{Justificación Teórica y Científica}
+Desde una perspectiva científica, este proyecto contribuye al cierre de la brecha fundamental existente entre los modelos abstractos de consenso en sistemas multiagente (MAS) y las restricciones dinámicas de las redes eléctricas reales \citep{Muszynski2026EnergyTwin, Altin2023MultiAgent}. Tradicionalmente, la literatura de control distribuido asume topologías de comunicación continuas e invariantes en el tiempo, despreciando el acoplamiento electromagnético y la no linealidad que imponen los lazos de control interno de los convertidores de potencia \citep{Shrivastava2023FiniteTime}.
+
+Al incorporar un protocolo de consenso no lineal en tiempo fijo formulado sobre matrices algebraicas de grafos dinámicos, esta investigación genera evidencia teórica sobre la estabilidad y los límites de convergencia del control secundario cuando la matriz de adyacencia $\mathcal{A}(t)$ y la Laplaciana $\mathcal{L}(t)$ sufren perturbaciones. Asimismo, permite caracterizar formalmente la degradación cruzada en sistemas ciber-físicos, demostrando cómo la interacción entre retardos telemétricos y dinámicas rápidas de convertidores puede comprometer la estabilidad si no se diseñan márgenes de robustez adecuados \citep{Olayanju2025ConsensusFreq, Barzegari2022Resilient}.
+
+\subsection{Justificación Metodológica y Tecnológica}
+En el ámbito metodológico, el proyecto supera el paradigma convencional de simulación monolítica en software puro mediante el desarrollo de una plataforma de \textbf{Co-Simulación Ciber-Física Multitasa} acoplada \citep{Gomes2022FMI30}. Este enfoque permite desacoplar los requerimientos de cómputo en dos escalas temporales fundamentales:
+\begin{enumerate}[a)]
+    \item \textbf{Escala temporal rápida ($dt_{\text{micro}} = 1\text{ ms}$):} Resolución de las ecuaciones diferenciales ordinarias (EDO) asociadas a los modelos dinámicos de los recursos energéticos distribuidos (Solar Fotovoltaico, BESS, Eólica, Diésel e Hídrica), los lazos de modulación $dq$ y la sincronización por transformada de fase (SRF-PLL) \citep{Kundu2024ICCFPLL}.
+    \item \textbf{Escala temporal lenta ($dt_{\text{macro}} = 500\text{ ms}$):} Ejecución síncrona del solucionador algebraico de flujo de potencia y despacho distribuido en la red eléctrica.
+\end{enumerate}
+
+La implementación de este esquema en hardware de borde real (clúster de dispositivos embebidos Raspberry Pi 5) mediante contenedores Docker modulares e independientes dota a la metodología de un alto nivel de madurez tecnológica (\textit{Controller-Hardware-in-the-Loop}, CHIL) \citep{Diaz2025, AlvarezLopez2026}. El uso de sockets ZeroMQ para el consenso determinista entre pares (\textit{peer-to-peer}) y el protocolo MQTT para la inyección de perturbaciones climáticas y telemetría proporciona un entorno experimental reproducible para el análisis de resiliencia operativa en tiempo real \citep{Khanna2025}.
+
+\subsection{Impacto Práctico, Económico y Social}
+En términos prácticos y socioeconómicos, implementar en las microrredes aisladas un esquema de control secundario distribuido y resiliente elimina la dependencia de costosas infraestructuras de control centralizado como los sistemas SCADA con enlaces de fibra óptica dedicados de alta redundancia \citep{TaverasCruz2025}. 
+
+Este avance tecnológico resulta importante para las Zonas No Interconectadas (ZNI), microrredes rurales y comunidades aisladas, donde la geografía y los recursos limitados dificultan el despliegue de telecomunicaciones de grado industrial. La arquitectura multiagente habilita una verdadera capacidad \textit{plug-and-play}, permitiendo la integración escalable de nuevas fuentes renovables sin necesidad de reconfigurar la lógica global de control, reduciendo los costos de operación y mantenimiento (O\&M) y previniendo apagones en cascada mediante una rápida restitución del equilibrio de voltaje, frecuencia y reparto de potencia activa y reactiva.
+
+\subsection{Alcance y Delimitación del Proyecto}
+Con el fin de delimitar las fronteras técnicas de la investigación, se establecen los siguientes alcances:
+
+\begin{itemize}
+    \item \textbf{Aspectos incluidos en el alcance:}
+    \begin{enumerate}[1.]
+        \item Modelado matemático dinámico de cinco tipologías de fuentes de generación distribuida: Solar Fotovoltaica, Sistema de Almacenamiento por Baterías (BESS), Generación Eólica (PMSG), Generación Hidroeléctrica/Hidrocinética y Generador Diésel gobernado.
+        \item Formulación, deducción de parámetros de sintonización y análisis de estabilidad del algoritmo de consenso distribuido en tiempo fijo para la restitución dual de tensión y frecuencia, y el reparto proporcional de potencia activa y reactiva.
+        \item Implementación del motor de co-simulación multitasa acoplando el solucionador de red nodal con los micro-pasos de integración física.
+        \item Despliegue de los agentes de control en hardware de borde (Raspberry Pi 5) bajo contenedores Docker y evaluación del desempeño telemétrico mediante protocolos ZeroMQ y MQTT.
+        \item Evaluación cuantitativa de la robustez del sistema ante perturbaciones dinámicas y contingencias de red.
+    \end{enumerate}
+    
+    \item \textbf{Delimitaciones y exclusiones:}
+    \begin{enumerate}[1.]
+        \item \textit{Etapa de potencia física:} La investigación valida la capa de control distribuido en hardware embebido real; sin embargo, las etapas de potencia eléctrica (convertidores electrónicos de potencia a escala real, reactancias e infraestructura de alta/media tensión) se modelan numéricamente en el entorno de co-simulación de alta resolución ($1\text{ ms}$), prescindiendo del ensamble de bancos de potencia a escala industrial.
+        \item \textit{Naturaleza de la comunicación:} Aunque la telemetría global y la inyección exógena utilizan un bróker MQTT para facilitar la instrumentación de pruebas, la toma de decisiones, el algoritmo de consenso y el control de los agentes se ejecutan de manera estrictamente descentralizada de par a par (\textit{peer-to-peer}) sobre la topología del grafo.
+    \end{enumerate}
+\end{itemize}

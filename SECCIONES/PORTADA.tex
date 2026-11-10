@@ -1,0 +1,101 @@
+%\layout % muestra el layout
+\definecolor{lightgray}{rgb}{0.75, 0.75, 0.75} % Define the light gray color
+
+
+\makeatletter % Cambiar : por . y ponerlo en negrita
+\renewcommand{\fnum@figure}[1]{\textbf{\figurename~\thefigure}. \sffamily}
+\renewcommand{\figurename}{\textbf{Fig.}} % Cambiar Figura: por Fig. y ponerlo en negrita
+\makeatother
+
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[scale=1]{Figuras/horizontal-color}
+\end{center}
+\vspace{2.5cm}
+
+\textbf{DATOS GENERALES DEL ESTUDIANTE}
+
+
+\begin{tabularx}{\textwidth}{|>{\columncolor{lightgray}}l|X|}\hline
+\textbf{Nombre Estudiante} & Jhonathan Leandro Clavijo Troches \\\hline
+\textbf{Programa Académico} & Maestría en Inteligencia Artificial y Ciencia de Datos \\\hline
+\textbf{Cédula} & 1130676659 \\\hline
+\textbf{Código Estudiantil} & 22500206 \\\hline
+\textbf{Correo} & jhonathan.clavijo@uao.edu.co \\\hline
+\end{tabularx}
+
+\textbf{DATOS GENERALES DEL DIRECTOR}
+
+
+\begin{tabularx}{\textwidth}{|>{\columncolor{lightgray}}l|X|}\hline
+\textbf{Nombre Director} & Johnny Posada \\\hline
+\textbf{Correo} &    jposada@uao.edu.co \\\hline
+\textbf{Nombre Codirector} &  \\\hline
+\textbf{Correo} &  \\\hline
+\end{tabularx}
+
+\textbf{DATOS DEL ANTEPROYECTO}
+
+
+\begin{longtable}{|p{\dimexpr\textwidth-2\tabcolsep-2\arrayrulewidth}|}
+\hline
+\rowcolor{lightgray}\centering\arraybackslash\textbf{TÍTULO DEL PROYECTO} \\\hline
+Control por Consenso Basado en Sistemas Multiagente y Topologías de Grafo para la Regulación de Voltaje y Frecuencia en Microrredes Eléctricas \\\hline
+\rowcolor{lightgray}\centering\arraybackslash\textbf{PALABRAS CLAVES/KEY WORDS} \\\hline
+Microrredes, Sistema Multiagente (MAS), Control por Consenso, Tolerancia a Fallos, MQTT, Teoría de Grafos. \\\hline
+\rowcolor{lightgray}\centering\arraybackslash\textbf{RESUMEN} \\\hline
+La transición energética global ha impulsado la integración masiva de Fuentes No Convencionales de Energía Renovable (FNCER) en microrredes eléctricas. Sin embargo, la intermitencia de estos recursos y su acoplamiento mediante inversores electrónicos reducen drásticamente la inercia del sistema, incrementando su vulnerabilidad ante desviaciones críticas de voltaje y frecuencia. Para superar estas deficiencias y resolver las limitaciones del control centralizado clásico, este anteproyecto propone el desarrollo de una arquitectura de control distribuida basada en un Sistema Multiagente (MAS). En este esquema, cada agente inteligente controlará de forma autónoma una fuente de generación, colaborando algorítmicamente para preservar la estabilidad global.
+
+La dinámica electromecánica y el comportamiento físico de los nodos se simularán mediante un entorno computacional estructurado en Python. Este entorno generará las respuestas dinámicas del sistema y las transmitirá en tiempo real utilizando el protocolo de mensajería ligero MQTT (Message Queuing Telemetry Transport). El flujo de datos continuo será procesado para alimentar a los agentes con telemetría precisa, facilitando un control por consenso distribuido y eficiente.\\
+
+El aspecto diferenciador de esta investigación es la evaluación de la resiliencia ciberfísica frente a fallas de comunicación. Para ello, la topología de la microrred se modelará formalmente como un grafo matemático, donde los nodos representan los generadores y las aristas los enlaces MQTT. Esta abstracción permitirá la inyección sistemática de contingencias para verificar empíricamente la capacidad del MAS de converger y restablecer el consenso tras perturbaciones topológicas, garantizando un desempeño operacional altamente confiable y tolerante a fallas. \\\hline
+\end{longtable}
+\setcounter{table}{0}
+
+\begin{titlepage}
+   \begin{center}
+		\textbf{{\MakeUppercase {Control por Consenso Basado en Sistemas Multiagente y Topologías de Grafo para la Regulación de Voltaje y Frecuencia en Microrredes Eléctricas}}\\
+		\vspace{4cm}
+		\includegraphics[scale=1.2]{Figuras/horizontal-color}\\
+		\vspace{4cm}
+		{\MakeUppercase {{JHONATHAN LEANDRO CLAVIJO TROCHES}}} \\
+		{22500206}\\
+		\vfill
+		{UNIVERSIDAD AUTÓNOMA DE OCCIDENTE} \\
+		{\MakeUppercase {FACULTAD DE INGENIERÍA Y CIENCIAS BÁSICAS}} \\ 
+		{\MakeUppercase {PROGRAMA DE MAESTRÍA EN INTELIGENCIA ARTIFICIAL Y CIENCIA DE DATOS}} \\
+		{SANTIAGO DE CALI} \\
+		{2026}} \\ 
+	\end{center} 
+\end{titlepage}
+
+\begin{titlepage}
+   \begin{center}
+		\textbf{{\MakeUppercase {Control por Consenso Basado en Sistemas Multiagente y Topologías de Grafo para la Regulación de Voltaje y Frecuencia en Microrredes Eléctricas}}\\
+		\vspace{2cm}
+		\includegraphics[scale=1.2]{Figuras/horizontal-color}\\
+		\vspace{2cm}
+		{\MakeUppercase {JHONATHAN LEANDRO CLAVIJO TROCHES}} \\
+		\vspace{2cm}
+		{Anteproyecto de grado para optar al título de} \\
+		{Magíster en Inteligencia Artificial y Ciencia de Datos} \\
+		\vspace{2cm}
+		{Director} \\
+		{\MakeUppercase {PhD. Johnny Posada Contreras}} 
+		\vfill
+		{UNIVERSIDAD AUTÓNOMA DE OCCIDENTE} \\
+		{\MakeUppercase {FACULTAD DE INGENIERÍA Y CIENCIAS BÁSICAS}} \\ 
+		{\MakeUppercase {PROGRAMA DE MAESTRÍA EN INTELIGENCIA ARTIFICIAL Y CIENCIA DE DATOS}} \\
+		{SANTIAGO DE CALI} \\
+		{2026}} \\ 
+	\end{center} 
+\end{titlepage}
+
+\setcounter{page}{3} % Inicia la numeración de páginas
+
+\makeatletter
+\renewcommand{\cftdotsep}{10000} % Quitar puntos en la tabla de contenido
+\makeatother
+
+\setlength{\cftfigindent}{0pt} % quita la sangria en la lista de figuras
+\setlength{\cfttabindent}{0pt} % quita la sangria en la lista de tablas
