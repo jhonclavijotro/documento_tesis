@@ -51,6 +51,16 @@ El documento terminaba en «Síntesis de resultados», con tres consecuencias ve
 
 *Aplicado:* nueva subsección final **«Cierre del capítulo y trabajo pendiente»** en `RESULTADOS.tex`, que declara que el capítulo no se cierra con conclusiones porque **dos de las tres familias de prueba siguen sin ensayo ejecutado** —excedente de generación (escenarios emitidos e instalados, sin corrida) y réplica de fallas sobre el clúster físico—, y que consolidarlas antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Con esto el documento no necesita una sección 9, la introducción mantiene sus ocho secciones y el pendiente queda declarado donde el lector lo busca: al final del capítulo de resultados.
 
+### H15 · [Medio] «Consenso No Lineal en Tiempo Fijo» — redundante como nombre de la categoría (observación del autor)
+
+El calificativo no es falso —la convergencia en tiempo fijo exige términos correctores no lineales, porque ninguna ley lineal sobre el grafo acota el tiempo de establecimiento con independencia de las condiciones iniciales— pero **no discrimina**: no existe un «consenso en tiempo fijo lineal» frente al cual distinguirse. Además `TEORIA.tex:138` define la taxonomía real (asintótico, FTS, FxTS) y nunca define «consenso no lineal», y el capítulo 8 llama al esquema «consenso en tiempo fijo (FxTS)».
+
+*Aplicado:* la denominación pasa a **«consenso en tiempo fijo (FxTS)»** en los seis lugares donde funcionaba como nombre propio —`INTRODUCCION:12`, `JUSTIFICACION:6`, `OBJETIVOS:4`, `OBJETIVOS:8`, `PROBLEMA:34` y `IMPLEMENTACION:3`—, y la no linealidad se declara **una sola vez, como propiedad**, en la introducción: «cuya ley incorpora términos correctores no lineales que garantizan una cota de establecimiento independiente de las condiciones iniciales».
+
+*Verificado en el PDF:* `consenso no lineal` → **0** ocurrencias; `consenso en tiempo fijo (FxTS)` → 5; `términos correctores no lineales` → 1.
+
+**Pendiente declarado:** la citación `\citep{Gomes2022FMI30, Liu2025Multirate}` sigue al final de una oración cuyo último sintagma es el despliegue en hardware (Raspberry Pi 5 + Docker), que ninguna de las dos respalda. Ambas sostienen la co-simulación multitasa. Reposicionarlas junto a ese sintagma y apoyar el despliegue en `Mehmood2021` quedó sin aplicar por decisión del autor.
+
 ### H9 · [Medio-alto] El marco de tres familias se anuncia pero nunca se introduce
 
 `RESULTADOS.tex:18` anuncia el nivel T2 «organizado por las tres familias del marco de evaluación». Pero:

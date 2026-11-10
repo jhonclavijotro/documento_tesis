@@ -1,11 +1,11 @@
 \section{OBJETIVOS}
 
 \subsection{Objetivo General}
-Desarrollar y validar una arquitectura de control secundario distribuido basada en Sistemas Multiagente y algoritmos de consenso no lineal en tiempo fijo sobre topologías de grafo, implementada mediante una plataforma de co-simulación ciber-física multitasa en hardware de borde, para garantizar la regulación de voltaje y frecuencia y el reparto proporcional de potencia activa y reactiva, en microrredes eléctricas aisladas ante contingencias en la infraestructura de comunicación.
+Desarrollar y validar una arquitectura de control secundario distribuido basada en Sistemas Multiagente y algoritmos de consenso en tiempo fijo (FxTS) sobre topologías de grafo, implementada mediante una plataforma de co-simulación ciber-física multitasa en hardware de borde, para garantizar la regulación de voltaje y frecuencia y el reparto proporcional de potencia activa y reactiva, en microrredes eléctricas aisladas ante contingencias en la infraestructura de comunicación.
 
 \subsection{Objetivos Específicos}
 \begin{enumerate}
-    \item \textbf{Formulación Matemática y de Control (Concepción):} Formular el protocolo de control secundario distribuido no lineal en tiempo fijo fundamentado en teoría de grafos y propiedades de las matrices Laplacianas, garantizando analíticamente la convergencia de estados para la restitución del perfil de tensión nominal y la frecuencia síncrona de referencia entre los recursos energéticos distribuidos.
+    \item \textbf{Formulación Matemática y de Control (Concepción):} Formular el protocolo de control secundario distribuido en tiempo fijo fundamentado en teoría de grafos y propiedades de las matrices Laplacianas, garantizando analíticamente la convergencia de estados para la restitución del perfil de tensión nominal y la frecuencia síncrona de referencia entre los recursos energéticos distribuidos.
     
     \item \textbf{Modelado y Arquitectura de Co-Simulación (Diseño):} Diseñar un marco de co-simulación ciber-física multitasa que acople y sincronice la resolución de las dinámicas de los convertidores de potencia ($dt_{\text{micro}} = 1\text{ ms}$) con el solucionador de flujo de potencia de la red eléctrica ($dt_{\text{macro}} = 500\text{ ms}$), integrando protocolos de intercambio síncrono (ZeroMQ) y telemétrico asíncrono (MQTT).
     
