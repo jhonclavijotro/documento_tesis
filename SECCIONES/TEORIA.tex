@@ -247,7 +247,7 @@ Conviene precisar una diferencia que explica ese resultado: los esquemas con $\l
 Para combinar determinismo y realismo en la comunicación:
 \begin{enumerate}[a)]
     \item \textbf{Canal síncrono de paso de tiempo (ZeroMQ):} Emplea sockets REQ-REP y PUB-SUB configurados con temporizadores estrictos (`RCVTIMEO = 2000 ms`, `SNDTIMEO = 1000 ms`, `LINGER = 0`) para garantizar la sincronización lock-step entre el reloj maestro y los nodos de hardware sin bloqueos indefinidos.
-    \item \textbf{Canal asíncrono telemétrico (MQTT):} Utilizado para la inyección exógena de perturbaciones ambientales (perfiles de viento e irradiancia) y contingencias de red (latencias y pérdidas de paquetes), emulando condiciones operativas reales sobre el clúster embebido \citep{Gomes2022FMI30, Diaz2025, Khanna2025}.
+    \item \textbf{Canal asíncrono telemétrico (MQTT):} Utilizado para la inyección exógena de perturbaciones ambientales (perfiles de viento e irradiancia) y contingencias de red (latencias y pérdidas de paquetes), emulando condiciones operativas reales sobre el clúster embebido \citep{Gomes2022FMI30, Diaz2025}.
 \end{enumerate}
 
 \subsection{Métricas de Desempeño y Evaluación de Resiliencia}

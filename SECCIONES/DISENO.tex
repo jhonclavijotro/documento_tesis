@@ -25,7 +25,7 @@ Se diseña el entorno de co-simulación ciber-física acoplada que vincula el si
 \begin{itemize}
     \item \textbf{Actividad \act{2.1}:} Implementación del motor de co-simulación multitasa acoplando el solucionador de red del PC Central ($H = 500\text{ ms}$, $2\text{ Hz}$) con los integradores rápidos de los convertidores ($h = 1.0\text{ ms}$, $1\text{ kHz}$) mediante retención de orden cero (ZOH) y $N_{\text{substeps}} = 500$ \citep{Liu2025Multirate, Kyllingstad2025CosimErrors, Haid2022CosimCorrector}.
     \item \textbf{Actividad \act{2.2}:} Desarrollo de la capa de comunicación síncrona determinista utilizando sockets ZeroMQ (REQ-REP / PUB-SUB) con temporizadores adaptativos (`RCVTIMEO = 2000 ms`, `SNDTIMEO = 1000 ms`, `LINGER = 0`) para la sincronización lock-step y el intercambio de consenso P2P sobre el grafo \citep{Gomes2022FMI30}.
-    \item \textbf{Actividad \act{2.3}:} Configuración del canal asíncrono MQTT para la inyección telemétrica de perfiles climáticos (viento e irradiancia) y la persistencia de datos en la base de series temporales (InfluxDB) con muestreo a $500\text{ ms}$ \citep{Khanna2025, Diaz2025}.
+    \item \textbf{Actividad \act{2.3}:} Configuración del canal asíncrono MQTT para la inyección telemétrica de perfiles climáticos (viento e irradiancia) y la persistencia de datos en la base de series temporales (InfluxDB) con muestreo a $500\text{ ms}$ \citep{Diaz2025}.
 \end{itemize}
 
 \textbf{Fase 3: Despliegue en Hardware de Borde y Contenedores Aislados (Implementación)}\\

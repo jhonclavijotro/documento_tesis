@@ -62,6 +62,39 @@ Dos dudas provisionales se resolvieron a favor al leer el título completo: `Che
 
 ---
 
+## Reparaciones aplicadas (2026-11-08)
+
+| ID | Cambio |
+|---|---|
+| N1 | Fila «tiempo fijo»: `\citep{Polyakov2012, Zhang2024, Zhao2025}` → `\citep{Polyakov2012, Huang2023}`, que sí es de convergencia con instante acotado |
+| D1 | `Sowa2023` → `Olayanju2025ConsensusFreq` en la frase sobre retardos y pérdida de paquetes |
+| D2 | `Khanna2025` → `Diaz2025` en la frase de MQTT y WebSockets |
+| D3 | Retirada la cita de `AlvarezLopez2026` de la frase sobre Raspberry Pi y agentes en el borde |
+| D4 | Retiradas `Zhang2024` y `Zhao2025` de la frase que describe el mecanismo propio |
+| P1 | «teoría de control predictivo (MPC)» → «despacho económico», que es lo que `Salman2024` sostiene |
+| P2 | «según documentan» antes de `\citep{Diaz2025, Mamun2026}`, para no atribuirles la formulación exacta |
+| P3 | `Olayanju2025ConsensusFreq` fuera de la lista de observadores y aislamiento de enlaces |
+
+### Limpieza de `Khanna2025`: siete apariciones revisadas
+
+Era la cita comodín del documento. Su resumen —marco multi-capa con pronóstico, optimización evolutiva y blockchain— no respalda ninguna afirmación sobre MQTT, y sí el papel de marco multiagente.
+
+| Sección | Frase | Decisión |
+|---|---|---|
+| Introducción | protocolo telemétrico MQTT | **retirada**: la frase describe la plataforma propia |
+| Antecedentes | MQTT y WebSockets | **sustituida** por `Diaz2025` |
+| Justificación | MQTT para perturbaciones y telemetría | **retirada** |
+| Diseño | Actividad 2.3, canal MQTT e InfluxDB | **retirada**; queda `Diaz2025` |
+| Teoría | canal asíncrono MQTT | **retirada**; quedan `Gomes2022FMI30, Diaz2025` |
+| Introducción | marcos MAS que reducen el circuito | **conservada**: es un marco multiagente sin modelo eléctrico |
+| Problema | idem, ítem b) | **conservada** |
+
+`Khanna2025` queda con dos citas pertinentes en lugar de siete, y el `.bib` no pierde ninguna entrada.
+
+### Verificación
+
+`latexmk -pdf`: **79 páginas · 755 740 B · `1da0e21a…`**, 0 errores, 0 citas indefinidas, 0 avisos de BibTeX, sin `??`. Auditoría: **51 citadas / 51 entradas**, ninguna huérfana.
+
 ## Total a reparar
 
 **4 retiros de cita** (D1–D4), **1 fila de tabla** con dos claves cambiadas (N1) y **3 ajustes de frase** en las parciales. Ninguno exige tocar el `.bib`: todas las claves siguen citadas en otros lugares.
