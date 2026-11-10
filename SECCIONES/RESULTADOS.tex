@@ -276,27 +276,27 @@ Entre $240$ y $300\text{ s}$ el sistema operó en sobrecarga. La frecuencia se e
 
 La deducción de esta condición operativa se desarrolla a continuación. La potencia generada real resultó de descontar a la demanda el intercambio neto con la red:
 
-\begin{equation}
+\[
 P_{\text{gen}} = P_{\text{dem}} - P_{\text{net}} = 12.594 - 1.980 = 10.614\ \text{kW}
-\end{equation}
+\]
 
 Esa potencia se repartió entre los tres recursos del banco. El nodo solar aportó $0.535\text{ kW}$ con una irradiancia cercana a $325.6\text{ W/m}^2$, el BESS entregó $1.500\text{ kW}$, valor que corresponde a su límite continuo, y el diésel asumió el resto con $8.579\text{ kW}$ eléctricos:
 
-\begin{equation}
+\[
 P_{\text{eje}} = \frac{8.579}{0.95} = 9.03\ \text{kW}
-\end{equation}
+\]
 
 donde $0.95$ es el rendimiento adoptado para el conjunto generador. La capacidad firme a $60.0\text{ Hz}$ se obtiene sumando la capacidad del diésel, la del BESS y el aporte solar disponible:
 
-\begin{equation}
+\[
 P_{\text{firme}} = 9.500 + 1.500 + 0.535 = 11.535\ \text{kW}
-\end{equation}
+\]
 
 de modo que el déficit de capacidad frente a la demanda de la fase resulta:
 
-\begin{equation}
+\[
 \Delta P = P_{\text{dem}} - P_{\text{firme}} = 12.594 - 11.535 = -1.059\ \text{kW}
-\end{equation}
+\]
 
 El déficit explica la caída de frecuencia sin necesidad de invocar una falla del algoritmo. Para verificarlo, se contrastó el valor medido con la predicción de la ecuación de oscilación \eqref{eq:swing}, evaluada con potencia base de $10\text{ kVA}$ y coeficiente de amortiguamiento de $12$:
 
@@ -308,9 +308,9 @@ La predicción de $59.010\text{ Hz}$ corresponde al valor de régimen permanente
 
 El respaldo proporcional del diésel se verificó sobre el estatismo de \eqref{eq:droop_w}. Con una desviación de frecuencia de $6.023\text{ rad/s}$ respecto de la referencia y la ganancia $\kappa_{p,\omega} = 250.0\ \text{W/(rad/s)}$ declarada en \eqref{eq:rest_local}, la potencia adicional entregada por el gobernador resulta:
 
-\begin{equation}
+\[
 P_{\text{res}} = 250.0 \times 6.023 = 1505.7\ \text{W}
-\end{equation}
+\]
 
 Este respaldo, sumado al punto de operación previo del generador, es el que sostiene la frecuencia en $59.04\text{ Hz}$ en lugar de permitir una caída mayor. La transición hacia el estatismo primario fue monótona: no se observaron ciclos límite, ni oscilaciones sostenidas, ni actuación del relé de subfrecuencia.
 

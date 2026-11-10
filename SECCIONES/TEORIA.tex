@@ -54,11 +54,11 @@ La selección de estos parámetros responde a un compromiso óptimo de diseño (
 \end{enumerate}
 
 La discretización mediante integración Euler hacia adelante con paso de micro-simulación $T_s = h = 1.0\text{ ms}$ adopta la estructura recursiva:
-\begin{align}
+\begin{align*}
 x_{\text{int}}(k+1) &= x_{\text{int}}(k) + K_{i,\text{pll}} T_s V_q(k) \\
 \omega_{\text{est}}(k) &= \omega_{\text{nom}} + K_{p,\text{pll}} V_q(k) + x_{\text{int}}(k) \\
 \hat{\theta}(k+1) &= \left( \hat{\theta}(k) + \omega_{\text{est}}(k) T_s \right) \pmod{2\pi}
-\end{align}
+\end{align*}
 
 \subsubsection{Modelado Dinámico de Fuentes Primarias y Restricciones Físicas}
 El banco de recursos heterogéneos modelado en la plataforma comprende cinco tecnologías:
@@ -74,9 +74,9 @@ El banco de recursos heterogéneos modelado en la plataforma comprende cinco tec
     \text{SoC}(t) = \text{SoC}(0) - \frac{1}{Q_{\text{nom}}} \int_0^t \eta_b i_{\text{bat}}(\tau) d\tau
     \end{equation}
     donde $\text{SoC}(t) \in [0, 1]$ representa el estado de carga fraccional instantáneo, $\text{SoC}(0)$ es la condición inicial de carga, $Q_{\text{nom}}$ es la capacidad de carga nominal del banco de baterías (expresada en $\text{A}\cdot\text{s}$ o Coulombs), $i_{\text{bat}}(\tau)$ es la corriente instantánea de la batería (definida como positiva en régimen de descarga y negativa en régimen de carga), y $\eta_b$ es el coeficiente de eficiencia coulombimétrica del proceso electroquímico ($\eta_b = 1.0$ durante descarga y $\eta_b \approx 0.95$ durante recarga). El sistema opera confinado dentro de la banda de seguridad admisible:
-    \begin{equation}
+    \[
     \text{SoC}^{\min} \le \text{SoC}(t) \le \text{SoC}^{\max}
-    \end{equation}
+    \]
     
     \item \textbf{Generador Eólico PMSG:} La potencia mecánica aerodinámica $P_m$ capturada por las palas de la turbina y el par mecánico resultante $T_m$ se modelan de forma desacoplada mediante las siguientes ecuaciones:
     \begin{equation}
@@ -143,9 +143,9 @@ La infraestructura de comunicación entre los agentes de control se modela como 
 
 
 La matriz de grados diagonal $\mathcal{D} = \text{diag}(d_i)$ contiene el grado nodal $d_i = \sum_{j \in \mathcal{N}_i} a_{ij}$, donde $\mathcal{N}_i = \{j \in \mathcal{V} : (j, i) \in \mathcal{E}\}$ define el conjunto de vecinos del agente $i$. La matriz Laplaciana del grafo se define como:
-\begin{equation}
+\[
 \mathcal{L} = \mathcal{D} - \mathcal{A}
-\end{equation}
+\]
 
 Para el esquema de seguimiento de líder (\textit{leader-follower}), el nodo líder físico (nodo 1, generador diésel con consigna nominal $x_0$) se conecta a un subconjunto de seguidores mediante la matriz diagonal de acceso $\mathcal{B} = \text{diag}(b_i)$, con $b_i > 0$ si el agente $i$ recibe información directamente del líder y $b_i = 0$ en caso contrario. La matriz topológica aumentada del sistema se define como $\mathcal{H} = \mathcal{L} + \mathcal{B}$, la cual es simétrica y estrictamente definida positiva ($\mathcal{H} > 0$) si el grafo $\mathcal{G}$ es conexo y al menos un seguidor tiene acceso al líder ($b_i > 0$) \citep{Shrivastava2023FiniteTime}.
 
@@ -160,9 +160,9 @@ u_i(t) = &c_1 \left( \sum_{j \in \mathcal{N}_i} a_{ij} \text{sig}^\alpha(x_j(t) 
 \end{split}
 \end{equation}
 donde $x_i(t)$ representa la variable de estado local del agente $i$, $x_j(t)$ es el estado reportado por el vecino $j \in \mathcal{N}_i$, $x_0$ denota la consigna o referencia nominal dictada por el nodo líder (frecuencia $\omega^*$ o tensión $V^*$), $a_{ij}$ es el peso de comunicación proveniente de la matriz de adyacencia $\mathcal{A}$, $b_i \ge 0$ es la ganancia de anclaje (\textit{pinning gain}) de acceso directo al líder, $c_1, c_2 > 0$ son las ganancias de aceleración del consenso, los exponentes fraccionarios satisfacen $0 < \alpha < 1$ y $\beta > 1$, y el operador no lineal $\text{sig}^p(z)$ se define como:
-\begin{equation}
+\[
 \text{sig}^p(z) = \text{sign}(z) |z|^p
-\end{equation}
+\]
 
 La formulación emplea la diferencia restaurativa $(x_j - x_i)$: si el nodo local presenta un valor inferior a sus vecinos ($x_i < x_j \implies x_j - x_i > 0$), la acción de control genera $u_i(t) > 0$, incrementando la consigna restaurativa hacia el consenso. El término $\text{sig}^\alpha(\cdot)$ (con $\alpha = 0.8 < 1$) domina y acelera la tasa de convergencia cuando el error se encuentra próximo al origen ($|e| < 1$), mientras que el término $\text{sig}^\beta(\cdot)$ (con $\beta = 1.2 > 1$) proporciona una rápida tasa de rechazo ante perturbaciones de gran magnitud ($|e| > 1$).
 
@@ -187,9 +187,9 @@ V(e) = \frac{1}{2} e^T \mathcal{H} e
 \end{equation}
 
 Derivando \eqref{eq:lyapunov} respecto al tiempo y aplicando la desigualdad de Jensen sobre el grafo no dirigido conexo, la derivada satisface:
-\begin{equation}
+\[
 \dot{V}(e) \le -c_1 2^{\frac{\alpha+1}{2}} \lambda_2(\mathcal{L})^{\frac{\alpha+1}{2}} V(e)^{\frac{\alpha+1}{2}} - c_2 2^{\frac{\beta+1}{2}} \lambda_2(\mathcal{L})^{\frac{\beta+1}{2}} V(e)^{\frac{\beta+1}{2}}
-\end{equation}
+\]
 donde $\lambda_2(\mathcal{L}) > 0$ es la conectividad algebraica (autovalor de Fiedler) de la matriz Laplaciana del grafo de comunicación.
 
 Conforme al Lema de Lyapunov en Tiempo Fijo, la trayectoria del error converge exactamente a cero ($e(t) \equiv 0$) para todo $t \ge T_f$, donde la cota analítica estricta del tiempo de convergencia está dada por:
@@ -220,10 +220,10 @@ Para asegurar la estabilidad numérica frente al desacoplamiento temporal, el si
 donde $\lambda_{\max}(\mathcal{H})$ es el mayor autovalor de $\mathcal{H}$ y $g_{\text{ef}}$ es la ganancia efectiva de la ley linealizada en el régimen considerado. Fuera de la capa límite ($|e| > \delta$), la ley no lineal aporta $g_{\text{ef}} = c_1 + c_2$; y como $\lambda_{\max}(\mathcal{H}) \le 2d_{\max}$, con $d_{\max} = \max_{i} \sum_{j \in \mathcal{N}_i} a_{ij}$ el grado nodal máximo, la condición adopta la forma conservadora clásica $\Delta t \cdot d_{\max} \cdot (c_1 + c_2) < 1.0$. Dentro de la capa límite ($|e| \le \delta$), el operador \eqref{eq:anti_chattering} es lineal de pendiente $k_p = \delta^{p-1}$, de modo que la ganancia efectiva asciende a $g_{\text{ef}} = c_1\delta^{\alpha-1} + c_2\delta^{\beta-1}$; con $\delta = 10^{-3}$, $\alpha = 0.8$ y $\beta = 1.2$ resulta $g_{\text{ef}} = 0.25(3.981) + 0.15(0.251) = 1.033$. Sobre la topología de validación ($\lambda_{\max}(\mathcal{H}) = 3.247$ con $b_1 = 1.0$) la condición se verifica como $\Delta t \cdot \lambda_{\max}(\mathcal{H}) \cdot g_{\text{ef}} = 0.5 \times 3.247 \times 1.033 = 1.677 < 2.0$. Este es el régimen que gobierna la estabilidad numérica del esquema: aplicar la forma conservadora con $d_{\max}$ dentro de la capa límite arrojaría $1.033 > 1.0$, pese a que el criterio espectral exacto conserva margen, porque $2d_{\max} = 4$ sobreestima el autovalor real $\lambda_{\max}(\mathcal{H}) = 3.247$. El modo crítico asociado decae con factor $|1 - 1.677| = 0.677$ por paso alternando signo, y se activa únicamente para $|e| \le \delta = 10^{-3}$, donde la amplitud es despreciable. Los valores operacionales $c_1 = 0.25$ y $c_2 = 0.15$ no se adoptan como un compromiso, sino que satisfacen simultáneamente tres criterios de diseño. \emph{(i) Cota de asentamiento:} con $\lambda_2(\mathcal{L}) = 1.0$ sobre la topología de validación, la ecuación \eqref{eq:t_settling} entrega $T_f \le 52.54\text{ s}$. \emph{(ii) Margen de estabilidad numérica:} conforme a \eqref{eq:cfl_condition}, el régimen que gobierna es el interior de la capa límite, donde $\Delta t \cdot \lambda_{\max}(\mathcal{H}) \cdot g_{\text{ef}} = 1.677 < 2.0$, con un margen del $16.2\%$ sobre el límite de divergencia del integrador; fuera de la capa límite el factor desciende a $0.649$, con margen del $67.5\%$. \emph{(iii) Asimetría de exponentes:} dado que la cota \eqref{eq:t_settling} es un argumento de Lyapunov de peor caso, su minimización analítica no coincide con la del tiempo de asentamiento medido; el reparto balanceado que minimiza \eqref{eq:t_settling} a igual suma de ganancias ($c_1 = 0.207$, $c_2 = 0.193$, $T_f \le 50.06\text{ s}$) resulta un $11.1\%$ más lento en la verificación numérica que la pareja asimétrica adoptada, porque con $c_1 > c_2$ la acción de control crece en la región $|e| < 1$ —gobernada por el exponente $\alpha < 1$—, que es donde se ubican las desviaciones de operación de la microrred en base unitaria, mientras que el reparto balanceado desplaza el esfuerzo hacia $|e| > 1$, fuera de ese rango. La verificación del lazo de consenso aislado sobre la topología de validación, evaluada según la definición \eqref{eq:tset_band} con $\varepsilon = 0.02$, arroja $T_{set} = 13.5\text{ s}$, equivalente al $26\%$ de la cota; la pareja invertida ($c_1 = 0.15$, $c_2 = 0.25$) es la más desfavorable de las evaluadas, con $T_{set} = 17.5\text{ s}$.
 
 Adicionalmente, para anular el error en estado estacionario de los lazos de tensión y frecuencia en topologías no completas, los incrementos $u_{V,i}$ y $u_{\omega,i}$ se incorporan mediante una acción integral con saturación anti-windup:
-\begin{align}
+\begin{align*}
 \delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]} \left( \delta V_i(k) + \Delta t \cdot u_{V,i}(k) \right)  \\
 \delta \omega_i(k+1) &= \text{sat}_{[-\pi, +\pi]} \left( \delta \omega_i(k) + \Delta t \cdot u_{\omega,i}(k) \right) 
-\end{align}
+\end{align*}
 cerrando el lazo restaurativo directamente hacia las referencias de excitación del inversor y de velocidad angular del gobernador primario.
 
 
@@ -269,9 +269,9 @@ con $\varepsilon = 0.02$, correspondiente a una banda de tolerancia del $2\%$ so
 
 \textbf{Nadir de frecuencia.} Ante una perturbación, la frecuencia desciende hasta un mínimo antes de recuperarse, y ese valor extremo condiciona la activación de las protecciones de subfrecuencia:
 
-\begin{equation}
+\[
 f_{\text{nadir}} = \min_{t \in [t_0, t_f]} f(t)
-\end{equation}
+\]
 
 \textbf{Tasa máxima de cambio de frecuencia.} Definida en \eqref{eq:rocof}, cuantifica la severidad del transitorio inicial y está directamente asociada a la inercia equivalente del sistema.
 

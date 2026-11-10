@@ -39,9 +39,9 @@ donde las entradas fasoriales de red $u_i(t_K) = V_{pcc, i}(t_K)$ se mantienen c
 El módulo \texttt{Central\_PC/master\_clock\_zmq.py} implementa un servidor síncrono basado en la librería PyZMQ utilizando un socket de tipo \texttt{zmq.ROUTER} / \texttt{zmq.DEALER} acoplado a un multiplexor \texttt{zmq.Poller}. La sincronización temporal y la robustez frente a caídas de nodos se aseguran mediante los siguientes mecanismos:
 \begin{enumerate}[a)]
     \item \textbf{Temporización Monotónica Anti-Deriva:} Para eliminar la acumulación de retraso (\textit{clock drift}) inherente al uso de pausas estáticas (\texttt{time.sleep(H)}), el reloj maestro calcula el tiempo residual exacto mediante el temporizador monotónico del sistema operativo:
-    \begin{equation}
+    \[
     t_{\text{sleep}} = \max\left(0, \, t_{\text{target}, K+1} - \text{perf\_counter}()\right)
-    \end{equation}
+    \]
     donde $t_{\text{target}, K+1} = t_{\text{target}, K} + H$.
     \item \textbf{Configuración Anti-Deadlock de Sockets:} Los sockets de comunicación se configuran con límites estrictos de tiempo de espera: \texttt{RCVTIMEO = 2000 ms} ($4 \times H$) para la recepción de potencias, \texttt{SNDTIMEO = 1000 ms} ($2 \times H$) para el envío de consignas, y \texttt{LINGER = 0 ms} para forzar el cierre inmediato y la liberación de descriptores TCP ante fallas de proceso.
     \item \textbf{Política de Retención de Último Estado (\textit{Hold Last Value}):} Si un nodo experimenta una desconexión o latencia transitoria superior a \texttt{RCVTIMEO}, el solucionador central no interrumpe el ciclo de simulación global; en su lugar, retiene la última potencia válida inyectada ($P_i(t_{K-1}), Q_i(t_{K-1})$), permitiendo la continuidad operativa y registrando el evento de alarma telemétrica.
@@ -71,25 +71,25 @@ El PC Central incorpora dos motores matemáticos desarrollados desde primeros pr
 
 \subsubsection{Refactorización Jerárquica Orientada a Objetos}
 Para garantizar la modularidad y el aislamiento de código, los modelos dinámicos heredan de una estructura base unificada (\texttt{common/base\_der.py}), estandarizando la firma del método de integración:
-\begin{equation}
+\[
 \text{step}(dt, \, V_{pcc}, \, \text{setpoints}) \longrightarrow \{P(t), \, Q(t), \, V_{dc}(t), \, \text{telemetry}\}
-\end{equation}
+\]
 
 \subsubsection{Control en Coordenadas \texorpdfstring{$dq$}{dq} y Lazo de Enganche de Fase (SRF-PLL Discreto)}
 En el módulo \texttt{common/Transformadas.py}, se implementa la clase \texttt{SRFPLL} con las ganancias sintonizadas analíticamente en \eqref{eq:kp_pll} y \eqref{eq:ki_pll} ($K_{p,\text{pll}} = 94.25$, $K_{i,\text{pll}} = 2220.66$, $\zeta = 1.0$, $f_n = 7.5\text{ Hz}$).
 
 Para reconstruir las tensiones instantáneas de red trifásica a partir de la magnitud y ángulo fasorial reportados por el solucionador central ($V_{pcc, i}$), se incorpora la función de síntesis balanceada:
-\begin{equation}
+\[
 \begin{bmatrix} V_a(t) \\ V_b(t) \\ V_c(t) \end{bmatrix} = V_{\text{pico}} \begin{bmatrix} \cos(\hat{\theta}(t)) \\ \cos\left(\hat{\theta}(t) - \frac{2\pi}{3}\right) \\ \cos\left(\hat{\theta}(t) + \frac{2\pi}{3}\right) \end{bmatrix}
-\end{equation}
+\]
 eliminando las inyecciones artificiales unifásicas y permitiendo que la transformación de Park \eqref{eq:clarke_park} opere con perfecta ortogonalidad ($V_d \approx V_{\text{pico}}, \, V_q \approx 0.0\text{ V}$) \citep{Kundu2024ICCFPLL}.
 
 \subsubsection{Modelos Dinámicos de las Fuentes Implementadas}
 \begin{enumerate}[a)]
     \item \textbf{Generación Solar PV (\texttt{Solar/SistemaSolar.py}):} Modela el arreglo fotovoltaico con seguimiento del punto de máxima potencia (MPPT Perturbar y Observar) y balance del condensador de bus DC ($C_{dc} = 10\,000\,\mu\text{F}$):
-    \begin{equation}
+    \[
     V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big( P_{pv}(G_k, T_k) - P_{inv}(k) \big)
-    \end{equation}
+    \]
     
     \item \textbf{Sistema BESS (\texttt{BESS/SistemaBESS.py}):} Integra la dinámica del estado de carga mediante integración trapezoidal con confinamiento de seguridad $\text{SoC} \in [0.20, 0.90]$ y saturación dinámica de corriente límite en función de la temperatura de celda \citep{Alam2024}.
     
@@ -120,16 +120,16 @@ El algoritmo de control secundario distribuido se codifica en el módulo \texttt
 Para actualizar las consignas hacia el lazo de control primario de la fuente sin introducir acumulación doble de integradores, el agente sintetiza los incrementos discretos de las cuatro variables de consenso por ciclo de control ($dt_{\text{macro}} = H = 0.5\text{ s}$).
 
 \textbf{Lazos de Tensión y Potencia Reactiva:}
-\begin{align}
+\begin{align*}
 \Delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]}\left( \Delta V_i(k) - H \cdot u_{v, i}(k) \right)  \\
 \Delta Q_i(k+1) &= \text{sat}_{[-Q_{\max, i}, +Q_{\max, i}]}\left( \Delta Q_i(k) - H \cdot u_{q, i}(k) \cdot Q_{\max, i} \right) 
-\end{align}
+\end{align*}
 
 \textbf{Lazos de Frecuencia y Potencia Activa:}
-\begin{align}
+\begin{align*}
 \Delta \omega_i(k+1) &= \text{sat}_{[-\Delta\omega_{\max}, +\Delta\omega_{\max}]}\left( \Delta \omega_i(k) - H \cdot u_{\omega, i}(k) \right)  \\
 \Delta P_i(k+1) &= \text{sat}_{[-P_{\max, i}, +P_{\max, i}]}\left( \Delta P_i(k) - H \cdot u_{p, i}(k) \cdot P_{\max, i} \right) 
-\end{align}
+\end{align*}
 donde el operador $\text{sat}_{[a, b]}(x) = \max(a, \min(b, x))$ limita la compensación dentro de bandas de seguridad: $\pm 10\%$ para tensión, $\pm \Delta\omega_{\max} = \pm 3.1416\text{ rad/s}$ ($\pm 0.5\text{ Hz}$) para la señal de frecuencia, y $\pm Q_{\max, i}$, $\pm P_{\max, i}$ para las potencias reactiva y activa respectivamente. Conviene distinguir tres bandas de frecuencia que operan en niveles jerárquicos distintos: el saturador de $\pm 0.5\text{ Hz}$ acota la autoridad del agente de consenso en cada paso discreto y protege al actuador frente a la sobremodulación, por lo que es deliberadamente más restrictivo que la norma; la ventana de $[58.8, 61.2]\text{ Hz}$ ($\pm 2\%$ sobre $60.0\text{ Hz}$) constituye el criterio de cumplimiento regulatorio NTC 1340 con el que se evalúa la calidad de energía; y el umbral de $[57.0, 63.0]\text{ Hz}$ corresponde al relé ANSI 81O/81U de sobre y subfrecuencia, última barrera física que ordena la apertura del alimentador.
 
 \subsubsection{Buffer de Frescura Temporal (\textit{State Age Tracking}) y Mitigación de Fallas}

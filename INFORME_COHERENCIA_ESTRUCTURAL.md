@@ -69,16 +69,17 @@ El mapa describía las familias 2 y 3 como «declaradas con su escenario y su cr
 
 *Aplicado:* nuevo párrafo en «Alcance y organización de la validación» que ata cada bloque del capítulo a sus actividades: el benchmark a 1.1, 1.2, 1.3, 4.1 y 4.3; el banco HIL a 3.1 y 3.2; la familia de fallas a 3.3 y 4.2; y la familia de excedente a 4.1 en el régimen excedentario.
 
-### H12 · [Medio] 33 de 55 ecuaciones etiquetadas nunca se referencian — **MITIGADO (2026-11-08)**
+### H12 · [Medio] Ecuaciones que exhibían número sin ser invocadas — **CORREGIDO (2026-11-08)**
 
-Había 55 `\label{eq:…}` y sólo 22 aparecían en un `
-ef` o un `\eqref`.
+*Criterio:* el número se reserva para lo que el lector puede necesitar consultar. Se conserva en (i) toda ecuación invocada desde el texto y (ii) las leyes de modelo y los límites normativos que el evaluador puede querer verificar, aunque nadie los cite. El resto pasa a visualización sin número.
 
-*Criterio aplicado:* una ecuación conserva su etiqueta sólo si algún pasaje la invoca. De las 33 etiquetas muertas se retiraron **32** (16 en `TEORIA`, 11 en `IMPLEMENTACION`, 5 en `RESULTADOS`) y se conservó **una**, la ecuación de oscilación del apartado de resultados, porque el texto ya la invocaba en palabras: ahora se cita con `\eqref{eq:res_swing_pred}` en la síntesis.
+*Primer paso:* se retiraron 32 etiquetas `eq:` muertas y se conservó y citó la de la ecuación de oscilación de resultados.
 
-*Verificado:* quedan **0** etiquetas `eq:` sin referenciar. El PDF no cambia de tamaño con la retirada —754 551 B antes y después, porque la etiqueta no altera la maqueta— y sube a 754 626 B al añadir la referencia, que se lee como «ecuación de oscilación (57)» en el PDF compilado.
+*Segundo paso:* **18 entornos** (22 líneas numeradas) pasaron a visualización sin número —7 en `TEORIA`, 6 en `IMPLEMENTACION`, 5 en `RESULTADOS`—: la discretización del PLL, las cotas de SoC, la definición de la Laplaciana, la del operador `sig`, la cota de la derivada de Lyapunov, la actualización discreta del lazo secundario y la definición de `f_nadir`; el cálculo del `sleep`, la firma de `step()`, la síntesis de tensiones `abc`, la actualización discreta de `V_dc`, las recursiones de `ΔV`, `ΔQ` y `Δω`, y las cinco sustituciones aritméticas del capítulo de resultados.
 
-**Límite declarado:** retirar la etiqueta limpia la fuente, no la lectura. La ecuación sigue exhibiendo su número aunque nadie la cite, porque `equation` numera siempre. Corregir lo que ve el jurado exigiría pasar las ecuaciones no invocadas a visualización sin número: decisión editorial distinta, no aplicada.
+*Se conserva el número, aunque no se citen,* en las ecuaciones de modelo que el jurado puede querer consultar: dinámica `dq` del convertidor, función de transferencia del SRF-PLL, bus DC fotovoltaico, estado de carga del BESS, potencia y par eólicos, límite de aparente del inversor, matrices de sensibilidad, paso de Euler del micro-paso, evaluación lineal de sensibilidades y matriz de Gilbert-Elliott.
+
+*Verificado:* la numeración del documento baja de **57 a 35** ecuaciones numeradas, de las cuales **23 están referenciadas y 12 se numeran por decisión editorial**. Quedan **0** etiquetas sin referenciar. El PDF pasa de 754 626 a **754 038 B** con las mismas 79 páginas, 0 errores, 0 referencias indefinidas y sin `??`; la ecuación de oscilación se lee ahora como (35).
 
 ### H13 · [Medio-bajo] Ninguna sección tiene etiqueta
 
