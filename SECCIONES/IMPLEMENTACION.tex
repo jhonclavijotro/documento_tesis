@@ -1,4 +1,5 @@
 \section{ARQUITECTURA E IMPLEMENTACIÓN DEL SISTEMA MULTIAGENTE Y CO-SIMULACIÓN}
+\label{sec:implementacion}
 
 En esta sección se detalla el diseño ingenieril, la implementación de software y el despliegue ciber-físico de la plataforma de co-simulación y control secundario distribuido basada en Sistemas Multiagente (MAS). La arquitectura integra un entorno desacoplado en hardware heterogéneo (PC Central y clúster IoT-Edge en Raspberry Pi 5), solucionadores de red desarrollados desde primeros principios, algoritmos de consenso en tiempo fijo (FxTS) con mitigación de contingencias telemétricas, y una infraestructura de contenerización modular.
 
@@ -21,7 +22,7 @@ La plataforma se estructura a partir de cuatro capas funcionales interconectadas
 La arquitectura admite la conmutación transparente entre dos modos operativos fundamentales de microrred \citep{MartinezGomez2025Distributed}:
 \begin{itemize}
     \item \textbf{Modo ONLINE (Conectado a la Red Principal):} El PC Central impone la barra Slack en el punto de interconexión con la red externa ($V_{\text{slack}} = 1.0 \angle 0^\circ\text{ p.u.}$). El objetivo de los agentes de consenso se orienta a la regulación local de tensión dentro de la banda admisible ($\pm 5\%$) y la optimización del reparto proporcional de potencia reactiva entre los DERs para evitar sobrecargas térmicas en los inversores.
-    \item \textbf{Modo OFFLINE (Modo Isla / Aislado):} Tras la apertura del interruptor de acoplamiento estático, el generador diésel (Nodo 1) asume el rol de nodo de referencia inercial y líder de consenso, propagando tanto la consigna de tensión ($V_{\text{ref}} = 1.0\text{ p.u.}$, $b_1 = 1.0$) como la consigna de frecuencia nominal ($\omega^* = 2\pi \cdot 60\text{ rad/s}$). El protocolo de seguimiento de líder propaga ambas consignas de restauración hacia los inversores seguidores de la topología activa, garantizando simultáneamente la estabilidad de tensión y frecuencia sin requerir comunicación con la red principal \citep{Shrivastava2023FiniteTime}. La plataforma modela y admite hasta cinco recursos (Diésel, Solar, Eólica, BESS e Hídrica); la validación experimental de esta tesis emplea, sobre las ocho barras del banco, la configuración reducida de tres agentes de consenso descrita en el marco teórico.
+    \item \textbf{Modo OFFLINE (Modo Isla / Aislado):} Tras la apertura del interruptor de acoplamiento estático, el generador diésel (Nodo 1) asume el rol de nodo de referencia inercial y líder de consenso, propagando tanto la consigna de tensión ($V_{\text{ref}} = 1.0\text{ p.u.}$, $b_1 = 1.0$) como la consigna de frecuencia nominal ($\omega^* = 2\pi \cdot 60\text{ rad/s}$). El protocolo de seguimiento de líder propaga ambas consignas de restauración hacia los inversores seguidores de la topología activa, garantizando simultáneamente la estabilidad de tensión y frecuencia sin requerir comunicación con la red principal \citep{Shrivastava2023FiniteTime}. La plataforma modela y admite hasta cinco recursos (Diésel, Solar, Eólica, BESS e Hídrica); la validación experimental de esta tesis emplea, sobre las ocho barras del banco, la configuración reducida de tres agentes de consenso descrita en la sección~\ref{sec:teoria}.
 \end{itemize}
 
 \subsection{Motor de Co-Simulación Multitasa y Sincronización Determinista}
@@ -100,7 +101,7 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
     \item \textbf{Generador Diésel (\texttt{Diesel/SistemaDiesel.py}):} Incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act} = 0.05\text{ s}$) y retardo de transporte térmico ($T_{eng} = 0.20\text{ s}$), actuando como generador síncrono formador de red (\textit{Grid-Forming}) en modo isla \citep{Alam2024}.
 \end{enumerate}
 
-Los dos recursos que sostienen la frecuencia en el borde operan con lazos locales distintos, y sus constantes se declaran aquí porque el capítulo de resultados las cita. El generador diésel ejecuta el lazo restaurativo
+Los dos recursos que sostienen la frecuencia en el borde operan con lazos locales distintos, y sus constantes se declaran aquí porque el capítulo~\ref{sec:resultados} las cita. El generador diésel ejecuta el lazo restaurativo
 
 \begin{equation}\label{eq:rest_local}
 \Delta P_{\text{rest}} = \kappa_{p,\omega}\, e_\omega + \kappa_{i,\omega} \int e_\omega\, dt, \qquad e_\omega = 2\pi\,(f_{\text{nom}} - f)
@@ -110,7 +111,7 @@ con $\kappa_{p,\omega} = 250\ \text{W/(rad/s)}$ y $\kappa_{i,\omega} = 80\ \text
 
 \subsubsection{Modelo de Carga y Perfil de Demanda del Banco de Validación}
 
-Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/SistemaDemanda.py}), en el que una única clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo de resultados.
+Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/SistemaDemanda.py}), en el que una única clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo~\ref{sec:resultados}.
 
 \subsection{Implementación del Control Secundario por Consenso en Tiempo Fijo}
 

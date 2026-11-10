@@ -81,9 +81,19 @@ El mapa describía las familias 2 y 3 como «declaradas con su escenario y su cr
 
 *Verificado:* la numeración del documento baja de **57 a 35** ecuaciones numeradas, de las cuales **23 están referenciadas y 12 se numeran por decisión editorial**. Quedan **0** etiquetas sin referenciar. El PDF pasa de 754 626 a **754 038 B** con las mismas 79 páginas, 0 errores, 0 referencias indefinidas y sin `??`; la ecuación de oscilación se lee ahora como (35).
 
-### H13 · [Medio-bajo] Ninguna sección tiene etiqueta
+### H13 · [Medio-bajo] Ninguna sección tenía etiqueta — **CORREGIDO (2026-11-08)**
 
-Cero `\label{sec:…}` y cero `\ref{sec:…}`: todas las remisiones entre capítulos son verbales («el capítulo de implementación», «el marco teórico»). Funciona hoy, pero es frágil ante cualquier reordenamiento y no es verificable por un script.
+*Diagnóstico:* 37 etiquetas y 70 referencias cruzadas sobre flotantes y ecuaciones, y **cero** sobre secciones: las remisiones entre capítulos eran cinco frases en prosa. Con `hyperref` y `colorlinks`, las 70 numéricas se imprimen como enlaces y las verbales no llevan a ninguna parte; peor aún, una remisión verbal obsoleta sigue siendo gramaticalmente correcta, de modo que ningún script puede detectarla.
+
+*Aplicado:*
+1. **Ocho etiquetas de sección** (`sec:problema` … `sec:resultados`), una por sección numerada.
+2. **Tres remisiones convertidas** a `ef`: `ANTECEDENTES` remite a `sec:implementacion`, y `IMPLEMENTACION` a `sec:teoria` y a `sec:resultados` (dos veces).
+3. **Trece actividades etiquetadas** en `DISENO` mediante una macro local `ct{3.3}`, que imprime el identificador y deja la etiqueta `act:3.3` con ese mismo texto: así la referencia no depende de la numeración de la lista y sobrevive a cualquier renumeración.
+4. Las **nueve citas de actividad** del capítulo de resultados pasan a `ef{act:…}`.
+
+*Verificado en el PDF:* `sección 5`, `sección 7` y `capítulo 8` se imprimen resueltos; las actividades se leen como 1.1, 1.2, 1.3, 3.1, 3.2, 3.3, 4.1, 4.2 y 4.3; los trece rótulos «Actividad X.Y:» siguen intactos; sin `??` y sin avisos de etiquetas duplicadas. 79 páginas · 754 215 B.
+
+*Incidencia durante la edición:* el ejecutor de comandos colapsó las barras invertidas de tres `ef` y las convirtió en retornos de carro; se detectó con un volcado `repr` y se repararon antes de compilar. Regla adoptada: los cambios con barras invertidas se escriben en un archivo `.py` y no por entrada estándar.
 
 ### H14 · [Bajo] Código muerto en el planteamiento del problema
 
@@ -108,6 +118,6 @@ El calificativo no es falso —la convergencia en tiempo fijo exige términos co
 | 2 | H8 · conclusiones y trabajo futuro | subsección de cierre | ✅ hecho — pendiente declarado, sin sección 9 |
 | 3 | H9 + H10 · marco de familias y mapa del capítulo | 2 encabezados y 1 párrafo | ✅ hecho |
 | 4 | H11 · trazabilidad actividad → resultado | 1 párrafo | ✅ hecho — las 13 actividades vuelven a estar enlazadas |
-| 5 | H12 + H13 + H14 | mecánico | H12 hecho (etiquetas); H13 y H14 pendientes |
+| 5 | H12 + H13 + H14 | mecánico | H12 y H13 hechos; H14 pendiente |
 
 Ninguno de los ocho hallazgos exige tocar el preámbulo ni las cifras del capítulo 8.
