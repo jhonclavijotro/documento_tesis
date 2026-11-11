@@ -33,7 +33,7 @@ Este documento es la **única fuente de verdad** entre el equipo técnico de co-
 4. **Reglas numéricas vigentes.** 300 s máximos y 601 muestras a 2 Hz en todas las redes; dos archivos separados —meteorológico y demanda—; `timestamp` ISO-8601 con milisegundos y sufijo `-05:00`. El CSV de §11 tiene 600 filas ($t=0.5 \ldots 300.0$ s), no 601: el desfase corresponde al estado inicial $t = 0.0$ s, conciliado en S-O-12 (D4).
 5. **Congelación de redacción.** **LEVANTADA FORMALMENTE** por decisión explícita del Investigador Principal (2026-11-07). Concluido con éxito el ensayo formal de 600 pasos (300 s) con el lazo $+dP$ activo, anti-windup en $\pm 75\text{ rad}$, resolución completa de las precisiones D6, D7 y D8 en S-O-12, y certificación canónica del Benchmark v2 en S-28, HERMES queda plenamente autorizado para redactar los resultados experimentales y la discusión del Capítulo 5 conforme a la guía directiva adjunta.
 6. **Regla de publicación de $T_{set}$.** El Capítulo 5 cita **13.0 s** (FxTS, G1, banda 0.100 Hz); el lazo aislado **13.5 s** a $\varepsilon = 0.02$; 17.0 s solo como sensibilidad. Prohibido 11.0 s o 15.5 s como asentamiento del FxTS. Detalle en la Declaración canónica.
-7. **Manuscrito y figuras.** `main.pdf` vigente: **78 páginas · 753 887 B · `2c4c8c38…`** (recompilado el 2026-11-08 tras el bloque de coherencia estructural y el de bibliografía); `SECCIONES/RESULTADOS.tex` **420 líneas** (`18bf0938…`); `TuArchivo.bib` **49 entradas · `7c1d3882…`** la edición del manuscrito sigue siendo competencia exclusiva de HERMES.
+7. **Manuscrito y figuras.** `main.pdf` vigente: **78 páginas · 754 965 B · `13e15f50…`** (recompilado el 2026-11-08 tras el bloque de coherencia estructural y el de bibliografía); `SECCIONES/RESULTADOS.tex` **420 líneas** (`18bf0938…`); `TuArchivo.bib` **49 entradas · `7c1d3882…`** la edición del manuscrito sigue siendo competencia exclusiva de HERMES.
 8. **Contrato de contingencias telemáticas.** D-25 **congelada** (v1, 2026-11-08): la familia (3) de D-24 entrega un séptimo artefacto, `contingencias_telematicas.csv`, con `escenario.yaml` como puntero y `meta.json` con `filas` y SHA-256. Emisión y R-L.1–R-L.4 implementadas y probadas; F0 verificado. S-34 está **cerrada y resuelta** (run `20261108T170925_resilience_seed42`): el proxy está cableado al runner, `delivery_meta` se persiste y las fallas por enlace funcionan. F1–F3 quedan **desbloqueadas**; su emisión como variantes de escenario corresponde a S-O-14. Detalle en **O-10**.
 9. **Escenarios excedentarios (familia 2 de D-24).** **ESC-HIL-006_excedente_ventana_declarada** y **ESC-HIL-007_excedente_referencia** están **generados, validados e instalados sin activar**, con el contrato **D-26 v1** publicado en `meta.json`: ventana `[120, 240] s`, holgura **+2.882 a +3.469 kW** (006) y **−0.766 a −0.179 kW** (007), demanda byte-idéntica y solo el recurso como variable. `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`. La corrida en el rack se solicita en **S-O-18**; detalle en **O-3**.
 10. **Evidencia de resiliencia (S-34).** La campaña `20261108T170925_resilience_seed42` entrega `telemetry_resilience_300s.csv` (601 × 33 · 127 559 B · `ba21fe9b…`) con los tres tramos —nominal, latencia 50–500 ms y pérdida del 20 % con corte de enlace de 30 s—, `f_min = 59.9894 Hz` y `delivery_meta` por paso (`falla_activa`, `latencia_efectiva_ms`, `perdida_efectiva`). Cierra el cuarto objetivo específico. **Contrato resuelto en S-O-19:** `contingencias_telematicas.csv` (634 B · `dbbdf606…`) publica las cinco semillas derivadas por celda conforme a R-L.1 (`manifest_sha256 = c67f8445…`); telemetría byte-idéntica.
@@ -2439,7 +2439,7 @@ capacidades aprobadas —diésel 12, BESS 3, solar 5, eólico 4, hidrocinético 
 
 ### S-37 · Auditoría implementación ↔ código: cuatro discrepancias entre el capítulo 7 y el repositorio
 
-**Estado:** `ABIERTA`
+**Estado:** `CERRADA (respuesta 2026-11-11; correcciones editoriales aplicadas por HERMES el 2026-11-08)`
 **Dirigida a:** Antigravity
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-08
@@ -2484,3 +2484,62 @@ capacidades aprobadas —diésel 12, BESS 3, solar 5, eólico 4, hidrocinético 
 **Criterio de cierre.** Cada uno de los cuatro puntos con respuesta verificable en el repositorio, y una nota final de Antigravity indicando cuáles afirmaciones del capítulo 7 deben corregirse en el texto y cuáles se sostienen con solo renombrar la referencia.
 
 **Lo que NO se toca.** `SECCIONES/*.tex` sigue siendo competencia exclusiva de HERMES; las correcciones del manuscrito las aplica este canal una vez recibida la respuesta. No se modifican corridas, manifiestos ni escenarios.
+---
+
+**Respuesta Técnica de ANTIGRAVITY (2026-11-11):**
+
+Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código fuente del repositorio `D:\Antigravity\Projects\Tesis_Grado`:
+
+#### R1 · `Demanda`: `PerfilDemanda` y `SistemaDemanda.py`
+- **Ubicación en el repositorio:**
+  - Clase `PerfilDemanda`: `Demanda/PerfilDemanda.py:4-100`.
+  - Clase `SistemaDemanda`: `Demanda/SistemaDemanda.py:5-83`.
+- **Reparto de responsabilidades:**
+  - `PerfilDemanda` encapsula la **lectura del archivo CSV** (`_cargar_csv`, líneas 52–90) resolviendo columnas por cabecera y realiza la **interpolación temporal lineal** continua (`obtener_en_tiempo`, líneas 91–99).
+  - `SistemaDemanda` instancia internamente a `PerfilDemanda` (líneas 19–23), almacena las potencias nominales (`P_nominal`, `Q_nominal`), gestiona el avance temporal en paso discreto (`step`, líneas 32–50) y actualiza el diccionario de contexto nodal $PQ$ para la co-simulación.
+  - *Co-simulación HIL multinodo:* En la ejecución distribuida sobre el clúster de Raspberry Pi, las demandas dinámicas agregadas de los nodos 4 al 8 las gestiona el proceso `Agents/multi_load_process.py:51-147`, leyendo directamente las series de `datos_demanda.csv`.
+- **Dictamen para el texto:** La afirmación del manuscrito describe fielmente la física; **se sostiene con solo renombrar la referencia** a `Demanda/PerfilDemanda.py` como el módulo que implementa la clase `PerfilDemanda` y su lectura CSV, aclarando que es consumida por el nodo `Demanda/SistemaDemanda.py`.
+
+#### R2 · `Diesel`: nombre de módulo, constantes y gobernador
+- **Ubicación en el repositorio:**
+  - Dinámica térmica/mecánica: `Diesel/Diesel.py:4-24`, clase `MotorDiesel`.
+  - Dinámica eléctrica/inversor acoplado a red: `Diesel/SistemaDiesel.py:7-76`, clase `SistemaDiesel`.
+- **Respuestas a las tres preguntas concretas:**
+  1. **¿Existe $T_{act}$?:** **No.** En el módulo no existe una variable llamada `T_act`. El actuador de combustible y la respuesta de par del motor térmico se modelan de forma agrupada como una función de transferencia de primer orden con un único polo:
+     $$G(s) = \frac{K_e}{t_e s + 1}, \quad \text{con } K_e = 1.0, \; t_e = 0.035\,\text{s}$$
+  2. **¿`te = 0.035` es $T_{eng}$ y vale 35 ms?:** **Sí.** En `Diesel/Diesel.py:15`, `te = 0.035` representa la constante de retardo de inyección / transporte térmico ($35\,\text{ms}$) que el manuscrito llama $T_{eng}$.
+  3. **¿Gobernador isócrono o con estatismo ($R$)?:**
+     - En la planta física del inversor (`Diesel/SistemaDiesel.py:20, 28`), el nodo Diésel posee un control primario droop $\omega-P$ habilitado (`droop_enabled=True`) con pendiente $m_p = 6.283 \times 10^{-5}\,\text{rad/(s}\cdot\text{W)}$ (estatismo de $5\%$ a $P_{\text{nom}} = 50\,\text{kW}$) y constante de tiempo de respuesta de potencia de la fuente primaria $\tau_P = 0.05\,\text{s}$ ($50\,\text{ms}$, línea 19).
+     - En el lazo de co-simulación secundaria distribuida (`Agents/distributed_node_runner.py:310-313`), el agente del Nodo 1 Diésel opera como **slack restaurativo isócrono**: integra el error de frecuencia mediante un compensador PI ($K_{p,\text{freq}} = 1200$, $K_{i,\text{freq}} = 400$) que elimina el estatismo en régimen permanente y sostiene $60.00\,\text{Hz}$, sumado a la corrección de consenso $+dP$.
+- **Dictamen para el texto:** **Debe corregirse en el texto** la referencia al actuador $T_{act}$ (eliminarla o agruparla en el retraso térmico de primer orden $t_e = 35\,\text{ms}$ en `Diesel/Diesel.py`), e indicar que el estatismo primario del convertidor ($m_p = 5\%$, $\tau_P = 50\,\text{ms}$ en `Diesel/SistemaDiesel.py`) es cancelado por el lazo de control secundario isócrono en el agente MAS (`distributed_node_runner.py`).
+
+#### R3 · `Solar`: capacidad del bus DC
+- **Ubicación en el repositorio:** `Solar/BoostConverter.py:7` (`self.C = 1000e-6`), instanciado por `Solar/SistemaSolar.py:35`.
+- **Valor real en código:** $C = 1000\,\mu\text{F} = 1.0\,\text{mF}$ (a $V_{dc,\text{ref}} = 400\,\text{V}$).
+- *(Referencia cruzada del bus DC en el resto de recursos):* En `Diesel/SistemaDiesel.py:40` y `BESS/BuckBoost.py:28`, $C_{dc} = 2000\,\mu\text{F}$ ($2.0\,\text{mF}$); en `Eolica/SistemaEolico.py:32` e `Hidrica/SistemaHidrico.py:32`, $C_{dc} = 1000\,\mu\text{F}$ ($1.0\,\text{mF}$). En ningún archivo del proyecto existe un condensador de $10\,000\,\mu\text{F}$.
+- **Dictamen para el texto:** **Debe corregirse en el texto**: el valor $C_{dc} = 10\,000\,\mu\text{F}$ contiene una errata tipográfica de un orden de magnitud ($10\times$). El valor numérico real a plasmar en `IMPLEMENTACION.tex` es **$C_{dc} = 1\,000\,\mu\text{F}$** ($1.0\,\text{mF}$) según `Solar/BoostConverter.py:7`.
+
+#### R4 · `Hidrica`: naturaleza de la turbina y constante $T_w$
+- **Ubicación en el repositorio:**
+  - Dinámica hidrodinámica: `Hidrica/TurbinaHidrocinetica.py:4-53`, clase `TurbinaHidrocinetica`.
+  - Planta convertidora y bus DC: `Hidrica/SistemaHidrico.py:13-90`, clase `SistemaHidrico`.
+- **Causa raíz de la discrepancia:**
+  - El modelo físico desarrollado en la tesis **no es una central hidroeléctrica convencional con presa y tubería forzada (penstock)**, sino una **Turbina Hidrocinética de eje horizontal en corriente libre** (aprovechamiento de energía cinética de cursos fluviales sin salto de presión).
+  - Por su principio físico, **no existe columna de agua a presión**, por lo cual la constante de tiempo de viaje de onda $T_w$ (típica de formulaciones servogobernadas de embalse) no aplica ni existe en el repositorio.
+  - La formulación matemática implementada modela la captación de potencia cinética del fluido incompresible ($\rho = 1000\,\text{kg/m}^3$, pitch $\beta = 0^\circ$ fijo):
+    $$P_m = \frac{1}{2} \rho A C_p(\lambda) V_c^3, \quad T_m = -\frac{P_m}{\omega_r}$$
+    donde la inercia del tren de potencia se modela como un retardo de velocidad de rotor de primer orden con constante de tiempo $\tau_{Wr} = 5.0\,\text{s}$ (`self.tau_Wr = 5.0` en `Hidrica/SistemaHidrico.py:33`).
+  - *Aclaración de alcance HIL:* La generación hídrica y eólica son recursos modelados a nivel unitario pero declarados formalmente como **no instanciados** en los escenarios del Capítulo 5 de la tesis (`"recursos_no_instanciados": ["eolica", "hidrica"]` en `meta.json` de ESC-HIL-006).
+- **Dictamen para el texto:** **Debe corregirse el texto conceptualmente**: sustituir la mención a «función de transferencia servogobernada con inercia de columna de agua $T_w$» por la descripción real: **turbina hidrocinética de eje horizontal en corriente libre con modelo aerodinámico adaptado $C_p(\lambda)$, densidad $\rho = 1000\,\text{kg/m}^3$ y respuesta inercial de velocidad de rotor $\tau_{Wr} = 5.0\,\text{s}$**.
+
+---
+
+
+> **Aplicación editorial de HERMES (2026-11-08).** A1: referencia cambiada a Demanda/PerfilDemanda.py. A2: se retira T_act; el retardo agrupado queda en te = 0.035 s y se declara el estatismo primario cancelado por el lazo secundario. A3: C_dc corregido de 10 000 a 1 000 uF con su archivo. A4: reescrito como turbina hidrocinética de flujo libre con tau_Wr = 5.0 s, sin T_w. Añadido aviso de alcance: el banco de ocho nodos instancia diésel, solar, BESS y cargas; eólico e hidrocinético quedan como trabajo futuro. PDF: 78 páginas, 754 965 B, 13e15f50.
+**Resumen de Cierre de S-37:**
+| Punto | Acción requerida en `IMPLEMENTACION.tex` | Causa |
+|---|---|---|
+| **A1 (Demanda)** | Renombrar referencia de archivo | La clase `PerfilDemanda` reside en `Demanda/PerfilDemanda.py` y es usada por `SistemaDemanda.py`. |
+| **A2 (Diésel)** | Corregir texto y alinear constantes | No existe $T_{act}$; la inercia térmica agrupada es $t_e = 35\,\text{ms}$ (`Diesel/Diesel.py`) y el droop de convertidor ($m_p = 5\%$) es cancelado por el control secundario isócrono. |
+| **A3 (Solar)** | Corregir valor numérico | $C_{dc} = 1\,000\,\mu\text{F}$ en `Solar/BoostConverter.py:7` (no $10\,000\,\mu\text{F}$). |
+| **A4 (Hídrica)** | Reescribir formulación | Es una turbina hidrocinética de flujo libre ($\tau_{Wr} = 5.0\,\text{s}$); no existe tubería forzada ni $T_w$. |

@@ -87,7 +87,7 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
 
 \subsubsection{Modelos Dinámicos de las Fuentes Implementadas}
 \begin{enumerate}[a)]
-    \item \textbf{Generación Solar PV (\texttt{Solar/SistemaSolar.py}):} Modela el arreglo fotovoltaico con seguimiento del punto de máxima potencia (MPPT Perturbar y Observar) y balance del condensador de bus DC ($C_{dc} = 10\,000\,\mu\text{F}$):
+    \item \textbf{Generación Solar PV (\texttt{Solar/SistemaSolar.py}):} Modela el arreglo fotovoltaico con seguimiento del punto de máxima potencia (MPPT Perturbar y Observar) y balance del condensador de bus DC ($C_{dc} = 1\,000\,\mu\text{F}$, declarado en \texttt{Solar/BoostConverter.py}):
     \[
     V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big( P_{pv}(G_k, T_k) - P_{inv}(k) \big)
     \]
@@ -96,9 +96,9 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
     
     \item \textbf{Generación Eólica PMSG (\texttt{Eolica/SistemaEolico.py}):} Resuelve el par aerodinámico no lineal $T_m(v_w, \omega_r)$ acoplado a la ecuación diferencial electromecánica del rotor \eqref{eq:pmsg_swing} y control vectorial de corriente de eje directo ($i_d^* = 0$) para maximizar el par electromagnético por amperio.
     
-    \item \textbf{Generación Hidroeléctrica (\texttt{Hidrica/SistemaHidrico.py}):} Modela la inercia de la columna de agua con función de transferencia servogobernada \eqref{eq:hydro_power} con constante de tiempo $T_w = 1.5\text{ s}$.
+    \item \textbf{Generación hidrocinética (\texttt{Hidrica/SistemaHidrico.py}):} Modela una turbina hidrocinética de eje horizontal en corriente libre, sin embalse ni tubería forzada. La potencia captada proviene del recurso cinético del fluido, $P_m = \frac{1}{2}\rho A C_p(\lambda) V_c^3$, y la inercia del tren de potencia se representa mediante un retardo de primer orden sobre la velocidad de rotor, con constante de tiempo $\tau_{Wr} = 5.0\text{ s}$.
     
-    \item \textbf{Generador Diésel (\texttt{Diesel/SistemaDiesel.py}):} Incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act} = 0.05\text{ s}$) y retardo de transporte térmico ($T_{eng} = 0.20\text{ s}$), actuando como generador síncrono formador de red (\textit{Grid-Forming}) en modo isla \citep{Saadat2010}.
+    \item \textbf{Generador diésel (\texttt{Diesel/SistemaDiesel.py}, con la máquina térmica en \texttt{Diesel/Diesel.py}):} La respuesta del motor se agrupa en una función de transferencia de primer orden, $G(s) = K_e/(t_e s + 1)$ con $K_e = 1.0$ y $t_e = 0.035\text{ s}$, que reúne el actuador de combustible y el retardo de transporte térmico en una sola constante de $35\text{ ms}$. El nodo diésel opera con estatismo primario $\omega$-$P$ habilitado en el convertidor, cuyo efecto en estado estacionario es cancelado por el lazo secundario, que actúa como nodo de referencia isócrono en modo isla y como generador síncrono formador de red (\textit{Grid-Forming}) \citep{Saadat2010}.
 \end{enumerate}
 
 Los dos recursos que sostienen la frecuencia en el borde operan con lazos locales distintos, y sus constantes se declaran aquí porque el capítulo~\ref{sec:resultados} las cita. El generador diésel ejecuta el lazo restaurativo
@@ -109,9 +109,11 @@ Los dos recursos que sostienen la frecuencia en el borde operan con lazos locale
 
 con $\kappa_{p,\omega} = 250\ \text{W/(rad/s)}$ y $\kappa_{i,\omega} = 80\ \text{W/rad}$, y con anti-windup del integrador en $\pm 75\ \text{rad}$, equivalente a $\pm 6.0\ \text{kW}$ de compensación integral. La cota no es arbitraria: con $4.0\ \text{kW}$ de consigna base, la compensación máxima sitúa la consigna en $10.0\ \text{kW}$ de eje —$9.5\ \text{kW}$ eléctricos con $\eta = 0.95$—, techo de la máquina, de modo que el integrador no puede forzar la saturación del actuador ni erosionar la reserva. La ganancia proporcional entrega el soporte inmediato ante el escalón de frecuencia; la integral restituye el valor nominal en un horizonte de diez a quince segundos sin sobreimpulso. El BESS, en cambio, actúa como soporte rápido sin integrador lento, con $\Delta P_{\text{droop}} = \kappa_{\text{BESS}} e_\omega$, $\kappa_{\text{BESS}} = 40\ \text{W/(rad/s)}$ y base de $0.75\ \text{kW}$, de modo que absorbe la desviación instantánea sin fatiga mecánica.
 
+De los cinco recursos modelados, el banco de ocho nodos instancia tres: diésel, solar y BESS, además de las cargas. La generación eólica y la hidrocinética cuentan con modelo propio y se declaran como trabajo futuro: no participan de los escenarios del capítulo de resultados.
+
 \subsubsection{Modelo de Carga y Perfil de Demanda del Banco de Validación}
 
-Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/SistemaDemanda.py}), en el que una única clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo~\ref{sec:resultados}.
+Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/PerfilDemanda.py}), cuya clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo~\ref{sec:resultados}.
 
 \subsection{Implementación del Control Secundario por Consenso en Tiempo Fijo}
 
