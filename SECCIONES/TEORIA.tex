@@ -99,7 +99,7 @@ El banco de recursos heterogéneos modelado en la plataforma comprende cinco tec
     donde $\rho = 1000\ \text{kg/m}^3$ es la densidad del agua, $A = \pi R^2$ el área barrida por el rotor y $C_p(\lambda)$ la misma correlación exponencial de seis coeficientes que emplea el recurso eólico. La inercia del tren de potencia se representa mediante un retardo de primer orden sobre la velocidad de rotor con constante de tiempo $\tau_{Wr} = 5.0\ \text{s}$.
     donde $P_{\text{in}}$ es la potencia hidráulica teórica de entrada determinada por la apertura servogobernada de la compuerta, $P_h$ es la potencia mecánica entregada al eje de la turbina y $T_w$ es el tiempo característico de aceleración del flujo hidráulico.
     
-    \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad con constante de tiempo del actuador $T_{act}$ y constante de transporte del motor térmico $T_{eng}$ \citep{Saadat2010}.
+    \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad, cuya respuesta se agrupa en una función de transferencia de primer orden con constante de 35 ms que reúne el actuador de combustible y el retardo de transporte térmico (el detalle numérico se declara en la sección~ef{sec:implementacion}) \citep{Saadat2010}.
 \end{enumerate}
 
 Todos los convertidores operan bajo restricciones estrictas de capacidad aparente máxima impuestas por el círculo de corriente:
