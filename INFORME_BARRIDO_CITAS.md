@@ -49,3 +49,21 @@ Al retirar `Zhang2024` de su último sitio quedó huérfana y salió del `.bib`:
 100 instancias revisadas en cuatro lotes y 16 apariciones en el barrido: **11 citas no pertinentes retiradas o sustituidas**, **17 parciales** documentadas y **tres referencias eliminadas** del `.bib` (`Verma2024`, `Wang2022DataDriven`, `Zhang2024`), de 52 a 49.
 
 La regla que deja este bloque: una cita se corrige sobre la **clave**, no sobre la frase; de lo contrario reaparece dos capítulos más abajo con el mismo defecto.
+
+## Las dos parciales aceptadas, revisadas a fondo (2026-11-08)
+
+### `IMPLEMENTACION.tex:95` — no era una cita débil, era un error de contenido
+
+La frase atribuía al BESS «saturación dinámica de corriente límite en función de la **temperatura de celda**». El código (`BESS/SistemaBESS.py`) no contiene ninguna lógica térmica: el límite de corriente depende de la **tensión en el punto de conexión**, con una rampa de `_current_limit_dynamic` entre 0,85 y 0,50 p.u. y un factor independiente de LVRT con umbrales en 0,88 y 0,50 p.u.
+
+La descripción además omitía el techo de absorción: el confinamiento es **asimétrico** — 0,20 a 0,90 para descarga, hasta 0,95 para carga —, justo el límite que interviene en el régimen excedentario del capítulo 8.
+
+*Reescrita* según el código y sin cita: la lógica está en el archivo y no requiere respaldo externo.
+
+### `JUSTIFICACION.tex:16` — autoevaluación con respaldo ajeno
+
+La madurez CHIL del banco es una afirmación sobre el propio trabajo; `Diaz2025` y `AlvarezLopez2026` no pueden respaldarla. Cita retirada; el aporte queda declarado como propio. Ambas claves siguen citadas en otros sitios.
+
+### Verificación
+
+**78 páginas · 753 887 B · `2c4c8c38…`**, 0 errores, 0 citas indefinidas, 0 avisos de BibTeX, sin `??`; **49 citadas / 49 entradas**.

@@ -92,7 +92,7 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
     V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big( P_{pv}(G_k, T_k) - P_{inv}(k) \big)
     \]
     
-    \item \textbf{Sistema BESS (\texttt{BESS/SistemaBESS.py}):} Integra la dinámica del estado de carga mediante integración trapezoidal con confinamiento de seguridad $\text{SoC} \in [0.20, 0.90]$ y saturación dinámica de corriente límite en función de la temperatura de celda \citep{Alam2024}.
+    \item \textbf{Sistema BESS (\texttt{BESS/SistemaBESS.py}):} Integra la dinámica del estado de carga mediante integración trapezoidal. El confinamiento de seguridad es asimétrico: la descarga se escala linealmente entre $\text{SoC} = 0.90$ y $\text{SoC} = 0.20$, límite en el que la potencia disponible se anula, mientras que la absorción admite hasta $\text{SoC} = 0.95$. El límite de corriente del inversor no depende de la temperatura: se reduce con la tensión del punto de conexión mediante una rampa que va de $1.0$ a $0.0$ entre $0.85$ y $0.50\ \text{p.u.}$, complementada por un factor de \textit{Low Voltage Ride-Through} con umbrales en $0.88$ y $0.50\ \text{p.u.}$, de modo que ante una caída profunda el recurso deja de inyectar en lugar de sostener una corriente que el convertidor no puede entregar.
     
     \item \textbf{Generación Eólica PMSG (\texttt{Eolica/SistemaEolico.py}):} Resuelve el par aerodinámico no lineal $T_m(v_w, \omega_r)$ acoplado a la ecuación diferencial electromecánica del rotor \eqref{eq:pmsg_swing} y control vectorial de corriente de eje directo ($i_d^* = 0$) para maximizar el par electromagnético por amperio.
     
