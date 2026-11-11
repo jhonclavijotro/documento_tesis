@@ -34,7 +34,7 @@ Por cada macro-paso de red orquestado por el PC Central ($H = 500\text{ ms}$, $2
 \begin{equation}
 x_i(t_K + (m+1)h) = x_i(t_K + mh) + h \cdot f_i\big( x_i(t_K + mh), u_i(t_K) \big), \quad m = 0, 1, \dots, N_{\text{substeps}}-1
 \end{equation}
-donde las entradas fasoriales de red $u_i(t_K) = V_{pcc, i}(t_K)$ se mantienen constantes durante el intervalo $[t_K, t_K + H]$ mediante retención de orden cero (ZOH). Conforme al teorema de consistencia numérica para co-simulación explícita demostrado por \citet{Kyllingstad2025CosimErrors}, el error de acoplamiento es acotado por $\varepsilon_{\text{ZOH}} = \mathcal{O}(H)$, garantizando estabilidad asintótica dado que la constante de tiempo de control secundario satisface $\tau_{\text{sec}} \ge 2.0\text{ s} \gg H$.
+donde las entradas fasoriales de red $u_i(t_K) = V_{pcc, i}(t_K)$ se mantienen constantes durante el intervalo $[t_K, t_K + H]$ mediante retención de orden cero (ZOH). Conforme al análisis de error de acoplamiento explícito documentado por \citet{Kyllingstad2025CosimErrors}, el error de acoplamiento es acotado por $\varepsilon_{\text{ZOH}} = \mathcal{O}(H)$, garantizando estabilidad asintótica dado que la constante de tiempo de control secundario satisface $\tau_{\text{sec}} \ge 2.0\text{ s} \gg H$.
 
 \subsubsection{Orquestación del Reloj Maestro ZeroMQ y Prevención de Bloqueos}
 El módulo \texttt{Central\_PC/master\_clock\_zmq.py} implementa un servidor síncrono basado en la librería PyZMQ utilizando un socket de tipo \texttt{zmq.ROUTER} / \texttt{zmq.DEALER} acoplado a un multiplexor \texttt{zmq.Poller}. La sincronización temporal y la robustez frente a caídas de nodos se aseguran mediante los siguientes mecanismos:
@@ -98,7 +98,7 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
     
     \item \textbf{Generación Hidroeléctrica (\texttt{Hidrica/SistemaHidrico.py}):} Modela la inercia de la columna de agua con función de transferencia servogobernada \eqref{eq:hydro_power} con constante de tiempo $T_w = 1.5\text{ s}$.
     
-    \item \textbf{Generador Diésel (\texttt{Diesel/SistemaDiesel.py}):} Incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act} = 0.05\text{ s}$) y retardo de transporte térmico ($T_{eng} = 0.20\text{ s}$), actuando como generador síncrono formador de red (\textit{Grid-Forming}) en modo isla \citep{Alam2024}.
+    \item \textbf{Generador Diésel (\texttt{Diesel/SistemaDiesel.py}):} Incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act} = 0.05\text{ s}$) y retardo de transporte térmico ($T_{eng} = 0.20\text{ s}$), actuando como generador síncrono formador de red (\textit{Grid-Forming}) en modo isla \citep{Saadat2010}.
 \end{enumerate}
 
 Los dos recursos que sostienen la frecuencia en el borde operan con lazos locales distintos, y sus constantes se declaran aquí porque el capítulo~\ref{sec:resultados} las cita. El generador diésel ejecuta el lazo restaurativo
@@ -134,7 +134,7 @@ Para actualizar las consignas hacia el lazo de control primario de la fuente sin
 donde el operador $\text{sat}_{[a, b]}(x) = \max(a, \min(b, x))$ limita la compensación dentro de bandas de seguridad: $\pm 10\%$ para tensión, $\pm \Delta\omega_{\max} = \pm 3.1416\text{ rad/s}$ ($\pm 0.5\text{ Hz}$) para la señal de frecuencia, y $\pm Q_{\max, i}$, $\pm P_{\max, i}$ para las potencias reactiva y activa respectivamente. Conviene distinguir tres bandas de frecuencia que operan en niveles jerárquicos distintos: el saturador de $\pm 0.5\text{ Hz}$ acota la autoridad del agente de consenso en cada paso discreto y protege al actuador frente a la sobremodulación, por lo que es deliberadamente más restrictivo que la norma; la ventana de $[58.8, 61.2]\text{ Hz}$ ($\pm 2\%$ sobre $60.0\text{ Hz}$) constituye el criterio de cumplimiento regulatorio NTC 1340 con el que se evalúa la calidad de energía; y el umbral de $[57.0, 63.0]\text{ Hz}$ corresponde al relé ANSI 81O/81U de sobre y subfrecuencia, última barrera física que ordena la apertura del alimentador.
 
 \subsubsection{Buffer de Frescura Temporal (\textit{State Age Tracking}) y Mitigación de Fallas}
-Para proteger al consenso frente a paquetes demorados, pérdidas intermitentes de red y ataques de denegación de servicio (DoS), cada agente implementa una política de desvanecimiento dinámico de enlaces basada en la edad del estado recibido ($t_{\text{age}} = t_{\text{actual}} - t_{\text{paquete}}$) \citep{Zhang2024, Zhao2025}:
+Para proteger al consenso frente a paquetes demorados, pérdidas intermitentes de red y ataques de denegación de servicio (DoS), cada agente implementa una política de desvanecimiento dinámico de enlaces basada en la edad del estado recibido ($t_{\text{age}} = t_{\text{actual}} - t_{\text{paquete}}$):
 \begin{equation}\label{eq:freshness_decay}
 a_{ij}^{\text{efectivo}}(t) = a_{ij} \cdot \max\left( 0.20, \, 1.0 - \frac{\text{stale\_steps}}{\text{max\_stale\_steps} + 1} \right)
 \end{equation}
@@ -168,7 +168,7 @@ Siguiendo las mejores prácticas de ingeniería de software para sistemas ciber-
 El generador paramétrico \texttt{Docker/docker\_compose\_generator.py} permite instanciar de forma automatizada redes virtuales con $N$ nodos de generación y $M$ nodos de demanda, asignando puertos y variables de entorno dinámicamente.
 
 \subsubsection{Despliegue Físico en Clúster Raspberry Pi 5}
-Para la validación experimental en hardware de borde real, el script \texttt{scripts/deploy\_raspberry.py} automatiza mediante SSH/SCP la transferencia de código, la construcción de contenedores ARM64 y el lanzamiento del clúster de agentes sobre los seis nodos Raspberry Pi 5 del banco de pruebas (direcciones \texttt{10.0.0.151} a \texttt{10.0.0.155} y \texttt{10.0.0.160}), coordinados por el PC Central en \texttt{10.0.0.156} a través de una red Ethernet dedicada con switch propio \citep{AlvarezLopez2026}.
+Para la validación experimental en hardware de borde real, el script \texttt{scripts/deploy\_raspberry.py} automatiza mediante SSH/SCP la transferencia de código, la construcción de contenedores ARM64 y el lanzamiento del clúster de agentes sobre los seis nodos Raspberry Pi 5 del banco de pruebas (direcciones \texttt{10.0.0.151} a \texttt{10.0.0.155} y \texttt{10.0.0.160}), coordinados por el PC Central en \texttt{10.0.0.156} a través de una red Ethernet dedicada con switch propio.
 
 \subsubsection{Centro de Mando GUI y Base de Datos InfluxDB}
 La plataforma se opera desde el Centro de Mando interactivo (\texttt{GUI/gui\_command\_center.py}), el cual ofrece:
