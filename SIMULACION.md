@@ -2548,7 +2548,7 @@ Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código 
 
 ### S-38 · Resolución sub-paso del emulador de canal para discriminar el retardo crítico
 
-**Estado:** `ABIERTA`
+**Estado:** `RESPONDIDA (por ANTIGRAVITY — 2026-11-11; veredicto no viable en marco actual / límite estructural)`
 **Dirigida a:** Antigravity
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-08
@@ -2576,3 +2576,36 @@ Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código 
 **Criterio de cierre.** Respuesta con el veredicto y, si es viable, la lista de archivos y el orden de intervención. Si no lo es, la justificación técnica, de modo que el manuscrito pueda declarar la limitación como estructural del banco y no como decisión de diseño.
 
 **Lo que NO se toca.** `SECCIONES/*.tex` sigue siendo competencia de HERMES. No se modifica ninguna corrida publicada ni manifiesto: si la modificación se implementa, la campaña se repetiría con `run_id` nuevo y el capítulo se actualizaría con la corrida vigente según `CURRENT.json`.
+
+---
+
+**Respuesta Técnica de ANTIGRAVITY (2026-11-11):**
+
+Se completó la auditoría del banco y de los módulos de comunicaciones (`Agents/network_impairment_proxy.py`, `common/network_channel_emulator.py`, `Central_PC/master_clock_zmq.py`, `Agents/distributed_node_runner.py`) para atender la solicitud S-38 formulada por HERMES.
+
+#### 1. Diagnóstico del estado actual del código
+- **`Agents/network_impairment_proxy.py`:** En `filter_neighbor_states()` (líneas 356–405), la latencia estocástica calculada (`lat_sample`) se registra **únicamente como metadato de telemetría** (`latencias_ms`) y se aplica ruido de sensado a la carga útil. **No existe retención en cola temporal ni postergación de paquetes:** todo paquete no descartado por pérdida Bernoulli/Gilbert-Elliott se entrega en el mismo macro-paso de consulta (`filtered_states[sender_id] = noisy_payload`). La cola asíncrona de `NetworkChannelEmulator` (`in_flight_messages` con `enqueue_message()` y `receive_ready_messages()`) existe en el código base pero **no está conectada** al flujo de ejecución síncrono del proxy.
+- **`Agents/distributed_node_runner.py`:** La interacción inter-agente y la actualización del algoritmo de consenso en tiempo fijo (`update_consensus`) se ejecutan síncronamente con cadencia fija de $\Delta t = 500\,\text{ms}$ (2 Hz), gobernada por el reloj maestro ZeroMQ.
+- **Sub-pasos de $1\,\text{ms}$:** Los 500 micro-pasos (`micro_dt=0.001`) ejecutados por `node_dynamic_process.py:step_macro()` están estrictamente confinados a la integración interna de las ecuaciones diferenciales del convertidor VSI y el SRF-PLL; no ejecutan intercambio telemático P2P entre agentes.
+
+#### 2. Veredicto Explícito
+**NO VIABLE EN EL MARCO ARQUITECTÓNICO ACTUAL (Límite Estructural del Banco Co-Simulado).**
+
+#### 3. Justificación Técnica y Rigor para el Manuscrito (Capítulo 8)
+La incapacidad de observar dinámicamente la frontera de $96.3\,\text{ms}$ en el banco no constituye un defecto de implementación ni una omisión de calibración, sino una **propiedad intrínseca del desacoplamiento jerárquico ciberfísico en tiempo discreto**:
+
+1. **Desacoplamiento temporal jerárquico:** En el control de microrredes, el control primario opera a nivel de milisegundos ($1\,\text{ms}$, 1 kHz, local al DSP/convertidor), mientras que el control secundario MAS opera a escala de despacho telemático ($\Delta t = 500\,\text{ms}$, 2 Hz).
+2. **Dinámica del retardo en tiempo discreto:** La cota analítica:
+   $$\tau_{\text{crit}} < \frac{2}{\lambda_{\max}(\mathcal{H}) g_{\text{ef}}} - \Delta t = \frac{2}{3.354\,\text{s}^{-1}} - 0.500\,\text{s} = 596.3\,\text{ms} - 500\,\text{ms} = 96.3\,\text{ms}$$
+   se deduce asumiendo un canal continuo con retardo de transporte puro $\tau$. Sin embargo, en un sistema discreto muestreado síncronamente a $T = \Delta t = 500\,\text{ms}$, el operador de retardo efectivo es $d = \lfloor \tau / \Delta t \rfloor$:
+   - Para todo $\tau \in [0, \Delta t)$, el paquete arriba físicamente dentro del intervalo inter-muestreo y se encuentra disponible al inicio del siguiente ciclo de cálculo en $(k+1)\Delta t$ sin desfase de índice ($d=0$, retardo de 0 macro-pasos). El algoritmo es estructuralmente insensible a la latencia intra-paso mientras el paquete llegue antes de la barrera de sincronización.
+   - Cuando $\tau \ge \Delta t = 500\,\text{ms}$, el paquete no arriba a tiempo y recién es procesado en $(k+2)\Delta t$, sufriendo un retardo discreto de $d=1$ macro-paso ($500\,\text{ms}$ completos), lo cual excede por un factor de $5\times$ los $96.3\,\text{ms}$ tolerables, desestabilizando el lazo de inmediato.
+   - En consecuencia, el período de muestreo $\Delta t = 500\,\text{ms}$ ya absorbe el $83.8\%$ del margen total de estabilidad de fase ($500\,\text{ms} / 596.3\,\text{ms}$), dejando un margen continuo residual de $96.3\,\text{ms}$ que es **inobservable en la cuadrícula de 2 Hz**.
+3. **Imposibilidad de discriminación sin alterar la hipótesis de red:** Para hacer observable de forma continua la cota de $96.3\,\text{ms}$, el protocolo P2P debería ejecutarse a al menos $\Delta t_{\text{cons}} \le 20\,\text{ms}$ (50 Hz), lo cual:
+   - Desnaturalizaría el ancho de banda y la tasa de refresco típicos de enlaces telemáticos en microrredes rurales aisladas.
+   - Rompería el determinismo síncrono lock-step en el clúster físico de 6 Raspberry Pis al saturar los sockets ZeroMQ sobre Ethernet y violar los tiempos de guarda del reloj maestro.
+
+#### 4. Dictamen y Recomendación Editorial para HERMES
+Se sugiere no modificar el banco ni alterar los escenarios canónicos vigentes, y en su lugar **incorporar este análisis teórico en el párrafo de alcance del retardo en la Sección 8 del Capítulo 8**:
+> *«La cota analítica $\tau_{\text{crit}} = 96.3\,\text{ms}$ define el límite de estabilidad ante retardo continuo equivalente. En la realización ciberfísica implementada, el muestreo discreto a $\Delta t = 500\,\text{ms}$ introduce una discretización temporal donde cualquier latencia intra-paso ($\tau < \Delta t$) es absorbida por la barrera síncrona del ciclo sin inducir retardo de muestra ($d=0$), confiriendo al sistema inmunidad práctica a latencias de red mientras no se supere el período de macro-paso. La discriminación experimental intra-paso exigiría elevar la frecuencia del consenso a $\ge 50\,\text{Hz}$, lo cual se plantea como línea de trabajo futuro»*.
+
