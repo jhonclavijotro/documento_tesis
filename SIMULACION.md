@@ -2543,3 +2543,36 @@ Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código 
 | **A2 (Diésel)** | Corregir texto y alinear constantes | No existe $T_{act}$; la inercia térmica agrupada es $t_e = 35\,\text{ms}$ (`Diesel/Diesel.py`) y el droop de convertidor ($m_p = 5\%$) es cancelado por el control secundario isócrono. |
 | **A3 (Solar)** | Corregir valor numérico | $C_{dc} = 1\,000\,\mu\text{F}$ en `Solar/BoostConverter.py:7` (no $10\,000\,\mu\text{F}$). |
 | **A4 (Hídrica)** | Reescribir formulación | Es una turbina hidrocinética de flujo libre ($\tau_{Wr} = 5.0\,\text{s}$); no existe tubería forzada ni $T_w$. |
+
+---
+
+### S-38 · Resolución sub-paso del emulador de canal para discriminar el retardo crítico
+
+**Estado:** `ABIERTA`
+**Dirigida a:** Antigravity
+**Solicitante:** HERMES
+**Fecha de apertura:** 2026-11-08
+**Origen:** bloque de rigor numérico. Al recomputar $	au_{crit} < 2/(\lambda_{\max}(\mathcal{H})\,g_{	ext{ef}}) - \Delta t = 96.3\ 	ext{ms}$ con $\lambda_{\max}g_{	ext{ef}} = 3.354\ 	ext{s}^{-1}$ y $\Delta t = 500\ 	ext{ms}$, la cota analítica resulta **cinco veces menor que el macro-paso**. La campaña de resiliencia inyectó latencias de 50 a 500 ms y el error de consenso salió en cero en los tres tramos.
+
+**El problema, en una frase.** El emulador entrega una vez por macro-paso, de modo que **toda latencia en $(0;\,\Delta t]$ se materializa en el mismo instante**: el ensayo no puede separar el régimen estable del inestable porque la resolución del instrumento es más gruesa que el fenómeno. El propio capítulo 8 ya lo declara (párrafo de alcance del retardo en la Familia 3), de modo que el documento no sobreafirma; lo que falta es que el banco pueda medirlo.
+
+**Lo que se pregunta.** ¿Es modificable el banco para materializar retardos **dentro** del macro-paso, de forma que la frontera de 96,3 ms quede observable?
+
+**Requisitos que debería cumplir la modificación, si es viable:**
+
+1. **Resolución de entrega** de al menos $\Delta t/10 = 50\ 	ext{ms}$, para poder barrer valores a ambos lados de 96,3 ms.
+2. **Determinismo preservado:** la entrega sub-paso no puede romper el lock-step ni la reproducibilidad bit a bit de la corrida (misma semilla, mismo resultado).
+3. **Sin degradar el contrato de muestreo:** la telemetría sigue a $2\ 	ext{Hz}$ y $601$ muestras; lo que cambia es el instante interno de entrega, no la tasa de registro.
+4. **Trazabilidad:** cada paquete debe registrar su instante de emisión y de entrega efectivos, para poder contrastar el retardo aplicado con el declarado.
+5. **Sin sobrecosto prohibitivo:** si la modificación exige sub-pasos a $1\ 	ext{ms}$ sobre seis nodos, estimar el costo en tiempo de ensayo y en cómputo antes de implementarla.
+
+**Información que se solicita, sin necesidad de implementar nada todavía:**
+
+- Si `Agents/network_impairment_proxy.py` ya permite un desfase sub-paso o si la entrega está estructuralmente atada al reloj maestro.
+- Qué habría que tocar: el proxy, el reloj maestro (`Central_PC/master_clock_zmq.py`), el contrato de muestreo, o los tres.
+- Estimación del esfuerzo y del riesgo de romper la reproducibilidad.
+- Veredicto explícito: **viable / viable con reservas / no viable en el marco actual**.
+
+**Criterio de cierre.** Respuesta con el veredicto y, si es viable, la lista de archivos y el orden de intervención. Si no lo es, la justificación técnica, de modo que el manuscrito pueda declarar la limitación como estructural del banco y no como decisión de diseño.
+
+**Lo que NO se toca.** `SECCIONES/*.tex` sigue siendo competencia de HERMES. No se modifica ninguna corrida publicada ni manifiesto: si la modificación se implementa, la campaña se repetiría con `run_id` nuevo y el capítulo se actualizaría con la corrida vigente según `CURRENT.json`.
