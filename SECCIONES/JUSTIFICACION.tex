@@ -21,6 +21,8 @@ En términos prácticos y socioeconómicos, implementar en las microrredes aisla
 Este avance tecnológico resulta importante para las Zonas No Interconectadas (ZNI), microrredes rurales y comunidades aisladas, donde la geografía y los recursos limitados dificultan el despliegue de telecomunicaciones de grado industrial. La arquitectura multiagente habilita una verdadera capacidad \textit{plug-and-play}, permitiendo la integración escalable de nuevas fuentes renovables sin necesidad de reconfigurar la lógica global de control, reduciendo los costos de operación y mantenimiento (O\&M) y previniendo apagones en cascada mediante una rápida restitución del equilibrio de voltaje, frecuencia y reparto de potencia activa y reactiva.
 
 \subsection{Alcance y Delimitación del Proyecto}
+
+El alcance experimental de este trabajo se delimita a un banco de ocho nodos con tres recursos activos: un nodo de referencia diésel, una fuente de generación solar fotovoltaica y una fuente de compensación basada en BESS, además de las cargas. La generación eólica y la hidrocinética se modelan pero no se instancian en la validación: sus modelos existen y son integrables por configuración, y su incorporación se declara como trabajo futuro. La reducción no limita el alcance del esquema de control —el lazo de consenso, el reparto proporcional y la restitución de frecuencia y tensión se ejercitan con esos tres roles— y mantiene las pruebas reproducibles y acotadas en cómputo y en tiempo de ensayo.
 Con el fin de delimitar las fronteras técnicas de la investigación, se establecen los siguientes alcances:
 
 \begin{itemize}
