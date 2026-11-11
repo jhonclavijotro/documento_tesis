@@ -92,10 +92,11 @@ El banco de recursos heterogéneos modelado en la plataforma comprende cinco tec
     \end{equation}
     donde $J_w$ es el momento de inercia rotacional equivalente, $T_e$ es el par electromagnético de frenado inducido por el generador y $F_w$ es el coeficiente de fricción viscosa.
     
-    \item \textbf{Generación Hidroeléctrica/Hidrocinética:} Modela la inercia de la columna de agua con constante de tiempo de arranque del agua $T_w$ y compuerta servogobernada:
+    \item \textbf{Generación hidrocinética:} Modela una turbina de eje horizontal sumergida en corriente libre, sin embalse ni conducción forzada, de modo que el recurso no aporta una columna de agua a presión y la constante $T_w$ de las formulaciones servogobernadas no interviene. La potencia captada proviene de la energía cinética del fluido:
     \begin{equation}\label{eq:hydro_power}
-    \frac{dP_h}{dt} = \frac{1}{T_w} \left( P_{\text{in}} - P_h \right)
+    P_h = \frac{1}{2}\rho A C_p(\lambda) v_c^3, \qquad \lambda = \frac{R\,\omega_r}{v_c}
     \end{equation}
+    donde $\rho = 1000\ \text{kg/m}^3$ es la densidad del agua, $A = \pi R^2$ el área barrida por el rotor y $C_p(\lambda)$ la misma correlación exponencial de seis coeficientes que emplea el recurso eólico. La inercia del tren de potencia se representa mediante un retardo de primer orden sobre la velocidad de rotor con constante de tiempo $\tau_{Wr} = 5.0\ \text{s}$.
     donde $P_{\text{in}}$ es la potencia hidráulica teórica de entrada determinada por la apertura servogobernada de la compuerta, $P_h$ es la potencia mecánica entregada al eje de la turbina y $T_w$ es el tiempo característico de aceleración del flujo hidráulico.
     
     \item \textbf{Generador Diésel con Gobernador:} Actúa como nodo de referencia y soporte inercial en modo isla, integrando el gobernador isócrono de velocidad con constante de tiempo del actuador $T_{act}$ y constante de transporte del motor térmico $T_{eng}$ \citep{Saadat2010}.
