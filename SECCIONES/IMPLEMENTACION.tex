@@ -32,7 +32,7 @@ Para resolver simultáneamente la dinámica macroscópica del flujo de potencia 
 
 Por cada macro-paso de red orquestado por el PC Central ($H = 500\text{ ms}$, $2.0\text{ Hz}$), el modelo de dinámica física ejecuta un bucle determinista de $N_{\text{substeps}} = 500$ iteraciones internas de integración Euler hacia adelante a paso fino ($h = 1.0\text{ ms}$, $1.0\text{ kHz}$):
 \begin{equation}
-x_i(t_K + (m+1)h) = x_i(t_K + mh) + h \cdot f_i\big( x_i(t_K + mh), u_i(t_K) \big), \quad m = 0, 1, \dots, N_{\text{substeps}}-1
+x_i(t_K + (m+1)h) = x_i(t_K + mh) + h \cdot f_i\big(x_i(t_K + mh), u_i(t_K) \big), \quad m = 0, 1, \dots, N_{\text{substeps}}-1
 \end{equation}
 donde las entradas fasoriales de red $u_i(t_K) = V_{pcc, i}(t_K)$ se mantienen constantes durante el intervalo $[t_K, t_K + H]$ mediante retención de orden cero (ZOH). Conforme al análisis de error de acoplamiento explícito documentado por \citet{Kyllingstad2025CosimErrors}, el error de acoplamiento es acotado por $\varepsilon_{\text{ZOH}} = \mathcal{O}(H)$, garantizando estabilidad asintótica dado que la constante de tiempo de control secundario satisface $\tau_{\text{sec}} \ge 2.0\text{ s} \gg H$.
 
@@ -54,7 +54,7 @@ El PC Central incorpora dos motores matemáticos desarrollados desde primeros pr
     \item \textbf{Modo A: Algoritmo Forward-Backward Sweep (FBS) (\texttt{Central\_PC/power\_flow\_fbs.py}):}\\
     Diseñado para topologías radiales y débilmente malladas a partir de la matriz de admitancias y parámetros de línea ($R, X, d$). En cada ciclo, resuelve iterativamente:
     \begin{enumerate}[i.]
-        \item \textit{Inyecciones de Corriente Nodal:} $I_i^{(k)} = \left( \frac{P_i + j Q_i}{V_i^{(k)}} \right)^*$.
+        \item \textit{Inyecciones de Corriente Nodal:} $I_i^{(k)} = \left(\frac{P_i + j Q_i}{V_i^{(k)}} \right)^*$.
         \item \textit{Barrido Hacia Atrás (Backward Sweep):} Suma acumulativa de corrientes de rama desde los nodos hoja hacia la barra Slack: $J_{br}^{(k)} = \sum_{m \in \text{hijos}(br)} I_m^{(k)}$.
         \item \textit{Barrido Hacia Adelante (Forward Sweep):} Actualización de caídas de tensión fasoriales desde la Slack hacia los extremos: $V_j^{(k+1)} = V_i^{(k+1)} - Z_{ij} J_{ij}^{(k)}$ \citep{DiFazio2024Linear}.
         \item \textit{Criterio de Convergencia:} $\max_i |V_i^{(k+1)} - V_i^{(k)}| < 10^{-5}\text{ p.u.}$ (convergencia típica alcanzada en 3 a 5 iteraciones).
@@ -89,7 +89,7 @@ eliminando las inyecciones artificiales unifásicas y permitiendo que la transfo
 \begin{enumerate}[a)]
     \item \textbf{Generación Solar PV (\texttt{Solar/SistemaSolar.py}):} Modela el arreglo fotovoltaico con seguimiento del punto de máxima potencia (MPPT Perturbar y Observar) y balance del condensador de bus DC ($C_{dc} = 1\,000\,\mu\text{F}$, declarado en \texttt{Solar/BoostConverter.py}):
     \[
-    V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big( P_{pv}(G_k, T_k) - P_{inv}(k) \big)
+    V_{dc}(k+1) = V_{dc}(k) + \frac{h}{C_{dc} V_{dc}(k)} \big(P_{pv}(G_k, T_k) - P_{inv}(k) \big)
     \]
     
     \item \textbf{Sistema BESS (\texttt{BESS/SistemaBESS.py}):} Integra la dinámica del estado de carga mediante integración trapezoidal. El confinamiento de seguridad es asimétrico: la descarga se escala linealmente entre $\text{SoC} = 0.90$ y $\text{SoC} = 0.20$, límite en el que la potencia disponible se anula, mientras que la absorción admite hasta $\text{SoC} = 0.95$. El límite de corriente del inversor no depende de la temperatura: se reduce con la tensión del punto de conexión mediante una rampa que va de $1.0$ a $0.0$ entre $0.85$ y $0.50\ \text{p.u.}$, complementada por un factor de \textit{Low Voltage Ride-Through} con umbrales en $0.88$ y $0.50\ \text{p.u.}$, de modo que ante una caída profunda el recurso deja de inyectar en lugar de sostener una corriente que el convertidor no puede entregar.
@@ -107,13 +107,13 @@ Los dos recursos que sostienen la frecuencia en el borde operan con lazos locale
 \Delta P_{\text{rest}} = \kappa_{p,\omega}\, e_\omega + \kappa_{i,\omega} \int e_\omega\, dt, \qquad e_\omega = 2\pi\,(f_{\text{nom}} - f)
 \end{equation}
 
-con $\kappa_{p,\omega} = 250\ \text{W/(rad/s)}$ y $\kappa_{i,\omega} = 80\ \text{W/rad}$, y con anti-windup del integrador en $\pm 75\ \text{rad}$, equivalente a $\pm 6.0\ \text{kW}$ de compensación integral. La cota no es arbitraria: con $4.0\ \text{kW}$ de consigna base, la compensación máxima sitúa la consigna en $10.0\ \text{kW}$ de eje —$9.5\ \text{kW}$ eléctricos con $\eta = 0.95$—, techo de la máquina, de modo que el integrador no puede forzar la saturación del actuador ni erosionar la reserva. La ganancia proporcional entrega el soporte inmediato ante el escalón de frecuencia; la integral restituye el valor nominal en un horizonte de diez a quince segundos sin sobreimpulso. El BESS, en cambio, actúa como soporte rápido sin integrador lento, con $\Delta P_{\text{droop}} = \kappa_{\text{BESS}} e_\omega$, $\kappa_{\text{BESS}} = 40\ \text{W/(rad/s)}$ y base de $0.75\ \text{kW}$, de modo que absorbe la desviación instantánea sin fatiga mecánica.
+con $\kappa_{p,\omega} = 250\ \text{W/(rad/s)}$ y $\kappa_{i,\omega} = 80\ \text{W/rad}$, y con anti-windup del integrador en $\pm 75\ \text{rad}$, equivalente a $\pm 6.0\ \text{kW}$ de compensación integral. La cota no es arbitraria: con $4.0\ \text{kW}$ de consigna base, la compensación máxima sitúa la consigna en $10.0\ \text{kW}$ de eje ($9.5\ \text{kW}$ eléctricos con $\eta = 0.95$), techo de la máquina, de modo que el integrador no puede forzar la saturación del actuador ni erosionar la reserva. La ganancia proporcional entrega el soporte inmediato ante el escalón de frecuencia; la integral restituye el valor nominal en un horizonte de diez a quince segundos sin sobreimpulso. El BESS, en cambio, actúa como soporte rápido sin integrador lento, con $\Delta P_{\text{droop}} = \kappa_{\text{BESS}} e_\omega$, $\kappa_{\text{BESS}} = 40\ \text{W/(rad/s)}$ y base de $0.75\ \text{kW}$, de modo que absorbe la desviación instantánea sin fatiga mecánica.
 
-El banco de validación no integra todas las fuentes modeladas, y esa decisión es deliberada. Los cinco recursos cuentan con modelo dinámico propio y con la interfaz común de integración descrita en esta sección, de modo que incorporarlos es una tarea de configuración y no de desarrollo. Para la validación se define sin embargo un escenario reducido que reúne un nodo de referencia —el generador diésel, que opera como slack—, una fuente de generación —solar fotovoltaica— y una fuente de compensación —el BESS—, junto con las barras de carga del banco de ocho nodos. Esa combinación basta para ejercitar el lazo de consenso, el reparto proporcional de potencia y la restitución de frecuencia y tensión, y mantiene las pruebas reproducibles y acotadas en cómputo y en tiempo de ensayo. La generación eólica y la hidrocinética se declaran como trabajo futuro: sus modelos existen y son integrables, pero no se instancian en los escenarios del capítulo de resultados.
+El banco de validación no integra todas las fuentes modeladas, y esa decisión es deliberada. Los cinco recursos cuentan con modelo dinámico propio y con la interfaz común de integración descrita en esta sección, de modo que incorporarlos es una tarea de configuración y no de desarrollo. Para la validación se define sin embargo un escenario reducido que reúne un nodo de referencia (el generador diésel, que opera como slack), una fuente de generación (solar fotovoltaica) y una fuente de compensación (el BESS), junto con las barras de carga del banco de ocho nodos. Esa combinación basta para ejercitar el lazo de consenso, el reparto proporcional de potencia y la restitución de frecuencia y tensión, y mantiene las pruebas reproducibles y acotadas en cómputo y en tiempo de ensayo. La generación eólica y la hidrocinética se declaran como trabajo futuro: sus modelos existen y son integrables, pero no se instancian en los escenarios del capítulo de resultados.
 
 \subsubsection{Modelo de Carga y Perfil de Demanda del Banco de Validación}
 
-Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/PerfilDemanda.py}), cuya clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo —residencial, comercial e industrial—, pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo~\ref{sec:resultados}.
+Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (\texttt{Demanda/PerfilDemanda.py}), cuya clase \texttt{PerfilDemanda} lee una serie temporal normalizada y la escala por la potencia activa y reactiva nominal de cada nodo. La plataforma admite tres tipologías de consumo (residencial, comercial e industrial), pero la validación experimental del banco de ocho nodos emplea un único perfil residencial escalado en cinco potencias base: $3.0$, $4.5$, $5.0$, $2.5$ y $2.0\text{ kW}$, equivalentes a $17.0\text{ kW}$ y $6.8\text{ kvar}$ instalados agregados en los nodos 4 a 8, lo que corresponde a una relación $Q/P = 0.40$ y a un factor de potencia agregado de $0.928$, adoptado de forma uniforme en los cinco nodos. La distinción entre potencia instalada y demanda concurrente máxima se precisa en el capítulo~\ref{sec:resultados}.
 
 \subsection{Implementación del Control Secundario por Consenso en Tiempo Fijo}
 
@@ -124,21 +124,21 @@ Para actualizar las consignas hacia el lazo de control primario de la fuente sin
 
 \textbf{Lazos de Tensión y Potencia Reactiva:}
 \begin{align*}
-\Delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]}\left( \Delta V_i(k) - H \cdot u_{v, i}(k) \right)  \\
-\Delta Q_i(k+1) &= \text{sat}_{[-Q_{\max, i}, +Q_{\max, i}]}\left( \Delta Q_i(k) - H \cdot u_{q, i}(k) \cdot Q_{\max, i} \right) 
+\Delta V_i(k+1) &= \text{sat}_{[-0.10, +0.10]}\left(\Delta V_i(k) - H \cdot u_{v, i}(k) \right)  \\
+\Delta Q_i(k+1) &= \text{sat}_{[-Q_{\max, i}, +Q_{\max, i}]}\left(\Delta Q_i(k) - H \cdot u_{q, i}(k) \cdot Q_{\max, i} \right) 
 \end{align*}
 
 \textbf{Lazos de Frecuencia y Potencia Activa:}
 \begin{align*}
-\Delta \omega_i(k+1) &= \text{sat}_{[-\Delta\omega_{\max}, +\Delta\omega_{\max}]}\left( \Delta \omega_i(k) - H \cdot u_{\omega, i}(k) \right)  \\
-\Delta P_i(k+1) &= \text{sat}_{[-P_{\max, i}, +P_{\max, i}]}\left( \Delta P_i(k) - H \cdot u_{p, i}(k) \cdot P_{\max, i} \right) 
+\Delta \omega_i(k+1) &= \text{sat}_{[-\Delta\omega_{\max}, +\Delta\omega_{\max}]}\left(\Delta \omega_i(k) - H \cdot u_{\omega, i}(k) \right)  \\
+\Delta P_i(k+1) &= \text{sat}_{[-P_{\max, i}, +P_{\max, i}]}\left(\Delta P_i(k) - H \cdot u_{p, i}(k) \cdot P_{\max, i} \right) 
 \end{align*}
 donde el operador $\text{sat}_{[a, b]}(x) = \max(a, \min(b, x))$ limita la compensación dentro de bandas de seguridad: $\pm 10\%$ para tensión, $\pm \Delta\omega_{\max} = \pm 3.1416\text{ rad/s}$ ($\pm 0.5\text{ Hz}$) para la señal de frecuencia, y $\pm Q_{\max, i}$, $\pm P_{\max, i}$ para las potencias reactiva y activa respectivamente. Conviene distinguir tres bandas de frecuencia que operan en niveles jerárquicos distintos: el saturador de $\pm 0.5\text{ Hz}$ acota la autoridad del agente de consenso en cada paso discreto y protege al actuador frente a la sobremodulación, por lo que es deliberadamente más restrictivo que la norma; la ventana de $[58.8, 61.2]\text{ Hz}$ ($\pm 2\%$ sobre $60.0\text{ Hz}$) constituye el criterio de cumplimiento regulatorio NTC 1340 con el que se evalúa la calidad de energía; y el umbral de $[57.0, 63.0]\text{ Hz}$ corresponde al relé ANSI 81O/81U de sobre y subfrecuencia, última barrera física que ordena la apertura del alimentador.
 
 \subsubsection{Buffer de Frescura Temporal (\textit{State Age Tracking}) y Mitigación de Fallas}
 Para proteger al consenso frente a paquetes demorados, pérdidas intermitentes de red y ataques de denegación de servicio (DoS), cada agente implementa una política de desvanecimiento dinámico de enlaces basada en la edad del estado recibido ($t_{\text{age}} = t_{\text{actual}} - t_{\text{paquete}}$):
 \begin{equation}\label{eq:freshness_decay}
-a_{ij}^{\text{efectivo}}(t) = a_{ij} \cdot \max\left( 0.20, \, 1.0 - \frac{\text{stale\_steps}}{\text{max\_stale\_steps} + 1} \right)
+a_{ij}^{\text{efectivo}}(t) = a_{ij} \cdot \max\left(0.20, \, 1.0 - \frac{\text{stale\_steps}}{\text{max\_stale\_steps} + 1} \right)
 \end{equation}
 El mecanismo opera en dos etapas complementarias. La primera es el desvanecimiento progresivo descrito por \eqref{eq:freshness_decay}: el peso del enlace decae linealmente con la edad del último dato válido hasta un piso de $0.20$, de modo que un estado envejecido pierde influencia sobre el promedio sin desaparecer mientras sigue siendo utilizable. La segunda es una exclusión dura: si el vecino no reporta nuevos paquetes durante más de $\text{max\_stale\_steps} = 4$ ciclos ($t_{\text{age}} > 2.0\text{ s}$), su estado se descarta del búfer local y el enlace deja de contribuir al consenso, con lo que $a_{ij}^{\text{efectivo}}$ pasa efectivamente a cero. El desvanecimiento evita que una señal demorada domine el promedio; la exclusión impide que una señal caducada participe cuando ya no es representativa del estado del emisor. Ambas etapas preservan la convergencia del subgrafo conexo remanente.
 
