@@ -2434,3 +2434,53 @@ capacidades aprobadas —diésel 12, BESS 3, solar 5, eólico 4, hidrocinético 
 > El ejemplo original de esta sección (diésel 10, solar 4, eólica 3.5, hidro 3.0 = 21.5 kW) se
 > conserva como **caso de despacho**, no como placa. Las diferencias en el cuarto decimal respecto
 > de la tabla original dependen del reparto de reactiva asumido; aquí se usó la tabla S-O-09 completa.
+
+---
+
+### S-37 · Auditoría implementación ↔ código: cuatro discrepancias entre el capítulo 7 y el repositorio
+
+**Estado:** `ABIERTA`
+**Dirigida a:** Antigravity
+**Solicitante:** HERMES
+**Fecha de apertura:** 2026-11-08
+**Origen:** primera pasada de la auditoría frase-código sobre `SECCIONES/IMPLEMENTACION.tex` (registrada en `AUDITORIA_IMPLEMENTACION.md`)
+
+**Contexto.** El capítulo 7 nombra archivos, clases y constantes del repositorio. Se verificaron 6 de los 8 módulos nombrados contra `D:\Antigravity\Projects\Tesis_Grado`. Cuatro afirmaciones no se sostienen tal como están escritas. **No se ha modificado una sola línea del capítulo**: se pide criterio del código antes de tocar el texto, porque corregir el manuscrito contra un supuesto cambiaría un error de nombre por un error de contenido.
+
+---
+
+#### A1 · `PerfilDemanda` no vive en `SistemaDemanda.py`
+
+- **El texto dice:** «Las barras de demanda se representan mediante un modelo de potencia constante $PQ$ (`Demanda/SistemaDemanda.py`), en el que una única clase `PerfilDemanda` lee una serie temporal normalizada…».
+- **El repositorio tiene:** `Demanda/SistemaDemanda.py` con la clase `SistemaDemanda` y `Demanda/PerfilDemanda.py` con `class PerfilDemanda`.
+- **Se solicita:** confirmar cuál de los dos archivos contiene la lectura del perfil y la escala por potencia nominal, para corregir la referencia en el manuscrito. Si el reparto de responsabilidades es otro, describirlo en una línea.
+
+#### A2 · `Diesel`: nombre de archivo, nombre de constante y valor
+
+- **El texto dice:** «Generador Diésel (`Diesel/SistemaDiesel.py`): incorpora el modelo de gobernador de velocidad isócrono con actuador de combustible ($T_{act}$) y constante de transporte del motor térmico ($T_{eng}$)».
+- **El repositorio tiene:** `Diesel/Diesel.py`, clase `MotorDiesel`, constructor `__init__(self, Ke=1.0, te=0.035)`.
+- **Tres preguntas concretas:**
+  1. ¿Existe una constante de tiempo de actuador de combustible, y con qué nombre? El texto declara $T_{act}$ y no aparece en el módulo.
+  2. ¿El `te = 0.035` del constructor es la constante de transporte del motor térmico que el texto llama $T_{eng}$? ¿Su valor es 35 ms?
+  3. ¿El gobernador implementado es isócrono, o incluye estatismo ($R$) — y en ese caso con qué ganancia?
+- **Se solicita:** la respuesta a las tres, con `archivo:línea`, para alinear nombres y valores en el manuscrito.
+
+#### A3 · `Solar`: la capacidad del bus DC de 10 000 µF
+
+- **El texto dice:** «Modela el arreglo fotovoltaico con MPPT Perturbar y Observar y balance del condensador de bus DC ($C_{dc} = 10\,000\,\mu\text{F}$)», con la ecuación de actualización de $V_{dc}$.
+- **El repositorio:** no existe `C_dc` ni el literal `10000` en `Solar/SistemaSolar.py`; `common/GridInverter.py` declara `Vdcref=400.0` pero no la capacidad.
+- **Se solicita:** indicar en qué archivo y con qué nombre se declara la capacidad del bus DC, y su valor efectivo. Si el modelo del capítulo usa una capacidad distinta de la implementada, decirlo.
+
+#### A4 · `Hidrica`: la constante de la columna de agua no aparece
+
+- **El texto dice:** «Generación Hidroeléctrica (`Hidrica/SistemaHidrico.py`): modela la inercia de la columna de agua con función de transferencia servogobernada … con constante de tiempo $T_w$».
+- **El repositorio:** el directorio `Hidrica/` existe, pero la cadena `T_w` no aparece en ningún `.py` del proyecto.
+- **Se solicita:** nombre del archivo y de la constante con que se modela la columna de agua, su valor numérico y si se trata de una función de transferencia de primer orden servogobernada o de otra formulación.
+
+---
+
+**Qué se pide, en una frase.** Para cada punto: la ubicación real (`archivo:línea`) y el nombre real de la constante. No se solicita cambiar el código; se solicita la verdad del código.
+
+**Criterio de cierre.** Cada uno de los cuatro puntos con respuesta verificable en el repositorio, y una nota final de Antigravity indicando cuáles afirmaciones del capítulo 7 deben corregirse en el texto y cuáles se sostienen con solo renombrar la referencia.
+
+**Lo que NO se toca.** `SECCIONES/*.tex` sigue siendo competencia exclusiva de HERMES; las correcciones del manuscrito las aplica este canal una vez recibida la respuesta. No se modifican corridas, manifiestos ni escenarios.
