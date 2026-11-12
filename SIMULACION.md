@@ -27,7 +27,7 @@ Este documento es la **única fuente de verdad** entre el equipo técnico de co-
 
 ## ✅ Estado vigente (corte 2026-11-08)
 
-0. **Escenario único de validación (D-28, congelada el 2026-11-08).** La evidencia del capítulo 8 se produce en **una sola corrida certificada**: `ESC-HIL-008_validacion_integrada`, $480\ \text{s}$ a $2\ \text{Hz}$ (961 muestras), que reúne en diez ventanas el consenso inicial, el seguimiento de carga, dos episodios de excedente —absorción en el BESS y recorte del PV—, dos de déficit —moderado y severo—, la pérdida del 20 % en el enlace 2↔3 y la desconexión total del enlace 1↔2 durante 30 s. Sustituye como base citable a `ESC-HIL-001`, `ESC-HIL-003`, `ESC-HIL-005`, `ESC-HIL-006`, `ESC-HIL-007` y la campaña `20261108T170925_resilience_seed42`, que se archivan sin borrarse. **No sustituye** al benchmark T1 `20261108T161211_bench-v2_seed42`: su manifiesto `115a6eb9…` y su puntero `outputs/benchmark/results/CURRENT.json` (D-23) quedan intactos, y la corrida nueva se publica en su propio puntero, `outputs/validation/results/CURRENT.json`. Emisión en **S-39**; ejecución y certificación en **S-40**; detalle en **D-28**.
+0. **Escenario único de validación (D-28, congelada el 2026-11-08).** La evidencia del capítulo 8 se produce en **una sola corrida certificada**: `ESC-HIL-008_validacion_integrada`, $480\ \text{s}$ a $2\ \text{Hz}$ (961 muestras), que reúne en diez ventanas el consenso inicial, el seguimiento de carga, dos episodios de excedente —absorción en el BESS y recorte del PV—, dos de déficit —moderado y severo—, la pérdida del 20 % en el enlace 2↔3 y la desconexión total del enlace 1↔2 durante 30 s. Sustituye como base citable a `ESC-HIL-001`, `ESC-HIL-003`, `ESC-HIL-005`, `ESC-HIL-006`, `ESC-HIL-007` y la campaña `20261108T170925_resilience_seed42`, que se archivan sin borrarse. **No sustituye** al benchmark T1 `20261108T161211_bench-v2_seed42`: su manifiesto `115a6eb9…` y su puntero `outputs/benchmark/results/CURRENT.json` (D-23) quedan intactos, y la corrida nueva se publica en su propio puntero, `outputs/validation/results/CURRENT.json`. Emisión en **S-39**; ejecución y certificación en **S-40**; detalle en **D-28**. **Estado al 2026-11-12: emitido, validado e instalado sin activar** — `ESC-HIL-008_validacion_integrada`, 480 s · 961 muestras · 9 archivos · `meta.json` `08f257f4…`, contingencias `78df90f5…` con semilla en las cuatro filas, R-A…R-M en verde; `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`. Contrato D-26 v2 en **O-11**.
 1. **Corrida canónica del benchmark.** `20261108T161211_bench-v2_seed42` es la única corrida publicada como canónica (`supersedes: 20261108T152458_bench-v2_seed42`, que a su vez superó a `161041` y `163357`); `results/CURRENT.json` es la autoridad y ningún manifiesto histórico se reescribe (D-23). El árbol está limpio en `cefcf93`: S-36 quedó consolidado en `d85db09`, la campaña de resiliencia en `b3f0ad7`/`cefcf93` y el saneamiento de manifiestos en `a007e3d` (S-O-16 cerrada). Los cuatro hashes certificados —`fixed_time_consensus = e325258d…`, `metrics_v2 = ff689bca…`, `run_benchmark = 506e5a83…`, `harness = 82c3edab…`— coinciden con el árbol. La corrida conserva la estabilidad condicional gobernante del 16.2% en G7 y **cero diferencias numéricas** en `telemetry.csv`, `metrics.json` y `gates.md` frente a `152458` y `161041` (S-36 cerrada; suite declarada con 113 pruebas en verde).
 2. **Soporte de Régimen Excedentario (S-36).** El sistema multiagente y la planta física soportan formalmente el régimen (2) de D-24: BESS bidireccional ($P < 0$ para absorción de potencia con Coulomb counting activo y acotamiento por SoC $[0.20, 0.95]$), recorte de generación solar (curtailment $\gamma \in [0, 1]$ respecto al MPP disponible), y consenso en tiempo fijo FxTS sobre el índice de utilización de excedente $\eta_{\text{excess}} \in [0, 1]$.
 3. **Evidencia HIL.** §11 resume el ensayo de 600 pasos (300 s) en 8 nodos BT 400 V. S-O-12 queda cerrada con las precisiones D6, D7 y D8 aplicadas en §11.1 y §11.2, constituyendo evidencia empírica de plataforma y de régimen de sobrecarga controlada para el Capítulo 5.
@@ -49,6 +49,7 @@ Solo los artefactos de esta tabla pueden citarse como evidencia. Lo anterior al 
 |---|---|---|---|
 | Telemetría HIL 8 nodos | 2026-11-07 09:22:50 | `output_data/telemetry_monitor_cluster_8nodes_hil.csv` · 109 533 B · 600 filas · `bd71ba4a…` | §11; plataforma HIL, cadencia física a 2 Hz, regulación isócrona y régimen de estatismo por límite de capacidad |
 | Telemetría Resiliencia 8 nodos (S-34) | 2026-11-08 17:09:25 UTC | `outputs/resilience/results/20261108T170925_resilience_seed42/telemetry_resilience_300s.csv` · 127 559 B · 601 filas · `ba21fe9b…` | S-34 / S-O-19; campaña de resiliencia D-25: 3 tramos (nominal, latencia 50–500 ms, pérdida 20% y corte de enlace 30 s), contingencias `dbbdf606…` con 5 semillas publicadas, reconvergencia inmediata y estabilidad de frecuencia $f_{\min}=59.989$ Hz |
+| Escenario único de validación (D-28) | 2026-11-12 | `Forms/escenarios_generados/ESC-HIL-008_validacion_integrada/` · 9 archivos · `meta.json` 5 766 B · `08f257f4…` · contingencias 554 B · `78df90f5…` | base citable del capítulo 8: 480 s / 961 muestras, dos ventanas de excedente (D-26 v2), déficit, pérdida y desconexión; instalado sin activar |
 | Manifiesto de la corrida canónica | 2026-11-08 16:12:11 UTC | `outputs/benchmark/results/20261108T161211_bench-v2_seed42/manifest.json` · 1 240 B · `115a6eb9…` | `run_id`, `supersedes: 20261108T152458`, `canonical: true`, `boundary_hold_applied: false`, `metrics_v2 = ff689bca…` y controlador certificado con régimen excedentario `e325258d…` |
 | Manifiesto superado (archivado) | 2026-11-08 15:24:58 UTC | `outputs/benchmark/results/_archive/20261108T152458_bench-v2_seed42/manifest.json` · 1 240 B · `65feef54…` | cierre de S-35; sustituido por `161211` con cero delta. Conserva `canonical: true`, defecto de D-19 que se corrige en S-O-16 |
 | Puntero canónico | 2026-11-08 16:12:11 UTC | `outputs/benchmark/results/CURRENT.json` · 575 B · `6e9932af…` | única autoridad de la corrida vigente: apunta a `20261108T161211_bench-v2_seed42` con `manifest_sha256 = 115a6eb9…` |
@@ -1515,7 +1516,7 @@ consolidarse (meteo y demanda en archivos únicos) siempre que los valores se pr
 | CLI `generar / instalar / activar / desactivar / listar` | `src/generador/cli.py` | Ciclo completo de vida del escenario |
 | Validador R-A…R-L y R-M | `src/generador/validacion.py` | Longitud, rangos, coherencia P/Q/S/fp, suavidad, eventos, contrato de contingencias y régimen excedentario |
 | Perfil de contingencias (D-25 v1) | `src/generador/contingencias.py` | Emite `contingencias_telematicas.csv`, deriva la semilla por celda y audita R-L.1–R-L.4 |
-| Contrato del régimen excedentario (D-26 v1) | `src/generador/excedente.py` | Publica `regimen_excedente` en `meta.json` y audita R-M.1–R-M.5 |
+| Contrato del régimen excedentario (D-26 v2) | `src/generador/excedente.py` | Publica `regimen_excedente` en `meta.json` y audita R-M.1–R-M.6; v2 admite ventanas múltiples |
 | Instalador con respaldo | `src/generador/instalador.py` | Copia al proyecto, respalda y marca `ACTIVO.txt` |
 | Emisión de Capa 1 | `src/generador/salida.py` | Genera `plantilla_configuracion_cosimulacion.json` |
 | Plantilla base | `config/plantilla_base.json` | Valores por defecto del esquema 2.0 |
@@ -1542,7 +1543,7 @@ consolidarse (meteo y demanda en archivos únicos) siempre que los valores se pr
 `contrato_contingencias` y `escenario.yaml` solo apunta al archivo. R-L.1–R-L.4 bloquean la
 generación. Los escenarios anteriores a esa fecha (ESC-HIL-003 y ESC-HIL-005) no lo emiten y se conservan intactos; el contrato no tiene efecto retroactivo. Anexo normativo completo en **O-10**.
 
-**Contrato del régimen excedentario (D-26 v1, 2026-11-08):** la familia (2) de D-24 declara en la nota un bloque `regimen_excedente` (`tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_min_diesel_W`, `p_solar_ventana_kW`, `p_charge_max_W`, `soc_inicial`, `holgura_min_kW`, `holgura_max_kW` y `referencia`). El bloque se publica en `meta.json` y R-M.1–R-M.5 lo auditan: ventana alineada, POA de la ventana, ausencia de eventos de demanda dentro de ella, holgura recompuesta paso a paso (`p_min_diesel + P_solar − demanda`) y coincidencia con el bloque de la nota. `p_solar_ventana_kW` se mide con `Solar.SistemaSolar(N_inv=2)` y se documenta en `reporte_capacidad.md`; el validador no re-ejecuta la física, pero sí recompone la aritmética contra el CSV. Detalle en `src/generador/excedente.py`.
+**Contrato del régimen excedentario (D-26 v1, 2026-11-08):** la familia (2) de D-24 declara en la nota un bloque `regimen_excedente` (`tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_min_diesel_W`, `p_solar_ventana_kW`, `p_charge_max_W`, `soc_inicial`, `holgura_min_kW`, `holgura_max_kW` y `referencia`). El bloque se publica en `meta.json` y R-M.1–R-M.5 lo auditan: ventana alineada, POA de la ventana, ausencia de eventos de demanda dentro de ella, holgura recompuesta paso a paso (`p_min_diesel + P_solar − demanda`) y coincidencia con el bloque de la nota. `p_solar_ventana_kW` se mide con `Solar.SistemaSolar(N_inv=2)` y se documenta en `reporte_capacidad.md`; el validador no re-ejecuta la física, pero sí recompone la aritmética contra el CSV. Detalle en `src/generador/excedente.py`. **D-26 v2 (2026-11-12):** el bloque admite `version: 2` y una lista `ventanas`, cada una con su tipo, causa y medición; R-M.6 audita orden y solape, y R-M.3 admite perturbación mixta declarada con `eventos_demanda`. Los bloques v1 siguen siendo válidos (006 y 007 revalidados). Anexo en **O-11**.
 
 **Fallo fuerte (acordado 2026-10-31):** si una serie declarada en la Capa 1 falta para un nodo
 **presente** en la topología, la generación aborta con `FileNotFoundError` indicando ruta y acción.
@@ -1687,6 +1688,47 @@ independiente.
 
 ---
 
+### ESC-HIL-008 · `validacion_integrada`
+
+Generado e **instalado sin activar** el **2026-11-12** como **base citable de D-28**:
+una sola corrida de **480 s** (961 muestras a 2 Hz) que reúne las situaciones del
+capítulo 8. Sustituye como referencia a 001, 003, 005, 006, 007 y a la campaña
+`20261108T170925`; **no** sustituye al benchmark T1 `20261108T161211`.
+
+**Artefactos** (`Forms/escenarios_generados/ESC-HIL-008_validacion_integrada/`, 9 archivos):
+
+| Artefacto | Tamaño · SHA-256 |
+|---|---|
+| `datos_demanda.csv` | 135 420 B · `51b5f034…` · 961 filas |
+| `datos_meteorologicos.csv` | 53 649 B · `7b3baafb…` · 961 filas |
+| `topologia_red_8nodos.csv` | 368 B · `b3a4011d…` |
+| `plantilla_configuracion_cosimulacion.json` | 4 469 B · `4caec0bb…` |
+| `escenario.yaml` | 5 942 B · `46c97fa5…` |
+| `meta.json` | 5 766 B · `08f257f4…` |
+| `contingencias_telematicas.csv` | 554 B · `78df90f5…` · 4 filas, semilla poblada |
+| `reporte_validacion.md` | 1 475 B · `2687da7d…` · R-A…R-M en verde |
+| `reporte_capacidad.md` | 2 894 B · `ee3d5a52…` |
+| `meta.json` → `regimen_excedente` | D-26 **v2**, dos ventanas |
+
+**Ventanas excedentarias (D-26 v2):**
+
+| Ventana [s] | Causa | POA (W/m²) | P solar (kW) | Holgura (kW) |
+|---|---|---|---|---|
+| `[150.5, 199.5]` | escalón negativo de carga | 836.8 | 3.2795 | +4.685 a +5.041 |
+| `[315.5, 359.5]` | recuperación de irradiancia | 765.5 | 2.8699 | +1.152 a +3.322 |
+
+**Déficit (D-27):** el sombreado lleva la holgura a **−1.863 kW** en `t = 250 s`
+y a **−2.275 kW** en `t = 300 s`, con demanda máxima de 11.507 kW, por debajo de
+la capacidad firme (11.535 kW). POA máxima del sombreado: 347.4 W/m².
+
+**Fallas:** pérdida del 20 % en 2↔3 entre 360 y 410 s; desconexión total de 1↔2
+entre 410 y 440 s (30 s, 60 muestras).
+
+**Estado:** instalado e inactivo; `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`.
+La ejecución y certificación corresponde a **S-40**.
+
+---
+
 ## O-4 · Escenarios (plan vigente: banco de 8 nodos; el 21 queda como Trabajo Futuro)
 
 > **Estado:** `BANCO_8_ACTIVO / BANCO_21_TRABAJO_FUTURO`. Conforme a la decisión vinculante **D-17**, el banco de 21 nodos queda formalmente clasificado como **Trabajo Futuro (Capítulo 6)** para estudios de escalabilidad multinodal en distribución junto a CIGRE LV. El Capítulo 5 enfoca el 100% de la validación experimental y comparativa sobre el banco HIL definitivo de 8 nodos (`ESC-HIL-003_consolidado_rev5`).
@@ -1775,7 +1817,7 @@ frente de su alimentador y ninguno coincide con una carga. **El runner para 21 n
 | D-23 | Unicidad de la corrida canónica y del campo `canonical`. | **CERRADO — opción (i) (2026-11-04).** `canonical: true` = «publicada como canónica»; la única autoridad es `results/CURRENT.json`, con un solo `run_id`. Los manifiestos históricos no se reescriben y `163357` conserva `b045c61a…`. Detalle en S-28 §3. |
 | D-24 | Marco de evaluación del control secundario MAS (nivel 2). | **CERRADO — tres familias de escenario (decisión del investigador, 2026-11-08).** La validación del lazo secundario se organiza en tres regímenes: **(1) déficit de capacidad** —la generación disponible no alcanza para sostener la frecuencia—; **(2) excedente** —la demanda nunca supera la generación, pero la generación sí puede superar la demanda—, donde se evalúa cómo se distribuye el exceso mediante absorción del BESS o reducción de la potencia entregada por las fuentes no convencionales; y **(3) fallas de comunicación** —pérdida de paquetes y problemas de red entre agentes—, donde se evalúa la capacidad del algoritmo de alcanzar consenso con la red degradada. Cada familia conserva su propio criterio de aceptación, pero desde D-28 la evidencia se produce en **una sola corrida con ventanas por familia**, no en un escenario por familia. Estado: (1) cubierto por ESC-HIL-001 (12.594 kW > 11.535 kW firme); (2) ESC-HIL-006 y ESC-HIL-007 generados, validados e instalados sin activar (O-3), con la absorción y el recorte implementados en S-36; (3) S-34 **cerrada** con corrida citable `20261108T170925_resilience_seed42`; la emisión de las variantes de escenario queda en S-O-14. |
 | D-25 | Formato y ubicación del perfil de contingencias telemáticas. | **CONGELADA — v1 (decisión del investigador, 2026-11-08).** El perfil de falla se declara en un artefacto propio por escenario, `contingencias_telematicas.csv` (una fila por ventana y enlace alcanzado), con `escenario.yaml` como puntero y `meta.json` con `version`, `archivo`, `filas`, `sha256` y el resumen de ventanas en el bloque `contrato_contingencias`. **No** se aloja en los cuatro archivos básicos ni en el bloque escalar `emulador_canal` de la plantilla. La familia de fallas pasa de 6 a 7 artefactos; el resto del contrato no cambia. v1 fija 14 columnas, `tipo ∈ {latencia, perdida, desconexion}`, `alcance ∈ {global, enlace}`, ventanas alineadas a 0.5 s en $[0,300]$, latencia 50–500 ms, pérdida 0–0.30, **solo Bernoulli** (Gilbert-Elliott queda como extensión v2), `reintento_s` vacío hereda `comunicaciones_zeromq.max_hold_last_value_s` y `semilla = sha256("{semilla_base}\|{id}\|{origen}\|{destino}")[:8]` por celda. F0 es el CSV con cabecera y 0 filas. Contrato implementado y verificado con F0; S-34 está cerrada y F1–F3 quedan desbloqueadas, con su emisión en S-O-14. Anexo normativo en **O-10**; dictamen en S-O-14 (O-7). |
-| D-26 | Forma de declaración del régimen excedentario (familia 2 de D-24). | **CONGELADA — v1 (2026-11-08).** La nota declara el bloque `regimen_excedente` (`tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_min_diesel_W`, `p_solar_ventana_kW`, `p_charge_max_W`, `soc_inicial`, `holgura_min_kW`, `holgura_max_kW`, `referencia`); `meta.json` lo publica y R-M.1–R-M.5 lo auditan. `tipo ∈ {excedente, referencia}`; un perfil `excedente` exige holgura mínima positiva en la ventana y uno `referencia` exige máximo no positivo. `p_solar_ventana_kW` se mide con `Solar.SistemaSolar(N_inv=2)` y se documenta en `reporte_capacidad.md`; el validador recompone la aritmética contra el CSV de demanda. Implementado en `src/generador/excedente.py`; verificado con ESC-HIL-006/007 (O-3) y 12 pruebas en `tests/test_excedente.py`. |
+| D-26 | Forma de declaración del régimen excedentario (familia 2 de D-24). | **CONGELADA — v2 (2026-11-12; v1 el 2026-11-08).** v1 declaraba una ventana por escenario; v2 admite una lista `ventanas`, cada una con tipo, causa, POA y holgura propias, y añade R-M.6 (orden y ausencia de solape) y la relajación de R-M.3 para perturbación mixta declarada con `eventos_demanda`. Los bloques v1 siguen siendo válidos. La nota declara el bloque `regimen_excedente` (`tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_min_diesel_W`, `p_solar_ventana_kW`, `p_charge_max_W`, `soc_inicial`, `holgura_min_kW`, `holgura_max_kW`, `referencia`); `meta.json` lo publica y R-M.1–R-M.5 lo auditan. `tipo ∈ {excedente, referencia}`; un perfil `excedente` exige holgura mínima positiva en la ventana y uno `referencia` exige máximo no positivo. `p_solar_ventana_kW` se mide con `Solar.SistemaSolar(N_inv=2)` y se documenta en `reporte_capacidad.md`; el validador recompone la aritmética contra el CSV de demanda. Implementado en `src/generador/excedente.py`; verificado con ESC-HIL-006/007 (O-3) y 12 pruebas en `tests/test_excedente.py`. |
 
 ## O-5.1 · Auditoría D-06 (2026-11-01): ¿quién asigna el recurso eólico a N3?
 
@@ -1928,7 +1970,7 @@ el escenario activo no se sobrescribe. Toda corrección indica archivo y línea.
 ---
 
 ### S-O-14 · Escenario de resiliencia telemétrica: el perfil de falla debe estar declarado en los datos, no solo en el proxy
-**Estado:** `ABIERTA` · **Fecha:** 2026-11-08 · **Solicita:** HERMES · **Dirigida a:** OPENCODE
+**Estado:** `CERRADA — absorbida por S-39/D-28` · **Fecha:** 2026-11-08 · **Solicita:** HERMES · **Dirigida a:** OPENCODE
 **Ámbito:** declaración y emisión de un escenario nuevo con perfil de fallas de comunicación. **No** modifica el escenario activo ni el código de la tesis.
 
 **Contexto.** El cuarto objetivo específico del manuscrito (`OBJETIVOS.tex:14`) y las actividades 3.3 y 4.2 del diseño metodológico exigen validar la tolerancia del lazo a latencia, pérdida de paquetes y desconexión de enlaces. Esa campaña sigue en pie por decisión del investigador (2026-11-08) y su ejecución se solicita a ANTIGRAVITY en **S-34**. Para que la corrida sea citable hace falta que el perfil de falla esté **declarado en los artefactos del escenario** y no solo en la configuración del proxy.
@@ -1983,6 +2025,8 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 
 > **Actualización (2026-11-08) — D-25 congelada por el investigador.** El contrato v1 quedó implementado en el generador y F0 se emitió y validó de extremo a extremo en un directorio temporal (0 filas, SHA-256 `25af14eb…`). No se creó ni instaló ningún escenario y `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`. **S-O-14 pasa a ejecución**: con S-34 cerrada, F1–F3 se emiten como variantes de escenario y se instalan sin activar. Anexo normativo en **O-10**.
 
+> **Cierre (2026-11-12) — absorbida por S-39/D-28.** Las variantes F1–F3 no se emiten por separado: sus ventanas viven en el escenario único `ESC-HIL-008_validacion_integrada` (instalado sin activar). La pérdida del 20 % en 2↔3 y la desconexión total de 1↔2 durante 30 s quedan declaradas en `contingencias_telematicas.csv` (`78df90f5…`, 4 filas con semilla) y se ejecutan en S-40. R-L.1–R-L.4 siguen vigentes; el defecto de semilla vacía se corrigió en S-O-19.
+
 ---
 
 ### S-O-15 · Escenario excedentario: demanda por debajo de la generación disponible, con ventana declarada
@@ -2007,7 +2051,7 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 
 ## O-8 · Solicitudes abiertas de OpenCode a otros agentes
 
-> S-O-01 … S-O-10 están cerradas o respondidas y se conservan verbatim en `SIMULACION_ARCHIVO.md` (bloque C). Las solicitudes **recibidas** —S-O-11, S-O-14 y S-O-15— se responden en O-7. En este bloque, **S-O-12**, **S-O-16** y **S-O-17** quedaron cerradas y resueltas, y **S-O-13**, **S-O-18**, **S-O-19** y **S-O-20** son las solicitudes abiertas de OpenCode a otros agentes.
+> S-O-01 … S-O-10 están cerradas o respondidas y se conservan verbatim en `SIMULACION_ARCHIVO.md` (bloque C). Las solicitudes **recibidas** —S-O-11, S-O-14 y S-O-15— se responden en O-7. En este bloque, **S-O-12**, **S-O-16**, **S-O-17**, **S-O-19** y **S-O-20** quedaron cerradas y resueltas; **S-O-14** y **S-O-18** quedaron **absorbidas por S-39/D-28**, y **S-O-13** es la única solicitud abierta de OpenCode a otros agentes.
 
 ### S-O-12 · §11 no se reproduce de su propia telemetría: ocho cifras y una aritmética que no cierran
 **Estado:** `CERRADA Y RESUELTA (verificada por ANTIGRAVITY con D6, D7, D8)` · **Fecha:** 2026-11-07 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY · **Cerrada por:** ANTIGRAVITY (2026-11-07)
@@ -2113,7 +2157,7 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 ---
 
 ### S-O-18 · Ensayo del par excedentario en el rack: ESC-HIL-006 y ESC-HIL-007
-**Estado:** `ABIERTA` · **Fecha:** 2026-11-08 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY
+**Estado:** `CERRADA — absorbida por S-39/D-28` · **Fecha:** 2026-11-08 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY
 **Ámbito:** ejecución del ensayo excedentario en la próxima ventana del rack. **No** incluye cambios de código ni de escenario.
 
 **Contexto.** ESC-HIL-006 y ESC-HIL-007 están generados, validados e instalados sin activar (O-3). S-36 habilitó la absorción en el BESS y el recorte solar; falta la corrida citable que ejercite ambas capacidades.
@@ -2127,6 +2171,8 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 **Criterio de cierre.** En 006: frecuencia dentro de ±0.05 Hz de 60.0 en `[120, 240] s`, absorción efectiva en el BESS y recorte > 0 en el pico (holgura 3.469 kW > 3.0 kW). En 007: sin absorción ni recorte significativos y holgura negativa. Se reportan `run_id`, hashes y las series de `eta_excess` y `curtail_ratio`.
 
 **Lo que NO se toca.** Los CSV y el `escenario.yaml` generados; el escenario activo fuera de la ventana de ensayo.
+
+> **Cierre (2026-11-12) — absorbida por S-39/D-28.** 006 y 007 no se ensayan en el rack: el excedente se ejercita en dos ventanas del escenario único (150.5–199.5 s y 315.5–359.5 s), con la misma regla de holgura y la absorción/recorte de S-36. Los dos escenarios permanecen instalados e inactivos como predecesores; su contrato v1 sigue validando en verde.
 
 ---
 
@@ -2161,7 +2207,7 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 ---
 
 ### S-O-20 · El manuscrito mantiene «en emisión» un escenario ya instalado
-**Estado:** `ABIERTA` · **Fecha:** 2026-11-08 · **Solicita:** OPENCODE · **Dirigida a:** HERMES
+**Estado:** `CERRADA Y RESUELTA` · **Fecha:** 2026-11-08 · **Solicita:** OPENCODE · **Dirigida a:** HERMES
 **Ámbito:** texto de `SECCIONES/RESULTADOS.tex`. **No** incluye cambios de cifras ni de figuras.
 
 **Hecho verificado.** `RESULTADOS.tex:324` y `:326` declaran que el escenario excedentario «está en emisión». ESC-HIL-006 y ESC-HIL-007 están generados, validados e instalados sin activar (O-3) desde el 2026-11-08.
@@ -2262,6 +2308,8 @@ Cuatro variantes: **F0** referencia, solo cabecera con 0 filas; **F1** latencia 
 | 2026-11-08 | **Verificación y cierre de S-O-17 (OPENCODE).** `main.pdf` **79 páginas · 749 999 B · `ad3cc505…`** y `RESULTADOS.tex` **405 líneas · 59 321 B · `8bcb36e2…`**. El PDF cita `161211`/`115a6eb9…`; `152458` solo en la cadena de sustitución; «campaña en construcción» ×0 y «cuatro tramos» ×1; `:326` declara implementadas la absorción y el recorte y `:387`/`:389` pasan a «implementados; ensayo pendiente». S-O-17 pasa a `CERRADA Y RESUELTA`. | OpenCode |
 | 2026-11-08 | **Cierre y entrega de S-34: proxy cableado, `delivery_meta` y campaña de resiliencia (Antigravity).** `Agents/network_impairment_proxy.py` ampliado a 18 043 B (`3b340b80…`) con ingesta D-25, semillas por celda y fallas por enlace; `distributed_node_runner.py` cablea el proxy (`--network-profile`, `--contingencies-file`, `--network-seed`) y persiste `delivery_meta`. `tests/test_telemetry_resilience.py` (5 pruebas) y suite de 113. Campaña `20261108T170925_resilience_seed42`: `telemetry_resilience_300s.csv` 601 × 33 · `ba21fe9b…`, contingencias 5 filas · `03ef3429…`, manifiesto `9c4dfc87…`; `f_min = 59.9894 Hz`. S-34 pasa a `CERRADA Y RESUELTA`. | Antigravity |
 | 2026-11-08 | **Reconciliación del canal con S-34 y corrección de citas (OPENCODE).** §1 al estado real (`cefcf93` limpio, S-36 en `d85db09`, 113 pruebas); F1–F3 desbloqueadas en §7, O-5, O-10 §5/§8 y S-O-14; hashes de O-10 §7 actualizados tras D-26 (`cli.py` `a0faa62e…`, `validacion.py` `edeb3373…`, esquema `af860cd4…`); D-24, O-2, preámbulo de O-8 y claves al día; ítem 10 de §7 con la evidencia de resiliencia. Se abren **S-O-19** (semilla vacía en el CSV de campaña) y **S-O-20** (manuscrito: «en emisión»). | OpenCode |
+| 2026-11-12 | **D-26 v2 congelada e implementada (OPENCODE).** El bloque `regimen_excedente` admite `version: 2` y una lista `ventanas`, con R-M.6 (orden y solape) y R-M.3 relajada para perturbación mixta declarada. `src/generador/excedente.py` 27 164 B · `5dc2b51b…`; `cli.py` 14 336 B · `1d5b1d69…` (resumen por ventana y `ventanas_validacion` en `meta.json`); esquema 3 118 B · `09d857da…`; `tests/test_excedente.py` 10 945 B · `586b6df4…` con **21 pruebas en verde**. Compatibilidad verificada: 006 y 007 siguen validando R-M en verde. | OpenCode |
+| 2026-11-12 | **Emisión e instalación de ESC-HIL-008 (S-39) y cierre de solicitudes absorbidas (OPENCODE).** `ESC-HIL-008_validacion_integrada`: 480 s · 961 muestras · 9 archivos, R-A…R-M en verde, `meta.json` `08f257f4…` (D-26 v2 con dos ventanas y `ventanas_validacion` de diez tramos), contingencias `78df90f5…` con semilla en las cuatro filas, `reporte_capacidad.md` con las mediciones solares. Instalado **sin activar**; `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`. S-39 pasa a `CERRADA Y RESUELTA`; **S-O-14** y **S-O-18** se cierran como absorbidas por S-39/D-28; S-O-20 pasa a cerrada. Anexo D-26 v2 en **O-11**. | OpenCode |
 
 > El bloque de verificación del banco de 21 nodos se reubicó como **Trabajo Futuro** al final de este registro (2026-11-08).
 
@@ -2378,6 +2426,62 @@ Verificación de integración: `generar()` sobre la nota de ESC-HIL-005 en un di
 
 ---
 
+## O-11 · Anexo normativo D-26 v2 — régimen excedentario con ventanas múltiples
+
+**Estado:** `CONGELADA — v2` (2026-11-12). Sustituye a D-26 v1 **solo en la forma**: los bloques v1 siguen siendo válidos y ESC-HIL-006/007 se revalidaron sin cambios.
+
+### 1. Por qué v2
+
+D-28 exige **un solo escenario** con **dos episodios de excedente por causas distintas** (caída de carga y recuperación de irradiancia). La v1 admitía una única `ventana_s` y una única medición de POA, holgura y `p_solar`, de modo que el segundo episodio no era declarable.
+
+### 2. Forma del bloque
+
+- **v1 (sin cambios):** claves escalares `tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_min_diesel_W`, `p_solar_ventana_kW`, `p_charge_max_W`, `soc_inicial`, `holgura_min_kW`, `holgura_max_kW`, `referencia?`.
+- **v2:** `version: 2`, las tres claves compartidas (`p_min_diesel_W`, `p_charge_max_W`, `soc_inicial`), `referencia?` y una lista `ventanas`. Cada ventana declara `tipo`, `ventana_s`, `poa_min_W_m2`, `poa_ventana_W_m2`, `p_solar_ventana_kW`, `holgura_min_kW`, `holgura_max_kW` y los opcionales `causa`, `perturbacion` (`recurso` | `mixta`) y `eventos_demanda`.
+- La presencia de `ventanas` implica v2; un `version: 2` sin `ventanas` es error.
+
+### 3. Reglas
+
+| Regla | v1 | v2 |
+|---|---|---|
+| R-M.1 | ventana dentro de `[0, duración]` y alineada | igual, por ventana |
+| R-M.2 | POA de la ventana ≥ umbral y coincidente | igual, por ventana |
+| R-M.3 | sin eventos de demanda dentro de la ventana | admite eventos si la ventana declara `perturbacion: mixta` y los enumera exactamente en `eventos_demanda` |
+| R-M.4 | holgura recompuesta; signo según tipo | igual, por ventana |
+| R-M.5 | el bloque de `meta.json` contiene las claves de la nota | comparación **valor a valor** con el bloque normalizado |
+| R-M.6 | — | ≥ 1 ventana, ordenadas por inicio y **sin solape** |
+
+`h(t) = p_min_diesel + P_solar(POA) − P_demanda(t)` se mantiene; en v2 se evalúa en cada ventana con su propia `p_solar_ventana_kW`.
+
+### 4. Implementación (corte 2026-11-12)
+
+| Archivo | Cambio | Tamaño · SHA-256 |
+|---|---|---|
+| `src/generador/excedente.py` | dispatch v1/v2, normalización por ventana, R-M.1–R-M.6 | 27 164 B · `5dc2b51b…` |
+| `src/generador/cli.py` | resumen por ventana y publicación de `ventanas_validacion` en `meta.json` | 14 336 B · `1d5b1d69…` |
+| `src/generador/validacion.py` | invocación sin cambios (R-M delega en el módulo) | 26 583 B · `edeb3373…` |
+| `config/esquema_escenario.yaml` | declaración de `versiones`, claves v2 y perturbaciones | 3 118 B · `09d857da…` |
+| `tests/test_excedente.py` | 21 pruebas (12 v1 + 9 v2) | 10 945 B · `586b6df4…` |
+
+### 5. Uso en el escenario único
+
+`ESC-HIL-008_validacion_integrada` publica dos ventanas:
+
+| Ventana [s] | Causa | POA (W/m²) | P solar (kW) | Holgura (kW) |
+|---|---|---|---|---|
+| `[150.5, 199.5]` | escalón negativo de carga | 836.82 | 3.2795 | +4.685 a +5.041 |
+| `[315.5, 359.5]` | recuperación de irradiancia | 765.53 | 2.8699 | +1.152 a +3.322 |
+
+Ambas se declaran `perturbacion: recurso`: el escalón de 150 s y la rampa de 300 s quedan fuera del intervalo declarado, y el campo `causa` documenta el origen. La relajación de R-M.3 queda disponible para ventanas que sí contengan un evento de carga.
+
+### 6. Límites que el contrato no relaja
+
+- **R-E** limita cada evento al 30 % de la magnitud base: el sombreado abrupto se emite como escalón de −240 W/m² y la recuperación como tres rampas de ×1.3.
+- **R-D** limita la pendiente de POA al 30 % del nominal por paso; un escalón de 300 → 800 W/m² no es representable.
+- El contrato **no** valida la absorción ni el recorte: eso se comprueba en la corrida (S-40) con `curtail_ratio` y SoC.
+
+---
+
 ## 🗄️ Archivo — índice de bloques retirados (2026-11-07)
 
 Los bloques cerrados se conservan **verbatim** en `SIMULACION_ARCHIVO.md`. Este índice es la única referencia viva; el archivo no se cita como evidencia.
@@ -2389,7 +2493,7 @@ Los bloques cerrados se conservan **verbatim** en `SIMULACION_ARCHIVO.md`. Este 
 | **C** | S-O-01 … S-O-10: infraestructura, escenarios, taxonomía, contrato de datos, benchmark de nodos | 2430–2948 | Respondidas o cerradas; el contrato vigente vive en O-6 |
 | **D** | S-01 … S-08 y S-11: número de nodos, tipologías, direccionamiento, parámetros, bandas, coherencia numérica | 3067–3367 | Cerradas; superadas por el contrato del 2026-11-01 |
 
-**Claves que siguen vivas:** D-18…D-26 (O-5), **Anexo D-25 v1 (O-10)**, S-23…S-36, S-O-11 (O-7), **S-O-14 y S-O-15 (O-7)**, **S-O-13, S-O-18, S-O-19 y S-O-20 (O-8)**, ESC-HIL-005, ESC-HIL-006 y ESC-HIL-007 (O-3), §11 con su nota, Declaración canónica, Congelación y Nota técnica.
+**Claves que siguen vivas:** D-18…D-28 (O-5), **Anexo D-25 v1 (O-10)**, **Anexo D-26 v2 (O-11)**, S-23…S-40, S-O-11 (O-7), **S-O-14 y S-O-15 (O-7)**, **S-O-13 (O-8)**, ESC-HIL-005, ESC-HIL-006, ESC-HIL-007 y **ESC-HIL-008 (O-3)**, §11 con su nota, Declaración canónica, Congelación y Nota técnica.
 
 ---
 
@@ -2553,7 +2657,7 @@ Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código 
 **Dirigida a:** Antigravity
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-08
-**Origen:** bloque de rigor numérico. Al recomputar $	au_{crit} < 2/(\lambda_{\max}(\mathcal{H})\,g_{	ext{ef}}) - \Delta t = 96.3\ 	ext{ms}$ con $\lambda_{\max}g_{	ext{ef}} = 3.354\ 	ext{s}^{-1}$ y $\Delta t = 500\ 	ext{ms}$, la cota analítica resulta **cinco veces menor que el macro-paso**. La campaña de resiliencia inyectó latencias de 50 a 500 ms y el error de consenso salió en cero en los tres tramos.
+**Origen:** bloque de rigor numérico. Al recomputar $\tau_{crit} < 2/(\lambda_{\max}(\mathcal{H})\,g_{\text{ef}}) - \Delta t = 96.3\ \text{ms}$ con $\lambda_{\max}g_{\text{ef}} = 3.354\ \text{s}^{-1}$ y $\Delta t = 500\ \text{ms}$, la cota analítica resulta **cinco veces menor que el macro-paso**. La campaña de resiliencia inyectó latencias de 50 a 500 ms y el error de consenso salió en cero en los tres tramos.
 
 **El problema, en una frase.** El emulador entrega una vez por macro-paso, de modo que **toda latencia en $(0;\,\Delta t]$ se materializa en el mismo instante**: el ensayo no puede separar el régimen estable del inestable porque la resolución del instrumento es más gruesa que el fenómeno. El propio capítulo 8 ya lo declara (párrafo de alcance del retardo en la Familia 3), de modo que el documento no sobreafirma; lo que falta es que el banco pueda medirlo.
 
@@ -2561,11 +2665,11 @@ Se verificaron quirúrgicamente los cuatro puntos solicitados contra el código 
 
 **Requisitos que debería cumplir la modificación, si es viable:**
 
-1. **Resolución de entrega** de al menos $\Delta t/10 = 50\ 	ext{ms}$, para poder barrer valores a ambos lados de 96,3 ms.
+1. **Resolución de entrega** de al menos $\Delta t/10 = 50\ \text{ms}$, para poder barrer valores a ambos lados de 96,3 ms.
 2. **Determinismo preservado:** la entrega sub-paso no puede romper el lock-step ni la reproducibilidad bit a bit de la corrida (misma semilla, mismo resultado).
-3. **Sin degradar el contrato de muestreo:** la telemetría sigue a $2\ 	ext{Hz}$ y $601$ muestras; lo que cambia es el instante interno de entrega, no la tasa de registro.
+3. **Sin degradar el contrato de muestreo:** la telemetría sigue a $2\ \text{Hz}$ y $601$ muestras; lo que cambia es el instante interno de entrega, no la tasa de registro.
 4. **Trazabilidad:** cada paquete debe registrar su instante de emisión y de entrega efectivos, para poder contrastar el retardo aplicado con el declarado.
-5. **Sin sobrecosto prohibitivo:** si la modificación exige sub-pasos a $1\ 	ext{ms}$ sobre seis nodos, estimar el costo en tiempo de ensayo y en cómputo antes de implementarla.
+5. **Sin sobrecosto prohibitivo:** si la modificación exige sub-pasos a $1\ \text{ms}$ sobre seis nodos, estimar el costo en tiempo de ensayo y en cómputo antes de implementarla.
 
 **Información que se solicita, sin necesidad de implementar nada todavía:**
 
@@ -2629,12 +2733,12 @@ Se sugiere no modificar el banco ni alterar los escenarios canónicos vigentes, 
 
 | Elemento | Estado real | Cómo se declara |
 |---|---|---|
-| Latencia telemétrica | registrada como metadato; no materializada por el proxy | límite estructural del banco: $	au_{crit} = 96.3\ 	ext{ms}$ inobservable frente a $\Delta t = 500\ 	ext{ms}$ |
+| Latencia telemétrica | registrada como metadato; no materializada por el proxy | límite estructural del banco: $\tau_{crit} = 96.3\ \text{ms}$ inobservable frente a $\Delta t = 500\ \text{ms}$ |
 | Corrupción de datos | modelo de Gilbert-Elliott implementado, sin escenario ejecutado | capacidad del emulador, no contingencia de la validación |
 | Excedente de generación | absorción en BESS y recorte del PV implementados (S-36); se ensaya en dos ventanas del escenario único (D-28) | **ensayado** con la corrida de S-40; hasta entonces, «emitido, sin corrida» |
 | Generación eólica e hidrocinética | modelos implementados, no instanciados en el banco de ocho nodos | trabajo futuro |
 
-**Fundamento.** El banco resuelve el consenso a $\Delta t = 500\ 	ext{ms}$. El operador de retardo efectivo es discreto, $d = \lfloor \tau / \Delta t \rfloor$, de modo que todo retardo menor que un macro-paso no altera el índice de entrega: medir latencia exigiría un paso de consenso del orden de $20\ 	ext{ms}$, incompatible con el ancho de banda de un enlace telemétrico de microrred aislada y con el determinismo lock-step del clúster. La pérdida de paquetes y la desconexión de enlace, en cambio, son observables con la resolución actual porque cambian el conjunto de vecinos disponibles en cada ciclo.
+**Fundamento.** El banco resuelve el consenso a $\Delta t = 500\ \text{ms}$. El operador de retardo efectivo es discreto, $d = \lfloor \tau / \Delta t \rfloor$, de modo que todo retardo menor que un macro-paso no altera el índice de entrega: medir latencia exigiría un paso de consenso del orden de $20\ \text{ms}$, incompatible con el ancho de banda de un enlace telemétrico de microrred aislada y con el determinismo lock-step del clúster. La pérdida de paquetes y la desconexión de enlace, en cambio, son observables con la resolución actual porque cambian el conjunto de vecinos disponibles en cada ciclo.
 
 **Ediciones derivadas que deben aplicarse en el manuscrito:**
 
@@ -2686,11 +2790,11 @@ Las fallas se sitúan antes del cierre para que la reconvergencia sea observable
 
 ### S-39 · Emisión del escenario único de validación (base citable del capítulo 8)
 
-**Estado:** `ABIERTA`
+**Estado:** `CERRADA Y RESUELTA` (2026-11-12)
 **Dirigida a:** OpenCode
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-08
-**Gobierna:** D-25 (contrato de siete artefactos), D-26 (regla de signo de la holgura) y D-28 (escenario único).
+**Gobierna:** D-25 (contrato de siete artefactos), D-26 v2 (ventanas múltiples) y D-28 (escenario único).
 
 **Qué se pide.** Emitir **un solo escenario** de $480\ \text{s}$ a $2\ \text{Hz}$ que reúna todos los perfiles de la validación, con nombre `ESC-HIL-008_validacion_integrada` (el nombre evita la colisión con el benchmark T1). No se emiten escenarios adicionales.
 
@@ -2725,6 +2829,18 @@ Las fallas se sitúan antes del cierre para que la reconvergencia sea observable
 - Entregar el resultado del validador del proyecto junto con el árbol de archivos emitido.
 
 **Criterio de cierre.** Escenario emitido, validador en verde, semilla poblada en las catorce columnas, y tabla de ventanas declarada en `meta.json` con sus magnitudes. Con eso pasa a S-40 para ejecución.
+
+**Cierre y entrega (OPENCODE — 2026-11-12).**
+
+1. **Emitido y validado:** `ESC-HIL-008_validacion_integrada`, 480 s · 961 muestras · 9 archivos. R-A…R-M en verde, incluido R-E (ningún evento supera el 30 % de su `P_base`).
+2. **Semilla poblada:** las cuatro filas de `contingencias_telematicas.csv` (`78df90f5…`) publican hex de 8 — `15bd0646`, `d3676338`, `79cf4192`, `bb3b63c1`—; el defecto de S-O-19 no se repite.
+3. **Ventanas en `meta.json`:** `regimen_excedente` v2 con dos ventanas medidas y `ventanas_validacion` con las diez ventanas de la línea de tiempo; `contrato_contingencias` con sus cuatro filas y su SHA-256.
+4. **Desviaciones declaradas respecto de la tabla de esta solicitud**, todas por las reglas del propio generador:
+   - La recuperación solar de 300 → 800 W/m² **no puede ser un escalón**: R-D limita el cambio de POA al 30 % del nominal por paso y R-E limita cada evento al 30 %. Se emite como tres rampas de ×1.3 (300, 305 y 310 s) y la ventana excedentaria empieza en `t = 315.5 s`, no en 300 s.
+   - El sombreado «abrupto» se emite como escalón de −240 W/m² (de 587 a 347 W/m²), que es el máximo que R-E admite en un evento.
+   - La POA emitida es 836.8 W/m² en la meseta y 765.5 W/m² tras la recuperación, no 800 W/m²: el perfil se escala con `POA_base` y la forma del día.
+   - Las ventanas de excedente se declaran `perturbacion: recurso` porque el escalón de carga (150 s) y la rampa (300 s) quedan **fuera** del intervalo declarado; el campo `causa` documenta el origen.
+5. **Instalado sin activar:** `ACTIVO.txt` sigue en `ESC-HIL-003_consolidado_rev5`. S-40 queda habilitada.
 
 ---
 
