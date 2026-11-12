@@ -2609,3 +2609,39 @@ La incapacidad de observar dinámicamente la frontera de $96.3\,\text{ms}$ en el
 Se sugiere no modificar el banco ni alterar los escenarios canónicos vigentes, y en su lugar **incorporar este análisis teórico en el párrafo de alcance del retardo en la Sección 8 del Capítulo 8**:
 > *«La cota analítica $\tau_{\text{crit}} = 96.3\,\text{ms}$ define el límite de estabilidad ante retardo continuo equivalente. En la realización ciberfísica implementada, el muestreo discreto a $\Delta t = 500\,\text{ms}$ introduce una discretización temporal donde cualquier latencia intra-paso ($\tau < \Delta t$) es absorbida por la barrera síncrona del ciclo sin inducir retardo de muestra ($d=0$), confiriendo al sistema inmunidad práctica a latencias de red mientras no se supere el período de macro-paso. La discriminación experimental intra-paso exigiría elevar la frecuencia del consenso a $\ge 50\,\text{Hz}$, lo cual se plantea como línea de trabajo futuro»*.
 
+
+---
+
+### D-27 · Alcance experimental del banco: qué se demuestra con datos y qué no
+
+**Estado:** `CONGELADA`
+**Origen:** decisión del autor (2026-11-08), a partir del bloque de rigor numérico y de S-37/S-38.
+**Gobierna:** el cuarto objetivo específico, la pregunta de investigación, el resumen de la portada, el marco de evaluación del capítulo 8 y la declaración de cierre.
+
+**Decisión.** La tesis se acota a lo que el banco puede demostrar con datos. La validación experimental comprende **tres cosas y solo tres**:
+
+1. **Consenso entre agentes para la restitución de tensión y frecuencia**, con reparto proporcional de potencia activa y reactiva (niveles T1 y T2, familia de déficit).
+2. **Pérdida de paquetes** entre agentes y su efecto sobre la convergencia del consenso (5,38 % de paquetes descartados en la campaña de resiliencia).
+3. **Desconexión de enlace**, ejercida como corte total del enlace 1↔2 durante 30 s, con reconvergencia posterior.
+
+**Queda declarado como capacidad no ensayada**, y así debe decirlo el manuscrito:
+
+| Elemento | Estado real | Cómo se declara |
+|---|---|---|
+| Latencia telemétrica | registrada como metadato; no materializada por el proxy | límite estructural del banco: $	au_{crit} = 96.3\ 	ext{ms}$ inobservable frente a $\Delta t = 500\ 	ext{ms}$ |
+| Corrupción de datos | modelo de Gilbert-Elliott implementado, sin escenario ejecutado | capacidad del emulador, no contingencia de la validación |
+| Excedente de generación | absorción en BESS y recorte del PV implementados (S-36), escenarios emitidos, sin corrida | trabajo futuro |
+| Generación eólica e hidrocinética | modelos implementados, no instanciados en el banco de ocho nodos | trabajo futuro |
+
+**Fundamento.** El banco resuelve el consenso a $\Delta t = 500\ 	ext{ms}$. El operador de retardo efectivo es discreto, $d = \lfloor \tau / \Delta t \rfloor$, de modo que todo retardo menor que un macro-paso no altera el índice de entrega: medir latencia exigiría un paso de consenso del orden de $20\ 	ext{ms}$, incompatible con el ancho de banda de un enlace telemétrico de microrred aislada y con el determinismo lock-step del clúster. La pérdida de paquetes y la desconexión de enlace, en cambio, son observables con la resolución actual porque cambian el conjunto de vecinos disponibles en cada ciclo.
+
+**Ediciones derivadas que deben aplicarse en el manuscrito:**
+
+- [ ] `OBJETIVOS.tex` — el cuarto objetivo específico deja de exigir latencia y corrupción; pide evaluación de la convergencia bajo pérdida de paquetes y desconexión de enlace.
+- [ ] `PROBLEMA.tex` — la pregunta de investigación se acota a esas dos contingencias.
+- [ ] `PORTADA.tex` — el resumen declara el alcance real; la tolerancia a fallos se enuncia como pérdida de paquetes y desconexión.
+- [ ] `RESULTADOS.tex` — el marco de tres familias se reduce: familia de déficit (plena), familia de fallas (restringida a pérdida y desconexión), familia de excedente (declarada sin cifras).
+- [ ] `RESULTADOS.tex` — el párrafo «Cierre del capítulo y trabajo pendiente» se reescribe: lo pendiente pasa de dos familias a una, porque la desconexión de enlace ya se ensayó.
+- [ ] `IMPLEMENTACION.tex` — el emulador declara latencia y corrupción como capacidades no ejercitadas en la validación.
+
+**Lo que NO cambia.** Los capítulos de teoría y de implementación pueden seguir describiendo latencia, corrupción y excedente: son capacidades del sistema y del emulador. Lo que se acota es **lo que se afirma demostrado**, no lo que se describe implementado.
