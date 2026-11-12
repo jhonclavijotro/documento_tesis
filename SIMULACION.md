@@ -2850,7 +2850,9 @@ Las fallas se sitúan antes del cierre para que la reconvergencia sea observable
 **Dirigida a:** Antigravity
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-08
-**Depende de:** S-39 (emisión del escenario `ESC-HIL-008_validacion_integrada`).
+**Depende de:** S-39
+
+> **Nota de HERMES (2026-11-12) — ejecución diferida por disponibilidad de banco.** No hay fallo técnico: la corrida espera el próximo acceso al clúster de Raspberry, que es cuando Antigravity tiene orden de ejecutarla. El directorio `outputs/validation/results/20261112T100832_ESC-HIL-008_validacion_integrada_seed42` existe pero está **vacío** (0 archivos, sin manifiesto ni telemetría): es un artefacto fantasma de un intento sin datos y no debe citarse. Mientras no exista una corrida con manifiesto verificado, el capítulo 8 conserva las citas vigentes y `CURRENT.json` no se modifica. (emisión del escenario `ESC-HIL-008_validacion_integrada`).
 
 **Qué se pide.** Ejecutar el escenario único en el banco y certificarlo con `run_id` nuevo, manifiesto y telemetría. Cinco puntos concretos:
 
