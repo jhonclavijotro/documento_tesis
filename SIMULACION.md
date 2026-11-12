@@ -2645,3 +2645,36 @@ Se sugiere no modificar el banco ni alterar los escenarios canónicos vigentes, 
 - [ ] `IMPLEMENTACION.tex` — el emulador declara latencia y corrupción como capacidades no ejercitadas en la validación.
 
 **Lo que NO cambia.** Los capítulos de teoría y de implementación pueden seguir describiendo latencia, corrupción y excedente: son capacidades del sistema y del emulador. Lo que se acota es **lo que se afirma demostrado**, no lo que se describe implementado.
+
+---
+
+### D-28 · Escenario único de validación (base citable) y reparto de trabajo
+
+**Estado:** `CONGELADA`
+**Origen:** decisión del autor (2026-11-08). Deroga la práctica de citar escenarios parciales y establece **una sola corrida citable** para el capítulo 8.
+**Gobierna:** los escenarios de OpenCode, la campaña de Antigravity y las citas del manuscrito.
+
+**Decisión.** Se define un único escenario de $480\ \text{s}$ a $2\ \text{Hz}$ ($961$ muestras) que reúne, en una sola corrida certificada, los tres objetos de D-27 más el régimen excedentario, que pasa a **ensayado** y no a trabajo futuro.
+
+| Ventana | Evento | Objeto de evidencia |
+|---|---|---|
+| 0–40 s | acoplamiento y convergencia inicial, irradiancia $800\ \text{W/m}^2$, carga base | consenso inicial |
+| 40–100 s | régimen isócrono sin eventos | línea base de $f$ y $V$ |
+| 100–150 s | rampa positiva de carga | seguimiento ante perturbación lenta |
+| 150–200 s | escalón negativo de carga | **excedente**: inversión de $P_{\text{net}}$, absorción del BESS, subida de SoC |
+| 200–250 s | sombreado suave: $800 \to 550\ \text{W/m}^2$ en 30 s | déficit moderado, respuesta del diésel |
+| 250–300 s | sombreado abrupto: $550 \to 300\ \text{W/m}^2$ en escalón | déficit severo, $f_{nadir}$ |
+| 300–360 s | recuperación de irradiancia y rampa negativa de carga | **excedente con recorte**: `curtail_ratio` < 1 |
+| 360–410 s | pérdida de paquetes del 20 % bidireccional en el enlace 2↔3 | consenso bajo pérdida |
+| 410–440 s | desconexión total del enlace 1↔2 (30 s, 60 muestras) | reconvergencia tras cambio de topología |
+| 440–480 s | cola limpia sin eventos | evidencia de restablecimiento |
+
+Las fallas se sitúan antes del cierre para que la reconvergencia sea observable, y el régimen excedentario aparece **dos veces** (ventanas 4 y 7) por dos causas distintas: exceso de generación por caída de carga y por recuperación de irradiancia.
+
+**Reparto de trabajo.**
+
+- **OpenCode (S-39):** emitir el escenario con el contrato D-25 completo, los siete artefactos con `contingencias_telematicas.csv` **y semilla poblada** (defecto de S-O-19), cada ventana declarada con su tipo de evento y su magnitud.
+- **Antigravity (S-40):** ejecutarlo y certificar con `run_id` nuevo, manifiesto y telemetría; informar si el banco sostiene la ventana de desconexión y si el recorte del PV queda registrado en la telemetría.
+- **HERMES:** reemplazar en el capítulo 8 todas las citas de corrida por el `run_id` nuevo, ajustar objetivo, pregunta y resumen según D-27, y archivar `ESC-HIL-001/003` y la campaña `20261108T170925` como **superadas**, sin borrarlas.
+
+**Regla de sustitución.** Lo citado no se elimina: se archiva con nota de procedencia y el manuscrito pasa a citar el escenario único. Ninguna afirmación publicada queda sin respaldo.
