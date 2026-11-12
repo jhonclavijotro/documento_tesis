@@ -48,6 +48,8 @@ El módulo \texttt{Central\_PC/master\_clock\_zmq.py} implementa un servidor sí
     \item \textbf{Política de Retención de Último Estado (\textit{Hold Last Value}):} Si un nodo experimenta una desconexión o latencia transitoria superior a \texttt{RCVTIMEO}, el solucionador central no interrumpe el ciclo de simulación global; en su lugar, retiene la última potencia válida inyectada ($P_i(t_{K-1}), Q_i(t_{K-1})$), permitiendo la continuidad operativa y registrando el evento de alarma telemétrica.
 \end{enumerate}
 
+Los inversores de acoplamiento operan en baja tensión, con referencia de bus de continua de $400\ \text{V}$, y se conectan a la red de media tensión a través de un transformador elevador. El modelo representa esa etapa como un cambio de base al nivel de $13.8\ \text{kV}$ en el cálculo nodal por unidad: la red de ocho barras se resuelve en su base de $400\ \text{V}$ y $10\ \text{kVA}$, y la tensión que cada nodo reporta al lazo de consenso se expresa en por unidad sobre la base de media tensión. El transformador no incorpora relación de transformación explícita ni impedancia de cortocircuito, de modo que el acoplamiento entre niveles es ideal y el reparto de potencia no incluye pérdidas de transformación. Generalizar esa etapa —bases declaradas por barra, relación de transformación e impedancia de cortocircuito, y acople entre más de dos niveles de tensión— se declara como trabajo futuro.
+
 \subsubsection{Solucionadores de Red Nodal Desarrollados}
 El PC Central incorpora dos motores matemáticos desarrollados desde primeros principios en Python puro y NumPy, sin requerir dependencias de librerías de terceros (como Pandapower):
 \begin{itemize}
