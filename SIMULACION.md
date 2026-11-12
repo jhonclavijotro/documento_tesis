@@ -2678,3 +2678,69 @@ Las fallas se sitúan antes del cierre para que la reconvergencia sea observable
 - **HERMES:** reemplazar en el capítulo 8 todas las citas de corrida por el `run_id` nuevo, ajustar objetivo, pregunta y resumen según D-27, y archivar `ESC-HIL-001/003` y la campaña `20261108T170925` como **superadas**, sin borrarlas.
 
 **Regla de sustitución.** Lo citado no se elimina: se archiva con nota de procedencia y el manuscrito pasa a citar el escenario único. Ninguna afirmación publicada queda sin respaldo.
+
+---
+
+### S-39 · Emisión del escenario único de validación (base citable del capítulo 8)
+
+**Estado:** `ABIERTA`
+**Dirigida a:** OpenCode
+**Solicitante:** HERMES
+**Fecha de apertura:** 2026-11-08
+**Gobierna:** D-25 (contrato de siete artefactos), D-26 (regla de signo de la holgura) y D-28 (escenario único).
+
+**Qué se pide.** Emitir **un solo escenario** de $480\ \text{s}$ a $2\ \text{Hz}$ que reúna todos los perfiles de la validación, con nombre `ESC-HIL-008_benchmark_unico`. No se emiten escenarios adicionales.
+
+**Línea de tiempo obligatoria.**
+
+| Ventana | Evento | Magnitud a declarar |
+|---|---|---|
+| 0–40 s | sin eventos, irradiancia base | $G = 800\ \text{W/m}^2$, carga base del banco |
+| 40–100 s | sin eventos | idem, ventana de referencia |
+| 100–150 s | rampa positiva de carga | rampa lineal entre $100$ y $120\ \text{s}$, escalón total declarado en kW |
+| 150–200 s | **escalón negativo de carga** | descenso instantáneo en $t = 150\ \text{s}$ que **invierte el signo** de la holgura |
+| 200–250 s | sombreado suave | $G: 800 \to 550\ \text{W/m}^2$ en rampa de $30\ \text{s}$, a partir de $t = 200\ \text{s}$ |
+| 250–300 s | sombreado abrupto | $G: 550 \to 300\ \text{W/m}^2$ en escalón en $t = 250\ \text{s}$ |
+| 300–360 s | recuperación de irradiancia y rampa negativa de carga | $G: 300 \to 800\ \text{W/m}^2$ en escalón en $t = 300\ \text{s}$ más rampa de carga; debe producir **recorte del PV** |
+| 360–410 s | pérdida de paquetes | $20\,\%$ bidireccional en el enlace 2↔3, ventana declarada |
+| 410–440 s | desconexión de enlace | corte total 1↔2 durante $30\ \text{s}$ ($60$ muestras) |
+| 440–480 s | cola limpia | sin eventos, para observar restablecimiento |
+
+**Requisitos del contrato D-25, verificables uno por uno:**
+
+1. Los **siete artefactos**, incluido `contingencias_telematicas.csv`.
+2. **Semilla poblada** en las catorce columnas de contingencias: ocho caracteres hexadecimales, no vacía. Este es el defecto exacto que abrió S-O-19 y no debe repetirse.
+3. Cada contingencia con `inicio_s`, `fin_s`, tipo de falla, enlaces afectados y semilla.
+4. `meta.json` con la declaración de ventanas y el identificador del escenario.
+5. Topología de ocho nodos con **diésel como nodo slack**, solar y BESS como recursos activos y las barras de carga. Eólico e hidrocinético **no se instancian** (D-27).
+6. Ninguna magnitud debe sacar al banco de su envolvente: demanda por debajo de la capacidad firme en las ventanas de déficit y holgura positiva declarada en las de excedente, con la regla de signo de D-26.
+
+**Restricciones de operación.**
+
+- **No sobrescribir** `ESC-HIL-001`, `ESC-HIL-003_consolidado_rev5`, `ESC-HIL-005`, `ESC-HIL-006` ni `ESC-HIL-007`. Quedan como predecesores.
+- **No tocar `ACTIVO.txt`** hasta que el escenario esté validado; la activación la decide el autor.
+- Entregar el resultado del validador del proyecto junto con el árbol de archivos emitido.
+
+**Criterio de cierre.** Escenario emitido, validador en verde, semilla poblada en las catorce columnas, y tabla de ventanas declarada en `meta.json` con sus magnitudes. Con eso pasa a S-40 para ejecución.
+
+---
+
+### S-40 · Ejecución y certificación del escenario único
+
+**Estado:** `ABIERTA`
+**Dirigida a:** Antigravity
+**Solicitante:** HERMES
+**Fecha de apertura:** 2026-11-08
+**Depende de:** S-39 (emisión del escenario `ESC-HIL-008_benchmark_unico`).
+
+**Qué se pide.** Ejecutar el escenario único en el banco y certificarlo con `run_id` nuevo, manifiesto y telemetría. Cinco puntos concretos:
+
+1. **Corrida certificada**: $480\ \text{s}$ a $2\ \text{Hz}$, $961$ muestras, `run_id` con marca temporal, manifiesto con hashes y `CURRENT.json` actualizado. Ninguna corrida anterior se sobrescribe: se archivan como superadas.
+2. **Verificación del régimen excedentario**: en las ventanas 150–200 s y 300–360 s comprobar en la telemetría que $P_{\text{net}}$ invierte el signo, que el SoC del BESS **sube** y que el factor de recorte del PV queda registrado y es menor que la unidad cuando la absorción se satura. Si el recorte no queda en la telemetría, decirlo: el capítulo no puede afirmar un fenómeno que no se registra.
+3. **Verificación de la ventana de desconexión**: $60$ muestras con el enlace 1↔2 cortado, y al menos $40\ \text{s}$ posteriores sin eventos en los que se observe la reconvergencia del consenso.
+4. **Confirmación de capacidad del banco**: informar si el banco sostiene sin desbordamiento de tiempo real una corrida de $480\ \text{s}$ con tres recursos y las ventanas de falla declaradas. Si no la sostiene, proponer la ventana máxima sostenible y su justificación medida.
+5. **Informe de cierre**: set de hashes de telemetría, manifiesto y contingencias, la tabla de ventanas con los valores efectivamente registrados, y una nota final con lo que la corrida demuestra y lo que no.
+
+**Lo que NO se toca.** `SECCIONES/*.tex` es competencia de HERMES. No se modifican los escenarios predecesores ni la campaña de resiliencia `20261108T170925`, que se archiva, no se borra.
+
+**Criterio de cierre.** Manifiesto verificado contra disco, telemetría de $961$ muestras, tabla de ventanas con valores efectivos y nota de alcance. Con eso el capítulo 8 cambia sus citas al `run_id` nuevo y el escenario queda como base citable.
