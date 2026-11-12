@@ -281,7 +281,7 @@ La deducción de esta condición operativa se desarrolla a continuación. La pot
 P_{\text{gen}} = P_{\text{dem}} - P_{\text{net}} = 12.594 - 1.980 = 10.614\ \text{kW}
 \]
 
-Esa potencia se repartió entre los tres recursos del banco. El nodo solar aportó $0.535\text{ kW}$ con una irradiancia cercana a $325.6\text{ W/m}^2$, el BESS entregó $1.500\text{ kW}$, valor que corresponde a su límite continuo, y el diésel asumió el resto con $8.579\text{ kW}$ eléctricos:
+Esa potencia se repartió entre los tres recursos del banco. El nodo solar aportó $0.535\text{ kW}$ con una irradiancia cercana a $325.6\text{ W/m}^2$, el BESS entregó $1.5\text{ kW}$, valor que corresponde a su límite continuo, y el diésel asumió el resto con $8.579\text{ kW}$ eléctricos:
 
 \[
 P_{\text{eje}} = \frac{8.579}{0.95} = 9.03\ \text{kW}
@@ -290,7 +290,7 @@ P_{\text{eje}} = \frac{8.579}{0.95} = 9.03\ \text{kW}
 donde $0.95$ es el rendimiento adoptado para el conjunto generador. La capacidad firme a $60.0\text{ Hz}$ se obtiene sumando la capacidad del diésel, la del BESS y el aporte solar disponible:
 
 \[
-P_{\text{firme}} = 9.500 + 1.500 + 0.535 = 11.535\ \text{kW}
+P_{\text{firme}} = 9.5 + 1.5 + 0.535 = 11.535\ \text{kW}
 \]
 
 de modo que el déficit de capacidad frente a la demanda de la fase resulta:
@@ -370,7 +370,7 @@ Una tercera amenaza a la validez afecta la interpretación conjunta de los dos n
 
 \subsection{Síntesis de resultados}
 
-La Tabla~\ref{tab:res_sintesis} cruza las seis dimensiones evaluadas con la evidencia disponible en cada nivel. La columna final indica la fuente de la cifra, con el objeto de que el lector pueda verificar qué afirmaciones se sostienen en el benchmark, cuáles en la telemetría del banco y cuáles en ambos.
+La Tabla~\ref{tab:res_sintesis} cruza las seis dimensiones evaluadas con la evidencia disponible en cada nivel. La columna final indica la fuente de cada cifra, para que el lector verifique qué afirmaciones se sostienen en el benchmark, cuáles en la telemetría del banco y cuáles en ambos.
 
 \begin{table}[H]
     \centering
@@ -401,7 +401,7 @@ La Tabla~\ref{tab:res_sintesis} cruza las seis dimensiones evaluadas con la evid
 \end{table}
 
 
-Los hallazgos que se desprenden del cruce son los siguientes:
+El cruce deja seis hallazgos:
 
 \begin{itemize}
     \item El esquema de consenso en tiempo fijo aprobó los ocho criterios del benchmark con CFL de $0.84$ y $\tau_{crit}$ de $96.3\text{ ms}$, y fue el único, junto con el FTS publicado, en hacerlo sin ceder reparto ni margen numérico.
@@ -414,7 +414,7 @@ Los hallazgos que se desprenden del cruce son los siguientes:
 
 \subsection{Cierre del capítulo y trabajo pendiente}
 
-Este capítulo no se cierra con conclusiones, y la razón es verificable en el marco de evaluación: dos de las tres familias de prueba siguen sin ensayo ejecutado. La familia de excedente de generación cuenta con la capacidad implementada y con dos escenarios emitidos e instalados (el perfil con ventana declarada y su referencia sin excedente), pero ninguno se ha corrido, de modo que la absorción en la batería y el recorte de la fuente fotovoltaica no tienen todavía evidencia empírica. La familia de fallas de comunicación sí tiene el ensayo que se reporta en este capítulo, ejecutado sobre el ejecutor de la plataforma con inyección programada de fallas, pero su réplica sobre el clúster físico de seis nodos y la campaña de semillas múltiples permanecen pendientes.
+Este capítulo no se cierra con conclusiones, y la razón es verificable en el marco de evaluación: dos de las tres familias de prueba siguen sin ensayo ejecutado. La familia de excedente de generación cuenta con la capacidad implementada y con dos escenarios emitidos e instalados (el perfil con ventana declarada y su referencia sin excedente), pero ninguno se ha corrido. La absorción en la batería y el recorte de la fuente fotovoltaica no tienen todavía evidencia empírica. La familia de fallas de comunicación sí tiene el ensayo que se reporta en este capítulo, ejecutado sobre el ejecutor de la plataforma con inyección programada de fallas. Su réplica sobre el clúster físico de seis nodos y la campaña de semillas múltiples permanecen pendientes.
 
-Consolidar conclusiones antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Lo que este capítulo establece es el desempeño del esquema propuesto en el benchmark numérico, en el banco de hardware en el lazo bajo la familia de déficit y en la campaña de resiliencia sobre el ejecutor; lo que falta es la ejecución que permita cerrar el balance de las tres familias y, con él, las conclusiones y el trabajo futuro del documento.
+Consolidar conclusiones antes de esas dos corridas afirmaría más de lo que la evidencia sostiene. Lo que este capítulo establece es el desempeño del esquema propuesto en el benchmark numérico, en el banco de hardware en el lazo bajo la familia de déficit y en la campaña de resiliencia sobre el ejecutor. Lo que falta es la ejecución que cierre el balance de las tres familias y, con él, las conclusiones y el trabajo futuro del documento.
 
