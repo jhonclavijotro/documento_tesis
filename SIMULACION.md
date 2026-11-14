@@ -3593,3 +3593,103 @@ Escenario emitido en `Forms/escenarios_generados/ESC-HIL-010_validacion_integrad
 **Criterio de aceptación.** Ambos emitidos con `SoC_0` declarado en `meta.json`, los siete artefactos de D-25, y la ventana de saturación identificada en `reporte_capacidad.md`.
 
 > **Respuesta y cierre de OPENCODE (2026-11-14) — emitidos con re-scope (D-30).** `ESC-HIL-011a_soc_alto` (`escenario.yaml` `cfa485ac…`) y `ESC-HIL-011b_soc_bajo` (`7784727d…`) están instalados y validados (361 muestras a 2 Hz). **No se presentan como alcance de los topes 0,95/0,20:** con 96 kWh (480 V × 200 Ah) y 180 s el ΔSoC es 0,00156, y llegar de 0,93 a 0,95 exige ≈2 304 s (38 min). Se re-scopean como ensayos de **activación del derating**: 011a con `P_charge_max = 600 W` y 011b con `P_disponible = 86 W`. Se declaran **no comparables** con 008 y no sustituyen a nada.
+
+---
+
+## D-31 · Cambio de arquitectura de validación: escenarios independientes en lugar de escenario único
+
+**Fecha:** 2026-11-14 · **Decisión del autor** · **Gobierna el diseño de la evidencia del capítulo 8.**
+
+**Contexto.** La corrida `20261114T110952_ESC-HIL-010_validacion_integrada_v2_seed42` de 660 s no alcanza régimen permanente: la frecuencia oscila entre 59,423 y 60,733 Hz y los últimos 60 s mantienen 1,207 Hz pico a pico. El diagnóstico está verificado en código: dos integradores sobre la misma variable (diésel con $k_i = 80$ W/(rad/s) y BESS con `bess_p_int -= 2000·Δf·0,5` en `distributed_node_runner.py:404`) más un recorte solar conmutado al 15 % configuran un oscilador de relajación. El escenario `ESC-HIL-011a` incurre además en un diseño infactible: $P_{1,\min} + \gamma_{\min} P_{PV} = 4{,}0$ kW supera la carga de 3,5 kW.
+
+**Decisión.**
+
+1. **Se abandona el escenario macro como base citable.** La familia de escenarios encadenados (`ESC-HIL-008`, `ESC-HIL-010`) queda como **ensayo exploratorio documentado**: sus artefactos se conservan, sus cifras pueden citarse como caracterización del banco y de la interacción de controladores, pero **no sostienen afirmaciones de regulación**.
+2. **La evidencia del capítulo pasa a una familia de escenarios independientes.** Un escenario, una variable estresada, una condición inicial declarada, una sola perturbación.
+3. **Ningún escenario se emite sin `reporte_factibilidad.md`** que evalúe, antes de correr, la desigualdad
+   $$P_{1,\min} + \gamma_{\min} P_{PV} \;\le\; P_{\text{carga}} \;\le\; P_{1,\max} + P_{PV} + P_{\text{BESS,desc}}$$
+   con los números propios del escenario, y el margen de SoC frente al excedente esperado.
+4. **Los escenarios de frecuencia exigen el controlador corregido**: BESS en droop proporcional puro con la ganancia que declara `IMPLEMENTACION.tex` ($\kappa_{\text{BESS}} = 40$ W/(rad/s)) y recorte solar continuo con banda muerta. Correrlos con el integrador del BESS reproduce el ciclo límite y no mide nada.
+
+**Razón de fondo.** Un defecto de control en un escenario encadenado contamina todas sus ventanas y obliga a descartar la corrida completa; en escenarios independientes queda encerrado en uno solo y los demás conservan su valor probatorio. Además, cada escenario se mapea a una afirmación concreta del capítulo.
+
+---
+
+### S-O-28 · Emisión del primer lote: S1, S2 y S3 (escenarios independientes de régimen)
+
+**Estado:** `ABIERTA`
+**Dirigida a:** OpenCode
+**Solicitante:** HERMES
+**Fecha de apertura:** 2026-11-14
+**Depende de:** D-31 (arquitectura de validación), D-25 (contrato de siete artefactos) y la corrección del controlador de frecuencia por ANTIGRAVITY (BESS en droop puro, recorte solar continuo). Sin esa corrección los escenarios S2 y S3 reproducen el ciclo límite.
+
+**Qué se pide.** Emitir **tres escenarios independientes** de **120 s a 2 Hz (241 pasos)**, con topología de 8 nodos, bus de 400 V y $P_{1,\min} = 3{,}5$ kW (calibración antihunting). No se modifica `ESC-HIL-010` ni `ESC-HIL-008`; ambos quedan como ensayo exploratorio según D-31.
+
+#### S1 · `ESC-HIL-012_diesel_nominal_isla`
+
+| Campo | Valor |
+|---|---|
+| POA | 0 W/m² (PV fuera de servicio) |
+| BESS | deshabilitado, SoC fijo en 0,50 |
+| Carga inicial | 6,0 kW |
+| Evento | $t = 40$ s: escalón de carga **+20 %** (7,2 kW) |
+| Ventana de observación | $[40, 100)$ s; cola $[100, 120]$ s |
+| Factibilidad | $3{,}5 \le 6{,}0 \le 10{,}0$ kW ✓ |
+
+**Qué demuestra.** Regulación isócrona del diésel sin interacción con otras fuentes: es la línea base de todo el resto. Si este escenario no se asienta, ningún otro es interpretable.
+
+**KPI.** $|e_f| \le 0{,}100$ Hz; $T_{set} \le 13{,}5$ s; ausencia de envolvente oscilatoria en la cola.
+
+#### S2 · `ESC-HIL-013_excedente_con_espacio`
+
+| Campo | Valor |
+|---|---|
+| POA | 800 W/m² constante |
+| SoC inicial | **0,50** |
+| Carga inicial | 6,5 kW |
+| Evento | $t = 40$ s: escalón de carga **−15 %** (5,525 kW) |
+| Excedente esperado | $\approx 1{,}1$ kW, menor que $P_{\text{carga,max}} = 3{,}0$ kW |
+| Ventana de observación | $[40, 100)$ s; cola $[100, 120]$ s |
+| Factibilidad | $3{,}97 \le 5{,}525 \le 13{,}16$ kW ✓; margen de SoC suficiente |
+
+**Qué demuestra.** Absorción del excedente por el BESS **sin recorte solar**: el caso que el capítulo afirma y que hoy no tiene una sola muestra que lo respalde con espacio disponible.
+
+**KPI.** `curtail_ratio` $= 1{,}0$ en toda la corrida; $P_{\text{BESS}} < 0$ sostenido; SoC en ascenso monótono; $|e_f| \le 0{,}100$ Hz.
+
+#### S3 · `ESC-HIL-014_excedente_sin_espacio`
+
+| Campo | Valor |
+|---|---|
+| POA | 800 W/m² constante |
+| SoC inicial | **0,93** |
+| Carga inicial | 6,5 kW |
+| Evento | $t = 40$ s: escalón de carga **−15 %** (5,525 kW) |
+| Ventana de observación | $[40, 100)$ s; cola $[100, 120]$ s |
+| Factibilidad | $3{,}97 \le 5{,}525$ kW ✓; el BESS no puede absorber el excedente por proximidad al techo de 0,95 |
+
+**Qué demuestra.** El recorte solar como sumidero cuando el almacenamiento no tiene margen. Es el contrapunto exacto de S2: misma perturbación, misma POA, distinto estado de carga. La comparación entre ambos aísla el efecto del SoC sin confundirlo con el del evento.
+
+**KPI.** `curtail_ratio` $< 1$ con $P_{\text{curtailed}} > 0$; SoC sin superar 0,95; $|e_f| \le 0{,}100$ Hz.
+
+#### Condiciones comunes
+
+1. **Una sola perturbación por escenario.** Nada de eventos encadenados.
+2. **$P_{1,\min} = 3{,}5$ kW** declarado en `meta.json`.
+3. **`reporte_factibilidad.md`** con la desigualdad evaluada y el margen de SoC calculado con los números del escenario.
+4. **Semilla poblada** en el 100 % de las filas de `contingencias_telematicas.csv` (en S1–S3 la columna existe y va vacía de eventos, pero la semilla debe estar declarada).
+5. **Mismo perfil de demanda base** en los tres, para que S2 y S3 sean comparables entre sí y S1 con ambos.
+
+#### Entregables
+
+Los siete artefactos de D-25, más `reporte_validacion.md` y `reporte_factibilidad.md`, por escenario.
+
+#### Lo que NO se toca
+
+- `ESC-HIL-010` y `ESC-HIL-008` quedan intactos como ensayo exploratorio.
+- `ACTIVO.txt` no se modifica.
+- `SECCIONES/*.tex` es competencia de HERMES.
+- No se pide ejecución: emitir es de OpenCode, correr es de ANTIGRAVITY.
+
+#### Criterio de aceptación
+
+Tres escenarios emitidos en `Forms/escenarios_generados/` con 241 pasos a 2 Hz verificables, la condición inicial declarada en `meta.json`, el `reporte_factibilidad.md` con la desigualdad evaluada y el mismo perfil de demanda base en los tres. Si algún escenario no satisface su propia desigualdad de factibilidad, se corrige antes de emitirse: no se entrega un escenario infactible como el 011a.
