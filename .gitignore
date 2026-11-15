@@ -11,6 +11,7 @@
 *.synctex.gz
 *.run.xml
 main.pdf
+build/
 
 # Respaldos
 _backups/
@@ -25,3 +26,20 @@ nul
 
 # Referencias bibliograficas (NO versionadas)
 DOCUMENTOS/
+
+# Excepciones: documentacion de trabajo de la tesis (SI versionada)
+!SIMULACION.md
+!SIMULACION_ARCHIVO.md
+!FIGURAS.md
+!INFORME_REVISION_GLOBAL.md
+!INFORME_REVISION_MATEMATICA.md
+!INFORME_REVISION_SIMULACION.md
+!INFORME_COHERENCIA_ESTRUCTURAL.md
+!INFORME_BIBLIOGRAFIA.md
+!INFORME_PERTINENCIA.md
+!INFORME_PERTINENCIA_LOTE2.md
+!INFORME_PERTINENCIA_LOTE3.md
+!INFORME_PERTINENCIA_LOTE4.md
+!INFORME_BARRIDO_CITAS.md
+!AUDITORIA_IMPLEMENTACION.md
+!figuras_conceptuales.py
