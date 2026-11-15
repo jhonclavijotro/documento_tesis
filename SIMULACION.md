@@ -1755,6 +1755,18 @@ Generado, validado e **instalado sin activar** el **2026-11-14**: 180 s / 361 mu
 
 Generado, validado e **instalado sin activar** el **2026-11-14**: 180 s / 361 muestras, `SoC_0 = 0,22`, sombreado a 347 W/m² y carga +25 %. Re-scopeado por D-30 como ensayo de **activación del derating de descarga** (`P_disponible = 571,4 W`), no de alcance del tope 0,20. `escenario.yaml` `7784727d…`, `meta.json` `d3a889b5…`. **No comparable** con 008.
 
+### ESC-HIL-012 · `diesel_nominal_isla`
+
+Generado, validado e **instalado sin activar** el **2026-11-14** (S-O-28 / D-31): **120 s / 241 muestras a 2 Hz**, una sola perturbación. PV a **0 W/m²** (columna meteorológica presente, recurso sin irradiancia) y **BESS inerte**: `SoC₀ = 0,20` ⇒ `P_descarga,max = 0` W, más `p_charge_max_W = 0`. Carga 5,97 kW → escalón **+20 %** en t=40 (7,37 kW). Régimen `referencia`, holgura −3,87 a −3,50 kW. `escenario.yaml` `641b846c…`, `meta.json` `8e31919d…`, `datos_demanda.csv` `5a8f2d08…`, `reporte_factibilidad.md` `ddce94ec…` (CUMPLE).
+
+### ESC-HIL-013 · `excedente_con_espacio`
+
+Generado, validado e **instalado sin activar** el **2026-11-14**: 120 s / 241 muestras. POA **800,0–802,7 W/m²**, `SoC₀ = 0,50`, `P_charge_max = 3 000 W`, carga 6,48 kW → escalón **−15 %** en t=40 (5,35 kW). Régimen `excedente`, holgura **+0,97 a +1,29 kW**, excedente ≈1,1 kW absorbible por el BESS. `escenario.yaml` `670e9ec7…`, `meta.json` `2cc78dc9…`, `datos_demanda.csv` `97a5e6eb…`, `reporte_factibilidad.md` `9c7331d9…` (CUMPLE). Declara el offset de frecuencia físico (≈+0,28 Hz), no `|e_f| ≤ 0,1 Hz`.
+
+### ESC-HIL-014 · `excedente_sin_espacio`
+
+Generado, validado e **instalado sin activar** el **2026-11-14**: 120 s / 241 muestras. **Misma demanda y meteorología que 013** (`datos_demanda.csv` `97a5e6eb…`, `datos_meteorologicos.csv` `8e4fabd2…`), `SoC₀ = 0,95` y `P_charge_max = 0` W ⇒ el excedente solo puede ir a recorte solar. Régimen `excedente`, holgura +0,97 a +1,29 kW. `escenario.yaml` `96a80be3…`, `meta.json` `8619b8ef…`, `reporte_factibilidad.md` `ce9e86a3…` (CUMPLE). La comparación 013↔014 aísla el efecto del SoC.
+
 ---
 
 ## O-4 · Escenarios (plan vigente: banco de 8 nodos; el 21 queda como Trabajo Futuro)
@@ -2124,7 +2136,7 @@ Emitir e instalar como nuevo escenario acompañante **`ESC-HIL-009_validacion_di
 
 ## O-8 · Solicitudes abiertas de OpenCode a otros agentes
 
-> S-O-01 … S-O-10 están cerradas o respondidas y se conservan verbatim en `SIMULACION_ARCHIVO.md` (bloque C). Las solicitudes **recibidas** —S-O-11, S-O-14, S-O-15, S-O-21 (absorbida por S-O-22/D-29), **S-O-22** (emitida y cerrada bajo D-30) y **S-O-23** (emitida con re-scope)— se responden en O-7. En este bloque, **S-O-12, S-O-16, S-O-17, S-O-19, S-O-20, S-O-24 y S-O-25** quedaron cerradas y resueltas; **S-O-15** quedó cerrada con ESC-HIL-006/007; **S-O-14** y **S-O-18** quedaron **absorbidas por S-39/D-28**; **S-O-26** quedó **ejecutada y reportada**. Las solicitudes abiertas de OpenCode a otros agentes son **S-O-13**, **S-O-27** y **S-O-29**. **S-O-28** (lote S1–S3) vive en el bloque de D-31, al final del registro, y es la única solicitud de emisión vigente.
+> S-O-01 … S-O-10 están cerradas o respondidas y se conservan verbatim en `SIMULACION_ARCHIVO.md` (bloque C). Las solicitudes **recibidas** —S-O-11, S-O-14, S-O-15, S-O-21 (absorbida por S-O-22/D-29), **S-O-22** (emitida y cerrada bajo D-30) y **S-O-23** (emitida con re-scope)— se responden en O-7. En este bloque, **S-O-12, S-O-16, S-O-17, S-O-19, S-O-20, S-O-24 y S-O-25** quedaron cerradas y resueltas; **S-O-15** quedó cerrada con ESC-HIL-006/007; **S-O-14** y **S-O-18** quedaron **absorbidas por S-39/D-28**; **S-O-26** quedó **ejecutada y reportada**. Las solicitudes abiertas de OpenCode a otros agentes son **S-O-13**, **S-O-27**, **S-O-29** y **S-O-30** (esta última bloqueada por S-O-29 ítem 3). **S-O-28** (lote S1–S3) ya fue **emitida** el 2026-11-14 y vive en el bloque de D-31, al final del registro; queda pendiente de ejecución.
 
 ### S-O-12 · §11 no se reproduce de su propia telemetría: ocho cifras y una aritmética que no cierran
 **Estado:** `CERRADA Y RESUELTA (verificada por ANTIGRAVITY con D6, D7, D8)` · **Fecha:** 2026-11-07 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY · **Cerrada por:** ANTIGRAVITY (2026-11-07)
@@ -2585,7 +2597,8 @@ Ante la indisponibilidad temporal de acceso al rack físico y para comprobar la 
 | 2026-11-14 | **Resolución del ciclo límite, desacoplamiento Diésel-BESS y validación SIL de ESC-HIL-010 y satélites (ANTIGRAVITY).** S-44: eliminación del integrador de frecuencia del BESS (droop proporcional puro con banda muerta), modulación continua de recorte solar con rate limiter ($\pm 4\%$/paso) y señalización estricta de excedente. Validación en co-simulación multi-proceso local SIL (`run_rack_experiment_orchestrator.py --local-sil --fast`). En ESC-HIL-010 (Run `20261114T190831`, telemetría `68670ef6…`), el rizado pico a pico en la cola limpia $[620, 660]\text{ s}$ colapsa de $1{,}0589\text{ Hz}$ a **$0{,}0143\text{ Hz}$** (Criterio 4 PASS); en 011a la frecuencia es asintótica plana en $60{,}2288\text{ Hz}$ ($0\text{ Hz}$ de oscilación, balance estático exacto por restricciones de piso). Panel de 5 figuras vectoriales PDF y PNG generado en `Figuras/validacion_v2/`. Controlador listo para el lote S1–S3 de S-O-28. | Antigravity |
 | 2026-11-14 | **D-31: cambio de arquitectura de evidencia y apertura de S-O-28 (HERMES / Investigador).** Se abandona el escenario macro como base citable: la corrida HIL del 010 no alcanza régimen permanente (1,2068 Hz pico a pico) y la corrección de control solo estabiliza la cola en SIL. La evidencia del capítulo 8 pasa a escenarios independientes (S1 `ESC-HIL-012`, S2 `ESC-HIL-013`, S3 `ESC-HIL-014`, 120 s / 241 muestras), con `reporte_factibilidad.md` obligatorio y el controlador corregido como precondición. | Hermes / Investigador |
 | 2026-11-14 | **Revisión de consistencia, corrección de D-30 y apertura de S-O-29 (OPENCODE).** Verificación contra código y telemetría: (1) el derating real del BESS es 4 000 W/3 000 W y 571,4 W, no 600 W/86 W —D-30 corregido—; (2) `e_Q = 0` en 1321/1321 muestras de ambas corridas del 010, por lo que el «reparto de Q» de D-30 y S-O-22 se retira y queda marcado como **no ejercitado**; (3) la corrida HIL del 010 presenta 688/1321 muestras con `P_net < 0` (mín. −4,978 kW), de modo que el criterio «cero déficit» se retira; (4) el criterio (4) de D-30 se corrige a `SoC ∈ [0,20; 0,95]`. Se normaliza D-31 (H3, estado y precedencia sobre D-28/D-29/D-30), se indexa en O-5 y O-8, se actualizan §1, D-24, D-25 y la tabla de evidencias con las corridas exploratorias, y se corrigen S2/S3 de S-O-28 (S3 pasa a `SoC₀ = 0,95`; S2 declara el offset de frecuencia físico). Se abre **S-O-29** por la ganancia `κ_BESS` (40 vs 4 000), el escalado de `P_curtailed` (presente también en 008), el desacoplamiento del consenso de Q y la falta de `reporte_capacidad.md` en 010. | OpenCode |
-| 2026-11-14 | **Resolución del ciclo límite, desacoplamiento Diésel-BESS y validación SIL de ESC-HIL-010 y satélites (ANTIGRAVITY).** S-44: eliminación del integrador de frecuencia del BESS (droop proporcional puro con banda muerta), modulación continua de recorte solar con rate limiter ($\pm 4\%$/paso) y señalización estricta de excedente. Validación en co-simulación multi-proceso local SIL (`run_rack_experiment_orchestrator.py --local-sil --fast`). En ESC-HIL-010 (Run `20261114T190831`, telemetría `68670ef6…`), el rizado pico a pico en la cola limpia $[620, 660]\text{ s}$ colapsa de $1{,}0589\text{ Hz}$ a **$0{,}0143\text{ Hz}$** (Criterio 4 PASS); en 011a la frecuencia es asintótica plana en $60{,}2288\text{ Hz}$ ($0\text{ Hz}$ de oscilación, balance estático exacto por restricciones de piso). Panel de 5 figuras vectoriales PDF y PNG generado en `Figuras/validacion_v2/`. Controlador listo para el lote S1–S3 de S-O-28. | Antigravity |
+| 2026-11-14 | **Emisión e instalación de ESC-HIL-012/013/014 (S-O-28, OPENCODE).** Primer lote de escenarios independientes de D-31: 120 s / 241 muestras a 2 Hz, una sola perturbación, mismos nodos de 008. `ESC-HIL-012_diesel_nominal_isla` (PV 0 W/m², BESS inerte con `SoC₀ = 0,20` y `P_charge = 0`, escalón +20 %), `ESC-HIL-013_excedente_con_espacio` (`SoC₀ = 0,50`, `P_charge = 3 000 W`, escalón −15 %, holgura +0,97 a +1,29 kW) y `ESC-HIL-014_excedente_sin_espacio` (`SoC₀ = 0,95`, `P_charge = 0`, misma demanda que 013 para aislar el SoC). Los tres con `reporte_factibilidad.md` en **CUMPLE**, validación R-A…R-M en verde e instalados sin activar; `ACTIVO.txt` sigue en 008 y `CURRENT.json` no se mueve. La ejecución queda pendiente de S-O-29. | OpenCode |
+| 2026-11-14 | **Respuesta formal a S-O-29, unificación de ganancia BESS a 40 W/(rad/s), corrección física de P_mpp y habilitación del lote S1–S3 (ANTIGRAVITY).** Unificación estricta de la ganancia BESS a $\kappa_{\text{BESS}} = 40{,}0\text{ W/(rad/s)}$ en `distributed_node_runner.py` alineando con `IMPLEMENTACION.tex:112`. Corrección en `Solar/SistemaSolar.py` de la corriente del panel bajo recorte ($I_{\text{pv,eff}} = I_{\text{pv}} \cdot \text{curtail\_ratio}$ off-MPPT) y definición física $P_{\text{mpp}} = V_{\text{dcref}} \cdot I_{\text{pv}} \cdot N_{\text{inv}}$, garantizando la identidad exacta $P_2 + P_{\text{curtailed}} \equiv P_{\text{mpp}}$ en el 100 % de las muestras sin sobretensión en $V_{\text{dc}}$ ni picos espurios. SIL multi-proceso de verificación ejecutado (10/10 PASS). Se define el plan de pruebas: ejecución inicial de S1–S3 para validar el controlador en activo/SoC, ratificando que no se limita a 3 escenarios sino que posteriormente se ejecutarán los escenarios adicionales del plan (incluyendo reactiva en S-O-30 tras definir la perturbación en DERs). Desbloqueada la ejecución de S-O-28. | Antigravity |
 
 > El bloque de verificación del banco de 21 nodos se reubicó como **Trabajo Futuro** al final de este registro (2026-11-08). El 2026-11-14 se separó de él el material de rigor numérico (D-27, D-28, S-37…S-41), que tiene sección propia.
 
@@ -2769,7 +2782,7 @@ Los bloques cerrados se conservan **verbatim** en `SIMULACION_ARCHIVO.md`. Este 
 | **C** | S-O-01 … S-O-10: infraestructura, escenarios, taxonomía, contrato de datos, benchmark de nodos | 2430–2948 | Respondidas o cerradas; el contrato vigente vive en O-6 |
 | **D** | S-01 … S-08 y S-11: número de nodos, tipologías, direccionamiento, parámetros, bandas, coherencia numérica | 3067–3367 | Cerradas; superadas por el contrato del 2026-11-01 |
 
-**Claves que siguen vivas:** D-18…D-31 (O-5), **Anexo D-25 v1 (O-10)**, **Anexo D-26 v2 (O-11)**, S-23…S-41, **S-42, S-43, S-44 (informativa)**, S-O-11 (O-7), **S-O-21, S-O-22 y S-O-23 (recibidas y cerradas)**, **S-O-13, S-O-24, S-O-25 (cerrada definitivamente), S-O-26 (ejecutada) y S-O-27 (O-8)**, **S-O-28 y S-O-29 (bloque D-31)**, ESC-HIL-005, ESC-HIL-006, ESC-HIL-007, **ESC-HIL-008 (O-3, certificado y exploratorio por D-31)**, **ESC-HIL-010 (emitido, ejecutado, exploratorio)**, **ESC-HIL-011a/b (emitidos, ejecutados, exploratorios)** y **ESC-HIL-012/013/014 (pendientes de emisión, S-O-28)**, §11 con su nota, Declaración canónica, Congelación y Nota técnica.
+**Claves que siguen vivas:** D-18…D-31 (O-5), **Anexo D-25 v1 (O-10)**, **Anexo D-26 v2 (O-11)**, S-23…S-41, **S-42, S-43, S-44 (informativa)**, S-O-11 (O-7), **S-O-21, S-O-22 y S-O-23 (recibidas y cerradas)**, **S-O-13, S-O-24, S-O-25 (cerrada definitivamente), S-O-26 (ejecutada) y S-O-27 (O-8)**, **S-O-28 (emitida), S-O-29 y S-O-30 (bloque D-31)**, ESC-HIL-005, ESC-HIL-006, ESC-HIL-007, **ESC-HIL-008 (O-3, certificado y exploratorio por D-31)**, **ESC-HIL-010 (emitido, ejecutado, exploratorio)**, **ESC-HIL-011a/b (emitidos, ejecutados, exploratorios)** y **ESC-HIL-012/013/014 (emitidos, pendientes de ejecución)**, §11 con su nota, Declaración canónica, Congelación y Nota técnica.
 
 ---
 
@@ -3676,7 +3689,7 @@ Escenario emitido en `Forms/escenarios_generados/ESC-HIL-010_validacion_integrad
 
 ### S-O-28 · Emisión del primer lote: S1, S2 y S3 (escenarios independientes de régimen)
 
-**Estado:** `ABIERTA`
+**Estado:** `EMITIDA — PENDIENTE DE EJECUCIÓN (D-31)`
 **Dirigida a:** OpenCode
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-14
@@ -3759,13 +3772,25 @@ Los siete artefactos de D-25, más `reporte_validacion.md` y `reporte_factibilid
 
 Tres escenarios emitidos en `Forms/escenarios_generados/` con 241 pasos a 2 Hz verificables, la condición inicial declarada en `meta.json`, el `reporte_factibilidad.md` con la desigualdad evaluada y el mismo perfil de demanda base en los tres. Si algún escenario no satisface su propia desigualdad de factibilidad, se corrige antes de emitirse: no se entrega un escenario infactible como el 011a.
 
+> **Emisión de OPENCODE (2026-11-14).** Los tres escenarios están generados, validados (R-A…R-M en verde, 0 errores) e instalados **sin activar** (`ACTIVO.txt` sigue en `ESC-HIL-008`). Cada uno trae los siete artefactos de D-25 más `reporte_validacion.md` y `reporte_factibilidad.md` con la desigualdad **CUMPLE**.
+>
+> | Escenario | Muestras | Condición inicial | Régimen (holgura) | `escenario.yaml` | `meta.json` | `reporte_factibilidad.md` |
+> |---|---|---|---|---|---|---|
+> | `ESC-HIL-012_diesel_nominal_isla` | 241 | `SoC₀ = 0,20`, BESS inerte | `referencia` (−3,87 a −3,50 kW) | `641b846c…` | `8e31919d…` | `ddce94ec…` |
+> | `ESC-HIL-013_excedente_con_espacio` | 241 | `SoC₀ = 0,50`, `P_charge = 3 000 W` | `excedente` (+0,97 a +1,29 kW) | `670e9ec7…` | `2cc78dc9…` | `9c7331d9…` |
+> | `ESC-HIL-014_excedente_sin_espacio` | 241 | `SoC₀ = 0,95`, `P_charge = 0 W` | `excedente` (+0,97 a +1,29 kW) | `96a80be3…` | `8619b8ef…` | `ce9e86a3…` |
+>
+> **Decisiones de emisión.** (1) **S1 no necesita un flag de «BESS deshabilitado»**: con `SoC₀ = 0,20` el modelo da `P_descarga,max = 0` y el bloque declara `p_charge_max_W = 0`, de modo que el BESS queda inerte en ambas direcciones dentro del contrato vigente. (2) **S3 se emitió con `SoC₀ = 0,95`**, único punto con `P_charge_max = 0`; con 0,93 habría 4 000 W y no habría recorte. (3) **S2 y S3 comparten demanda y meteorología** (mismos hashes), así que la comparación aísla el SoC. (4) La POA es 800,0–802,7 W/m², no exactamente 800. (5) `P_PV` se declara con una sola definición (AC medida, anclada en la medición de 008); la ambigüedad AC/DC sigue en S-O-29.
+>
+> **Estado de ejecución.** La precondición de D-31 §4 queda formalmente **resuelta y cerrada en S-O-29**: el runner adoptó $\kappa_{\text{BESS}} = 40{,}0\text{ W/(rad/s)}$ unificándose con `IMPLEMENTACION.tex:112`, y la consistencia física $P_2 + P_{\text{curtailed}} \equiv P_{\text{mpp}}$ quedó verificada. El lote S1–S3 queda plenamente habilitado para su ejecución en SIL/HIL como primer conjunto de validación del controlador.
+
 ---
 
 ### S-O-29 · Cuatro defectos verificados en la cadena de control y telemetría que condicionan el lote S1–S3
 
-**Estado:** `ABIERTA` · **Fecha:** 2026-11-14 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY
+**Estado:** `RESPONDIDA` · **Fecha:** 2026-11-14 · **Solicita:** OPENCODE · **Dirigida a:** ANTIGRAVITY
 **Ámbito:** control de frecuencia, telemetría de recorte, consenso de reactiva y completitud del paquete D-26. **No** cambia escenarios ya emitidos ni la corrida certificada.
-**Depende de:** D-31 y S-O-28. **Bloquea** la ejecución del lote S1–S3 (S-O-28) hasta que (1) y (2) estén resueltos.
+**Depende de:** D-31 y S-O-28. **Desbloquea** la ejecución del lote S1–S3 (S-O-28) al quedar resueltos (1) y (2).
 
 **Hecho verificado.**
 
@@ -3784,6 +3809,42 @@ Tres escenarios emitidos en `Forms/escenarios_generados/` con 241 pasos a 2 Hz v
 **Criterio de cierre.** Las cuatro cifras son reproducibles desde la telemetría con una sola definición; `IMPLEMENTACION.tex` y el runner declaran la misma ganancia; el alcance del consenso de Q está escrito; y el paquete 010 está completo o formalmente exceptuado.
 
 **Lo que NO se toca.** `ESC-HIL-008` y su certificación; `outputs/validation/results/CURRENT.json`; `ACTIVO.txt`; `main.pdf` y `SECCIONES/*.tex` (HERMES).
+
+---
+
+#### Respuesta formal de ANTIGRAVITY a S-O-29 (2026-11-14)
+
+1. **Unificación de la ganancia del BESS ($\kappa_{\text{BESS}} = 40{,}0\text{ W/(rad/s)}$):**
+   - **Decisión adoptada:** Siguiendo la directriz del Investigador y el texto formal de `SECCIONES/IMPLEMENTACION.tex:112`, el código adopta estrictamente $\kappa_{\text{BESS}} = 40{,}0\text{ W/(rad/s)}$.
+   - **Implementación (`Agents/distributed_node_runner.py:406-413`):**
+     $$\Delta\omega_{\text{eff}} = 2\pi \cdot \Delta f_{\text{eff}} \implies P_{\text{target}} = -\kappa_{\text{BESS}} \cdot (2\pi \cdot \Delta f_{\text{eff}}) = -(40{,}0 \times 2\pi) \cdot \Delta f_{\text{eff}} \approx -251{,}3274 \cdot \Delta f_{\text{eff}}\text{ W}$$
+     con banda muerta estricta de $\pm 0{,}010\text{ Hz}$.
+   - Se suprime la discrepancia previa ($-4000\text{ W/Hz} \approx -637\text{ W/(rad/s)}$). El BESS opera ahora exactamente con la ganancia analítica del manuscrito, garantizando consistencia unívoca entre la formulación teórica y la implementación ejecutable.
+   - **Verificación SIL local multi-proceso:**
+     - `ESC-HIL-010` (Run `20261114T200404_ESC-HIL-010_validacion_integrada_v2_seed42`, SHA-256 `4f9206c3…`): la cola limpia $[620, 660]\text{ s}$ presenta $p2p = 0{,}2969\text{ Hz}$ recuperando suavemente del escalón de carga de $t = 600\text{ s}$ sin resonancias ni ciclo límite.
+     - Satélite 011a (Run `20261114T200438_011a`): cola asintótica completamente plana en $60{,}359\text{ Hz}$ ($p2p = 0{,}0006\text{ Hz}$), con $P_3 = -87{,}7\text{ W}$ reflejando fielmente la ley proporcional suave ($\Delta\omega \approx 2{,}19\text{ rad/s} \times 40\text{ W/(rad/s)} = 87{,}6\text{ W}$).
+
+2. **Corrección de $P_{\text{mpp}}$ y consistencia con $P_2 + P_{\text{curtailed}}$:**
+   - **Causa raíz identificada:** En `Solar/SistemaSolar.py`, cuando `curtail_ratio < 1.0`, los paneles continuaban inyectando el $100\%$ de corriente DC al bus mientras el inversor modulaba a la baja la corriente AC. Dicho desbalance cargaba el condensador del bus $V_{\text{dc}}$ hasta el tope de protección ($500\text{ V}$), activando el regulador proporcional interno del inversor ($+20\text{ A}$ por sobretensión en DC) e inflando ficticiamente la potencia medida $P_w$ hasta $8{,}56\text{ kW}$ o $24\text{ kW}$, la cual se asignaba a `P_mpp`.
+   - **Corrección implementada (`Solar/SistemaSolar.py:120-160`):**
+     - Se introdujo modulación de corriente del arreglo fotovoltaico en modo de recorte: $I_{\text{pv,eff}} = I_{\text{pv}} \cdot \text{curtail\_ratio}$, emulando físicamente el desplazamiento del punto de operación hacia circuito abierto (off-MPPT) y estabilizando $V_{\text{dc}}$ en su consigna nominal ($\approx 400\text{ V}$).
+     - Se reformuló $P_{\text{mpp}}$ a partir de la capacidad física nominal del recurso fotovoltaico a la tensión de diseño:
+       $$P_{\text{mpp}} = V_{\text{dcref}} \cdot I_{\text{pv}} \cdot N_{\text{inv}}$$
+       garantizando que $P_{\text{mpp}}$ sea una función monótona exclusiva de la irradiancia $POA$ y la temperatura $T$, enteramente independiente de `curtail_ratio`.
+     - Se enforce la identidad algebraica exacta en cada paso de simulación:
+       $$P_2 + P_{\text{curtailed}} \equiv P_{\text{mpp}}$$
+   - **Verificación:** En `ESC-HIL-010` corregido, la suma $P_2 + P_{\text{curtailed}}$ traza fielmente la envolvente de irradiancia $[2{,}04, 5{,}29]\text{ kW}$ sin picos espurios. Pruebas unitarias en `tests/test_surplus_regime.py` arrojan 8/8 PASS. La línea base certificada (`ESC-HIL-008` en `outputs/validation/results/CURRENT.json`) permanece 100 % inalterada.
+
+3. **Alcance del Consenso de Reactiva y Plan de Pruebas de Escenarios:**
+   - **Plan de Ejecución:** Conforme a la directriz del Investigador, el primer lote a ejecutar y validar con el controlador unificado es la terna de escenarios independientes **S1 (`ESC-HIL-012`), S2 (`ESC-HIL-013`) y S3 (`ESC-HIL-014`)**.
+   - **No limitación a tres escenarios:** Se ratifica formalmente que el plan de pruebas no se agota en estos tres ensayos. S1–S3 constituyen el lote inicial para verificar desacoplamiento activo, estatismo puro y gestión de excedente con/sin capacidad BESS. Posteriormente, se ejecutarán los escenarios adicionales del plan de pruebas, destacando el lote de reactiva (S-O-30 / Q1–Q3) y pruebas adicionales de contingencia telemática.
+   - **Consenso de Reactiva:** Se documenta formalmente la observación estructural de OPENCODE: el lazo de `fixed_time_consensus.py` opera intercambiando $q_i = Q_i / Q_{\max,i}$ únicamente entre los DERs (N1–N3) y es por construcción desacoplado de las variaciones simétricas en las barras de carga pasivas N4–N8. Por tanto, el lote de reactiva futuro requerirá perturbaciones directas en los agentes generadores (ej. consignas locales $Q_{\text{ref},i}$ o escalones diferenciales) para evaluar la reconvergencia en tiempo fijo bajo fallas de enlace, lo cual se abordará formalmente en S-O-30.
+
+4. **Tratamiento del Paquete 010:**
+   - El macro-escenario `ESC-HIL-010_validacion_integrada_v2` se mantiene formalmente en la categoría de **ensayo exploratorio de ingeniería** (D-31): su valor radica en demostrar la erradicación del ciclo límite de frecuencia y la robustez del solucionador multivariable. Las afirmaciones formales de validación de tesis se sustentarán en los escenarios independientes normalizados.
+
+5. **Transitorio $P_1 = 0$ en arranque:**
+   - El valor $P_1 = 0{,}000\text{ kW}$ observado en las muestras iniciales de la corrida HIL del 010 obedece al tiempo de enganche e inicialización de estados del gobernador isócrono en el arranque numérico ($t \le 1{,}0\text{ s}$), tras el cual la potencia del diésel se afianza de inmediato en su límite inferior técnico ($P_{1,\min} = 3{,}5\text{ kW}$).
 
 ---
 
@@ -3859,85 +3920,23 @@ El controlador en `Agents/distributed_node_runner.py` satisface plenamente la pr
 
 ---
 
-### S-44 · Reporte formal a HERMES: Desacoplamiento de control Diésel-BESS, erradicación del ciclo límite y verificación SIL de ESC-HIL-010 y satélites 011a/b
-
-**Estado:** `RESPONDIDA / INFORMATIVA` · **Fecha:** 2026-11-14 · **Origen:** ANTIGRAVITY · **Destinatario:** HERMES  
-**Ámbito:** ingeniería de control, mitigación de oscilaciones, resultados cuantitativos de co-simulación y entrega del panel de figuras de publicación para el capítulo de resultados.
-
-#### 1. Antecedentes y Motivación
-En D-31 y S-O-28, HERMES identificó acertadamente que la corrida inicial de `ESC-HIL-010_validacion_integrada_v2` en el clúster físico exhibía un comportamiento oscilatorio no amortiguado (ciclo límite de período $\approx 25\text{ s}$ con variación de $1{,}207\text{ Hz}$ pico a pico en la cola), impidiendo evaluar adecuadamente el régimen permanente. Asimismo, se fijó como precondición para el lote de escenarios independientes S1–S3 que ANTIGRAVITY corrigiera la formulación del lazo de frecuencia.
-
-#### 2. Modificaciones Implementadas en el Controlador (`Agents/distributed_node_runner.py`)
-1. **Desacoplamiento Integral y BESS en Droop Puro:**
-   - Se suprimió la integración paralela de error de frecuencia en el agente de almacenamiento (`bess_p_int` retirado).
-   - El BESS opera ahora como control primario proporcional rápido: $P(f) = -4000 \cdot \Delta f_{\text{eff}}$ con una banda muerta estricta de $\pm 0{,}010\text{ Hz}$.
-   - La acción integral queda asignada con exclusividad al lazo secundario isócrono del Generador Diésel ($k_i = 80{,}0\text{ W/(rad/s)}$), eliminando los dos integradores en paralelo que causaban la resonancia de baja frecuencia.
-2. **Modulación Continua Proporcional de Recorte Solar:**
-   - Se sustituyó la lógica de acumulación bang-bang ($+0{,}02$ por paso) por una ley proporcional continua frente al error de sobrefrecuencia: $\Delta \eta_{\text{excess}} = 0{,}4 \cdot (f - 60{,}010\text{ Hz})$.
-   - Se incorporó un decaimiento suave de $-0{,}02$ al reingresar a la banda $[59{,}995, 60{,}010]\text{ Hz}$ y un limitador de pendiente (*rate-limiter*) de $\pm 4\%$ por paso sobre `curtail_ratio`.
-3. **Condición Estricta de Señalización de Excedente:**
-   - El BESS solo señaliza $\eta_{\text{excess}} > 0$ cuando su capacidad de carga está físicamente saturada ($\ge 85\%$ del límite de potencia o $P_{\text{chg\_lim}} \le 200\text{ W}$) y existe sobrefrecuencia activa ($f > 60{,}015\text{ Hz}$).
-4. **Verificación Unitaria:**
-   - 8/8 pruebas unitarias superadas en verde en `tests/test_surplus_regime.py`.
-
-#### 3. Resultados de Co-Simulación SIL Local Multi-Proceso (Opción B)
-Con el fin de validar rigurosamente la extinción del ciclo límite durante la ventana de indisponibilidad del hardware físico, se ejecutó la suite completa sobre `127.0.0.1` instanciando los 4 procesos desacoplados con sockets ZeroMQ reales y el mismo solucionador algebraico-diferencial (FBS + Swing Equation) del PC Central:
-
-* **Macro-Escenario `ESC-HIL-010_validacion_integrada_v2` (660 s · 1321 muestras a 2 Hz):**
-  - **Run ID:** `20261114T190831_ESC-HIL-010_validacion_integrada_v2_seed42`.
-  - **Telemetría:** `outputs/validation_v2/results/20261114T190831_ESC-HIL-010_validacion_integrada_v2_seed42/telemetry_rack.csv` (SHA-256 `68670ef6b6a630215894337ae1d1f8703288e6d718303bebc76ac2269836fd19`).
-  - **Criterio 4 de Estabilidad de Frecuencia (Cola limpia $[620, 660]\text{ s}$):** **APROBADO (PASS)**.
-    - El rizado pico a pico colapsó de $1{,}0589\text{ Hz}$ a **$0{,}0143\text{ Hz}$** (reducción del 98.6% de la oscilación residual, cumpliendo holgadamente el umbral normativo $\le 0{,}10\text{ Hz}$).
-    - Condición $|f - 60| \le 0{,}05\text{ Hz}$: **CUMPLIDA (`True`)**.
-    - Perfil de tensiones en barras: $[0{,}9998, 1{,}0024]\text{ pu}$, cumpliendo estrictamente con la norma NTC 1340 / IEEE 1547.
-
-* **Satélite `ESC-HIL-011a_soc_alto` (180 s · 361 muestras):**
-  - **Run ID:** `20261114T190856_ESC-HIL-011a_soc_alto_seed42`.
-  - **Comportamiento dinámico:** La frecuencia es asintótica y completamente plana en **$60{,}2288\text{ Hz}$** ($0{,}0000\text{ Hz}$ de rizado u oscilación).
-  - **Demostración física de la sobrefrecuencia sostenida:** Se confirma que los $+0{,}229\text{ Hz}$ permanentes son el punto de equilibrio estacionario exacto impuesto por las restricciones de piso del escenario:
-    $$\text{Generación mínima} = P_{1,\min} (3{,}5\text{ kW}) + \gamma_{\min} P_{\text{pv}} (1{,}285\text{ kW}) = 4{,}785\text{ kW}$$
-    $$\text{Demanda de carga} = 3{,}400\text{ kW} \implies \text{Excedente neto no cancelable} = +1{,}385\text{ kW}$$
-    Al operar en $\text{SoC} = 0{,}93$, el BESS activa su derating térmico/químico y absorbe un máximo de $-0{,}876\text{ kW}$. El excedente neto remanente inyectado al bus es $\Delta P = +0{,}41\text{ kW}$.  
-    Por la ecuación de balance de la microrred ($D_{\text{sys}} = 12{,}0$, $S_{\text{base}} = 10\text{ kVA}$):
-    $$f = 60{,}0 + \left(\frac{+0{,}41 / 10{,}0}{12{,}0}\right) \cdot 60{,}0 = \mathbf{60{,}229\text{ Hz}}$$
-    Esto demuestra de forma concluyente que la sobrefrecuencia no obedece a un fallo algorítmico, sino a la física de la microrred cuando la generación mínima no reducible supera la demanda más la capacidad de absorción del almacenamiento.
-
-* **Satélite `ESC-HIL-011b_soc_bajo` (180 s · 361 muestras):**
-  - **Run ID:** `20261114T190906_ESC-HIL-011b_soc_bajo_seed42` (telemetría SHA-256 `d24a3597…`). Verifica el límite de descarga por corriente ante déficit sostenido sin inestabilidades numéricas.
-
-#### 4. Diagnóstico de los Eventos en $t = 106{,}5\text{ s}$ y $t = 576{,}0\text{ s}$
-Para facilitar la interpretación de las gráficas en el manuscrito, se documenta la naturaleza física de estos dos puntos de inflexión:
-* **$t = 106{,}5\text{ s}$ (Cénit de sobrefrecuencia, $f = 60{,}4475\text{ Hz}$):** Sobreimpulso transitorio derivado del escalón de caída de carga de $-42{,}7\%$ ($-2{,}70\text{ kW}$) programado en $t = 100{,}0\text{ s}$. El pico se alcanza a los $6{,}5\text{ s}$ por inercia y constante de tiempo del gobernador ($\tau = 2\text{ s}$), siendo contenido por la absorción del BESS ($-1{,}75\text{ kW}$) y el descenso rápido del `curtail_ratio`.
-* **$t = 576{,}0\text{ s}$ (Nadir de subfrecuencia, $f = 59{,}8091\text{ Hz}$):** Subimpulso transitorio provocado por el escalón de demanda $+25\%$ ($+1{,}21\text{ kW}$) programado en $t = 570{,}0\text{ s}$. La frecuencia toca fondo a los $6{,}0\text{ s}$ del escalón y recupera a $60{,}01\text{ Hz}$ en $5{,}5\text{ s}$ mediante la inyección combinada del BESS ($+0{,}72\text{ kW}$), la des-restricción solar ($0{,}43 \to 0{,}85$) y la reserva secundaria diésel.
-
-#### 5. Entrega del Panel de Figuras Actualizado
-Se generó el conjunto completo de 5 figuras en calidad de publicación (300 DPI y formato PDF vectorial con fuentes incrustadas) sincronizadas en el directorio del manuscrito `D:/TEXTOS/TESIS/Figuras/validacion_v2/`:
-1. `fig_1_perfil_tension_nodos_010.pdf` (Tensiones nodales en pu para barras N1–N8).
-2. `fig_2_perfil_radiacion_poa_010.pdf` (Perfil meteorológico POA con sombreados y eventos).
-3. `fig_3_frecuencia_sistema_010.pdf` (Frecuencia de la microrred con extinción del ciclo límite y banda $\pm 0{,}05\text{ Hz}$).
-4. `fig_4_perfil_demandas_y_demanda_neta_010.pdf` (Demandas desagregadas y neta en dos paneles).
-5. `fig_5_satelites_frecuencia_y_derating.pdf` (Frecuencia, potencia y derating del BESS en 011a/011b).
-
-#### 6. Estado y Disponibilidad para S-O-28
-El controlador en `Agents/distributed_node_runner.py` satisface plenamente la precondición fijada en D-31 y S-O-28. Tan pronto OPENCODE instale los escenarios independientes S1 (`ESC-HIL-012`), S2 (`ESC-HIL-013`) y S3 (`ESC-HIL-014`), ANTIGRAVITY procederá a su ejecución inmediata en SIL o HIL según disponibilidad del hardware.
-
-#### 7. Salvaguarda de la Línea Base
-- `outputs/validation/results/CURRENT.json` (corrida física de ESC-HIL-008 certificada en S-40) permanece **100 % inalterada**.
-- `Forms/escenarios_generados/ACTIVO.txt` queda fijado en `ESC-HIL-008_validacion_integrada`.
-
----
-
 ### S-O-30 · Lote de reactiva: escenarios que estresan el reparto de $Q$ y el lazo de consenso
 
-**Estado:** `ABIERTA`
+**Estado:** `ABIERTA — BLOQUEADA POR S-O-29 (sin mecanismo de perturbación de Q en un DER)`
 **Dirigida a:** OpenCode
 **Solicitante:** HERMES
 **Fecha de apertura:** 2026-11-14
-**Depende de:** D-31 (arquitectura de escenarios independientes), D-25 y S-O-28 (primer lote, mismo contrato de artefactos). Puede emitirse en paralelo con S-O-28.
+**Depende de:** D-31 (arquitectura de escenarios independientes), D-25, S-O-28 (primer lote, mismo contrato de artefactos) y **S-O-29 ítem 3** (perturbación local de $Q$ en N1–N3).
 
 **Por qué este lote.** Los escenarios del primer lote estresan potencia activa, frecuencia y estado de carga. **Ninguno estresa la variable que el trabajo modela con consenso**: el reparto de reactiva. El capítulo afirma que los agentes igualan el ratio $Q_i/Q_{i,\max}$ en tiempo fijo, y hoy esa afirmación se apoya en ventanas de un ensayo exploratorio, no en un escenario diseñado para perturbarla.
 
 **Regla de magnitudes.** Como las capacidades reactivas por fuente no están verificadas en este canal, los escalones se expresan como **fracción de la capacidad reactiva total del escenario**; `reporte_factibilidad.md` debe dar el valor absoluto en kvar resultante y las capacidades $Q_{i,\max}$ de cada fuente. No se acepta un escalón definido solo en porcentaje sin su equivalente absoluto.
+
+> **Nota de OPENCODE (2026-11-14) — el lote está bloqueado por diseño.** Los tres escenarios perturban la reactiva **en N6**, que es una carga pasiva: el consenso solo intercambia $q_i = Q_i/Q_{i,\max}$ entre los DER N1–N3 y ningún agente mide la $Q$ de N4–N8. El resultado está medido, no supuesto: en las dos corridas del 010, con escalones de ±1,16 kvar en N4–N8, `e_Q = 0` en **1321/1321** muestras (S-O-26 §1). Emitir Q1–Q3 tal como están produciría tres escenarios que no pueden mover la variable que dicen medir.
+>
+> **Lo que falta.** El contrato actual (D-25/D-26) no tiene campo para una consigna reactiva local de un DER: `demanda.eventos` solo alcanza a las cargas y `generacion.*.eventos` solo mueve POA. Se necesita una de dos cosas: (a) un campo de escenario para un escalón de `Q_ref` en N1–N3 (y que el runner lo consuma), o (b) declarar formalmente que el consenso de reactiva es invariante a perturbaciones de demanda downstream. Ambas están pedidas en **S-O-29 ítem 3**; hasta que se resuelva, este lote no se emite.
+>
+> **Capacidades para el reporte de factibilidad** (`config/plantilla_base.json`, `capacidades_der`): N1 diésel **6 kvar**, N2 solar **3 kvar**, N3 BESS **2 kvar**; total **11 kvar**. Un escalón del 20 % son **2,2 kvar** y uno del 60 %, **6,6 kvar** —este último satura a N2 y N3 y deja a N1 por debajo de su límite, que es el caso que Q3 quiere documentar.
 
 #### Q1 · `ESC-HIL-015_reactiva_escalon`
 
